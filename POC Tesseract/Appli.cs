@@ -7,16 +7,17 @@ namespace POC_Tesseract
     {
         private Process processInst;
         private OCREngine ocrEngine;
+        private ImgEngine imgEngine;
 
-        public Appli(string appPath, string[] args)
+        public Appli(string appPath)
         {
             ocrEngine = new OCREngine("eng");
+            imgEngine = new ImgEngine();
             processInst = new Process()
             {
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = appPath,
-                    Arguments = string.Join(" ", args),
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
@@ -25,14 +26,20 @@ namespace POC_Tesseract
             };
         }
 
+        public Appli(string appPath, string[] args) : this(appPath)
+        {
+            processInst.StartInfo.Arguments = string.Join(" ", args);
+
+        }
+
 
         /// <summary>
         /// Starts the application.
         /// </summary>
         /// <exception cref="InvalidOperationException"></exception>
-        public void Start()
+        public void Open()
         {
-            if (processInst != null && !processInst.HasExited)
+            if (processInst != null)
             {
                 processInst.Start();
             }
@@ -74,7 +81,7 @@ namespace POC_Tesseract
         /// </summary>
         /// <param name="text"></param>
         /// <param name="timeout">in milliseconds</param>
-        public Point WaitFor(string text, int timeout = 5)
+        public Point WaitFor(string text, int timeout = 5000) //TODO wait for an element containing the text and the bitmap object
         {
             int elapsedTime = 0;
             const int interval = 100; // Check every 100 milliseconds
@@ -95,6 +102,28 @@ namespace POC_Tesseract
             return new Point(area.X + area.Width / 2, area.Y + area.Height / 2);
         }
 
+        public Point WaitFor(Bitmap image, int timeout = 60000) //TODO wait for an element containing the text and the bitmap object
+        {
+            int elapsedTime = 0;
+            const int interval = 100; // Check every 100 milliseconds
+            Rectangle area;
+
+            // Wait for the text to appear on the screen
+            while (!imgEngine.Find(GetScreen(), image, out area))
+            {
+                if (elapsedTime >= timeout)
+                {
+                    throw new TimeoutException($"The image did not appear within the timeout period of {timeout} milliseconds.");
+                }
+
+                Wait(interval);
+                elapsedTime += interval;
+                Console.WriteLine($"Imagee not found.");
+            }
+
+            return new Point(area.X + area.Width / 2, area.Y + area.Height / 2);
+        }
+
 
         /// <summary>
         /// Waits for a specified amount of time.
@@ -109,12 +138,11 @@ namespace POC_Tesseract
         /// <summary>
         /// Closes the application and releases resources.
         /// </summary>
-        public void Close()
+        public void Close()//TODO fix the closing of the process
         {
-            if (processInst != null && !processInst.HasExited)
-            {
-                processInst.CloseMainWindow();
-            }
+            processInst.CloseMainWindow();
+            processInst.Close();
+            processInst.Dispose();
         }
     }
 }

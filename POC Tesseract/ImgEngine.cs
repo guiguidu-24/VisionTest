@@ -1,6 +1,6 @@
-﻿using System.Drawing;
-using OpenCvSharp;
+﻿using OpenCvSharp;
 using OpenCvSharp.Extensions;
+using System.Drawing;
 
 
 namespace POC_Tesseract
@@ -17,19 +17,18 @@ namespace POC_Tesseract
             this.threshold = threshold;
         }
 
-        private Mat BitmapToMat(Bitmap image)
+        public ImgEngine()
         {
-            // Convert Bitmap to Mat
-            Mat mat = new Mat();
-            BitmapConverter.ToMat(image, mat);
-            return mat;
+            // Default constructor with default threshold
         }
+
 
         public bool Find(Bitmap image, Bitmap target, out Rectangle area)
         {
             // Load images
-            using Mat bigImage = BitmapConverter.ToMap(image); //TODO trouver la bonne fonction de conversion bitmap-mat
-            using Mat smallImage = BitmapToMat(target);
+            using Mat bigImage = ConvertToBGRA(BitmapConverter.ToMat(image));
+            using Mat smallImage = ConvertToBGRA(BitmapConverter.ToMat(target));
+
 
             // Result image to store match confidence
             using Mat result = new Mat();
@@ -54,5 +53,41 @@ namespace POC_Tesseract
                 return false;
             }
         }
+
+
+
+        #region helper preprocessing methods
+        /// <summary>
+        /// Convertit une image Bitmap en Mat OpenCV au format BGRA.
+        /// </summary>
+        /// <param name="src"></param>
+        /// <returns></returns>
+        /// <exception cref="NotSupportedException"></exception>
+        private static Mat ConvertToBGRA(Mat src)
+        {
+            return src.Channels() switch
+            {
+                3 => ConvertTo(src, ColorConversionCodes.BGR2BGRA),
+                1 => ConvertTo(src, ColorConversionCodes.GRAY2BGRA),
+                4 => src.Clone(), // déjà en BGRA
+                _ => throw new NotSupportedException($"Nombre de canaux non supporté : {src.Channels()}")
+            };
+        }
+
+        /// <summary>
+        /// Convertit une image Mat OpenCV en une autre couleur.
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="code"></param>
+        /// <returns></returns>
+        private static Mat ConvertTo(Mat src, ColorConversionCodes code)
+        {
+            Mat dst = new();
+            Cv2.CvtColor(src, dst, code);
+            return dst;
+        }
+
+        #endregion
     }
+
 }

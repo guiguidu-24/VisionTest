@@ -176,5 +176,31 @@ namespace POC_Tesseract
                 Console.WriteLine("No strong match found.");
             }
         }
+
+        public static void textAsImage()
+        {
+            var appli = new Appli("notepad", new string[] { @"..\..\..\..\TestTesseract\engText.txt" });
+            var imgEngine = new ImgEngine(0.9f);
+
+            appli.Open();
+            using var target = new Bitmap(@"..\..\..\TargetImages\cottonLike2.png");
+
+            var point = appli.WaitFor(target);
+            appli.Click(point);
+
+            if (point != System.Drawing.Point.Empty)
+            {
+                using var screen = appli.GetScreen();
+                var graphics = Graphics.FromImage(screen);
+                graphics.DrawIcon(SystemIcons.Shield, point.X, point.Y);
+                screen.Save(@"..\..\..\cottonResult.png");
+            }
+            else
+            {
+                Console.WriteLine("No match found.");
+            }
+
+            appli.Close();
+        }
     }
 }

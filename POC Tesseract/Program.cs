@@ -1,23 +1,9 @@
-﻿using OpenCvSharp;
-using POC_Tesseract;
+﻿using POC_Tesseract;
 
-var appli = new Appli("notepad", new string[] { "E:\\Projects data\\POC_Tesseract\\TestTesseract\\engText.txt" });
-var imgEngine = new ImgEngine(0.9f);
 
-var img = appli.GetScreen();
-var target = new Bitmap("E:\\Projects data\\POC_Tesseract\\TestTesseract\\cotton-like.png");
-
-if (imgEngine.Find(img, target, out Rectangle area))
-{
-    Pen pen = new Pen(Color.Red, 2);
-    using (Graphics g = Graphics.FromImage(img))
-    {
-        g.DrawRectangle(pen, area);
-    }
-    img.Save("E:\\Projects data\\POC_Tesseract\\TestTesseract\\cottonResult.png");
-}
-else
-{
-    Console.WriteLine("No match found.");
-}
+var appli = new Appli("notepad");
+appli.Open();
+appli.Wait(5000);
+appli.Close();
+Console.WriteLine("Notepad opened and closed after 5 seconds.");
 

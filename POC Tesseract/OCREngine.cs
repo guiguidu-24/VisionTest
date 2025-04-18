@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-using System.Threading.Tasks;
-using Tesseract;
+﻿using Tesseract;
 
 namespace POC_Tesseract
 {
     internal class OCREngine
     {
         private string language;
-        private string datapath = "E:\\Projects data\\POC_Tesseract\\POC Tesseract\\tessdata\\"; //TODO: make it relative 
+        private string datapath = @"..\..\..\tessdata\"; //TODO: make it relative 
 
         public OCREngine(string language)
         {
@@ -27,7 +20,7 @@ namespace POC_Tesseract
 
 
 
-        public bool Find(Bitmap image, string text, out Rectangle area)
+        public bool Find(Bitmap image, string text, out Rectangle area) //TODO implémenter la distance de levenstein
         {
             area = Rectangle.Empty;
             List<string> words = text.Split(' ').ToList();
