@@ -1,35 +1,23 @@
-﻿using System.Drawing;
-using Tesseract;
+﻿using OpenCvSharp;
+using POC_Tesseract;
 
+var appli = new Appli("notepad", new string[] { "E:\\Projects data\\POC_Tesseract\\TestTesseract\\engText.txt" });
+var imgEngine = new ImgEngine(0.9f);
 
-var imagePath = "C:\\Users\\guill\\Programmation\\dotNET_doc\\POC_Tesseract\\POC Tesseract\\LoginPage.png";
-using var img = new Bitmap(imagePath);
+var img = appli.GetScreen();
+var target = new Bitmap("E:\\Projects data\\POC_Tesseract\\TestTesseract\\cotton-like.png");
 
-//using var imgSample = img.Clone(new Rectangle(706, 448, 1210-706, 653-448), img.PixelFormat);
-//
-using var engine = new TesseractEngine("C:\\Users\\guill\\Programmation\\dotNET_doc\\POC_Tesseract\\POC Tesseract\\tessdata\\", "fra", EngineMode.Default);
-//
-//using var container = engine.Process(imgSample);
-//
-//Console.WriteLine("Text inside the part of the image:");
-//Console.WriteLine(container.GetText());
-
-
-using Page page = engine.Process(img);
-var iterator = page.GetIterator();
-iterator.Begin();
-
-do
+if (imgEngine.Find(img, target, out Rectangle area))
 {
-    string lineText = iterator.GetText(PageIteratorLevel.TextLine);
-    if (!string.IsNullOrEmpty(lineText) && lineText.Contains("se connecter", StringComparison.OrdinalIgnoreCase))
+    Pen pen = new Pen(Color.Red, 2);
+    using (Graphics g = Graphics.FromImage(img))
     {
-        if (iterator.TryGetBoundingBox(PageIteratorLevel.TextLine, out var rect))
-        {
-            Console.WriteLine($"Found text: {lineText}");
-            Console.WriteLine($"Bounding box: {rect.X1}, {rect.Y1}, {rect.X2}, {rect.Y2}");
-            return;
-        }
+        g.DrawRectangle(pen, area);
     }
-} while (iterator.Next(PageIteratorLevel.TextLine));
+    img.Save("E:\\Projects data\\POC_Tesseract\\TestTesseract\\cottonResult.png");
+}
+else
+{
+    Console.WriteLine("No match found.");
+}
 
