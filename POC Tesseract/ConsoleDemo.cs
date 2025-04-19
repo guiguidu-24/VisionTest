@@ -143,7 +143,7 @@ namespace POC_Tesseract
             screen.Save("E:\\Projects data\\POC_Tesseract\\TestTesseract\\screenshot.png", System.Drawing.Imaging.ImageFormat.Png);
 
 
-            appli.Close();
+            appli.CloseWindow();
         }
 
         public static void imageRun()
@@ -200,7 +200,7 @@ namespace POC_Tesseract
                 Console.WriteLine("No match found.");
             }
 
-            appli.Close();
+            appli.CloseWindow();
         }
     }
 }

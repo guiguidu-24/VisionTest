@@ -1,35 +1,36 @@
-﻿using System.Diagnostics;
+﻿using POC_Tesseract.UserInterface;
+using System.Diagnostics;
 
 
 namespace POC_Tesseract
 {
-    internal class Appli
+    public class Appli
     {
-        private Process processInst;
         private OCREngine ocrEngine;
         private ImgEngine imgEngine;
+        private ProcessStartInfo processStartInfo;
+        private string processName;
 
         public Appli(string appPath)
         {
             ocrEngine = new OCREngine("eng");
             imgEngine = new ImgEngine();
-            processInst = new Process()
+
+            processStartInfo = new ProcessStartInfo
             {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = appPath,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    CreateNoWindow = false
-                }
+                FileName = appPath,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = false
             };
+
+            processName = String.Empty;
         }
 
         public Appli(string appPath, string[] args) : this(appPath)
         {
-            processInst.StartInfo.Arguments = string.Join(" ", args);
-
+            processStartInfo.Arguments = string.Join(" ", args);
         }
 
 
@@ -39,14 +40,10 @@ namespace POC_Tesseract
         /// <exception cref="InvalidOperationException"></exception>
         public void Open()
         {
-            if (processInst != null)
-            {
-                processInst.Start();
-            }
-            else
-            {
-                throw new InvalidOperationException($"Impossible to start the process");
-            }
+
+            var processInst = new Process() { StartInfo = processStartInfo };
+            processInst.Start();
+            this.processName = processInst.ProcessName;
         }
 
         /// <summary>
@@ -55,6 +52,11 @@ namespace POC_Tesseract
         /// <returns></returns>
         public Bitmap GetScreen()
         {
+            if (Screen.PrimaryScreen == null)
+            {
+                throw new InvalidOperationException("Primary screen is not available.");
+            }
+
             Rectangle bounds = Screen.PrimaryScreen.Bounds;
 
             Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height);
@@ -102,7 +104,14 @@ namespace POC_Tesseract
             return new Point(area.X + area.Width / 2, area.Y + area.Height / 2);
         }
 
-        public Point WaitFor(Bitmap image, int timeout = 60000) //TODO wait for an element containing the text and the bitmap object
+        /// <summary>
+        /// Waits for a specific image to appear on the screen.
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="timeout"></param>
+        /// <returns></returns>
+        /// <exception cref="TimeoutException"></exception>
+        public Point WaitFor(Bitmap image, int timeout = 5000) //TODO wait for an element containing the text and the bitmap object
         {
             int elapsedTime = 0;
             const int interval = 100; // Check every 100 milliseconds
@@ -136,13 +145,62 @@ namespace POC_Tesseract
 
 
         /// <summary>
-        /// Closes the application and releases resources.
+        /// Closes the application window
         /// </summary>
-        public void Close()//TODO fix the closing of the process
+        public void CloseWindow()
         {
-            processInst.CloseMainWindow();
-            processInst.Close();
-            processInst.Dispose();
+            /*
+            Keyboard.KeyDown((byte)VirtualKeyCode.VK_LMENU);
+            Keyboard.KeyDown((byte)VirtualKeyCode.VK_F4);
+
+            Wait(50);
+
+            Keyboard.KeyUp((byte)VirtualKeyCode.VK_LMENU);
+            Keyboard.KeyUp((byte)VirtualKeyCode.VK_F4);
+            */
+
+            var processes = Process.GetProcessesByName(processName);
+
+            foreach (Process process in processes)
+            {
+                if (!process.CloseMainWindow())
+                    throw new InvalidOperationException($"Failed to close the process {process.ProcessName}.");
+            }
+        }
+
+        /// <summary>
+        /// Resizes the window of the application to the specified width and height.
+        /// </summary>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        public void ResizeWindow(int width, int height)
+        {
+            var processes = Process.GetProcessesByName(processName);
+            foreach (Process process in processes)
+            {
+                Window.Resize(width, height, process.MainWindowHandle);
+            }
+        }
+
+        /// <summary>
+        /// Maximizes the window of the application.
+        /// </summary>
+        public void MaximizeWindow()
+        {
+            var processes = Process.GetProcessesByName(processName);
+            foreach (Process process in processes)
+            {
+                Window.MaximizeWindow(process.MainWindowHandle);
+            }
+        }
+
+        /// <summary>
+        /// Simulates a keyboard input of the specified text.
+        /// </summary>
+        /// <param name="text"></param>
+        public void Write(string text)
+        {
+            Keyboard.WriteString(text);
         }
     }
 }
