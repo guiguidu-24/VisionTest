@@ -25,6 +25,8 @@ namespace POC_Tesseract
 
         public bool Find(Bitmap image, Bitmap target, out Rectangle area)
         {
+            area = Rectangle.Empty;
+
             // Load images
             using Mat bigImage = ConvertToBGRA(BitmapConverter.ToMat(image));
             using Mat smallImage = ConvertToBGRA(BitmapConverter.ToMat(target));
@@ -49,7 +51,6 @@ namespace POC_Tesseract
             }
             else
             {
-                area = Rectangle.Empty;
                 return false;
             }
         }

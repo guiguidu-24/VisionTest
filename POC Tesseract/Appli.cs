@@ -127,12 +127,52 @@ namespace POC_Tesseract
 
                 Wait(interval);
                 elapsedTime += interval;
-                Console.WriteLine($"Imagee not found.");
             }
 
             return new Point(area.X + area.Width / 2, area.Y + area.Height / 2);
         }
 
+        /// <summary>
+        /// Waits for a specific screen element to appear on the screen.
+        /// </summary>
+        /// <param name="elt"></param>
+        /// <param name="timeout">The maximum time to wait for</param>
+        /// <returns></returns>
+        /// <exception cref="TimeoutException"></exception>
+        public Point WaitFor(ScreenElement elt, int timeout = 5000)
+        {
+            int elapsedTime = 0;
+            const int interval = 100; // Check every 100 milliseconds
+            Rectangle area = Rectangle.Empty;
+
+            // Wait for either the image or the text to appear on the screen
+            while (true)
+            {
+                // Check for the image
+                if (elt.Image != default && imgEngine.Find(GetScreen(), elt.Image, out area))
+                {
+                    break; // Image found
+                }
+
+                // Check for the text
+                if (elt.Text != default && ocrEngine.Find(GetScreen(), elt.Text, out area))
+                {
+                    break; // Text found
+                }
+
+                // Check if timeout has been reached
+                if (elapsedTime >= timeout)
+                {
+                    throw new TimeoutException($"The element was not found within the timeout period of {timeout} milliseconds.");
+                }
+
+                Wait(interval);
+                elapsedTime += interval;
+            }
+
+            // Return the center point of the found area
+            return new Point(area.X + area.Width / 2, area.Y + area.Height / 2);
+        }
 
         /// <summary>
         /// Waits for a specified amount of time.

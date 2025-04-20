@@ -2,23 +2,19 @@
 
 namespace POC_Tesseract
 {
-    namespace ScreenElementDetection
+    public struct ScreenElement
     {
-        public class ScreenElement
+        public ScreenElement()
         {
-            public Rectangle Box { get; set; }
-            public string ReferenceImagePath { get; set; }
-            public By Locator { get; set; }
-            public string Text { get; set; }
-
-            public ScreenElement(Rectangle box, string referenceImagePath, By locator, string text = "")
-            {
-                Box = box;
-                ReferenceImagePath = referenceImagePath;
-                Locator = locator;
-                Text = text;
-            }
+            Box = default;
+            Image = default;
+            Locator = default;
+            Text = default;
         }
-    }
 
+        public Rectangle Box { get; set; }
+        public Bitmap? Image { get; set; }
+        public By? Locator { get; set; }
+        public string? Text { get; set; }
+    }
 }

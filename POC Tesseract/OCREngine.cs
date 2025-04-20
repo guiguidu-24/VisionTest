@@ -1,28 +1,43 @@
 ﻿using Tesseract;
+using System.Configuration;
 
 namespace POC_Tesseract
 {
-    internal class OCREngine
+    public class OCREngine
     {
         private string language;
-        private string datapath = @"..\..\..\tessdata\"; //TODO: make it relative 
+        private string datapath; // vaut ./tessdata
 
         public OCREngine(string language)
         {
             this.language = language;
+
+            // Retrieving the Tesseract data path from App.config
+            this.datapath = ConfigurationManager.AppSettings["TesseractDataPath"]
+                            ?? throw new ConfigurationErrorsException("La clé 'TesseractDataPath' est manquante dans App.config.");
         }
 
-        public OCREngine(string language,string datapath)
+        public OCREngine(string language, string datapath)
         {
             this.language = language;
             this.datapath = datapath;
         }
 
-
-
-        public bool Find(Bitmap image, string text, out Rectangle area) //TODO implémenter la distance de levenstein
+        /// <summary>
+        /// Finds the text in the image and returns the area of the text.
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="text"></param>
+        /// <param name="area"></param>
+        /// <returns></returns>
+        public bool Find(Bitmap image, string text, out Rectangle area)
         {
             area = Rectangle.Empty;
+            if (text == string.Empty)
+            {
+                throw new ArgumentException("Text cannot be empty.", nameof(text));
+            }
+
             List<string> words = text.Split(' ').ToList();
             using var engine = new TesseractEngine(datapath, language, EngineMode.Default);
 
@@ -79,12 +94,6 @@ namespace POC_Tesseract
             } while (iterator.Next(PageIteratorLevel.TextLine));
 
             return false;
-        }
-
-
-        public bool Find(Bitmap image, string text, out Rectangle area, Rectangle inside)
-        {
-            return Find(image.Clone(inside, image.PixelFormat), text, out area);
         }
     }
 }
