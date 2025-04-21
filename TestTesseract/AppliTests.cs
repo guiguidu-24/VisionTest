@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using POC_Tesseract;
-using TestSUT;
 using WindowsInput;
 
 namespace TestTesseract

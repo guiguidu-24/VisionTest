@@ -1,5 +1,4 @@
 ﻿using POC_Tesseract.UserInterface;
-using System.Collections.Frozen;
 using System.Diagnostics;
 using WindowsInput;
 
@@ -54,17 +53,23 @@ namespace POC_Tesseract
         /// <returns></returns>
         public Bitmap GetScreen()
         {
-            if (Screen.PrimaryScreen == null)
+            if (System.Windows.Forms.Screen.PrimaryScreen == null)
             {
                 throw new InvalidOperationException("Primary screen is not available.");
             }
 
-            Rectangle bounds = Screen.PrimaryScreen.Bounds;
+            Rectangle bounds = new Rectangle( //TODO make the resolution dynamic
+                0,
+                0,
+                1280,
+                720
+            );
 
             Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height);
             using Graphics g = Graphics.FromImage(bitmap);
             g.CopyFromScreen(Point.Empty, Point.Empty, bounds.Size);
 
+            bitmap.Save("C:\\Users\\guill\\Programmation\\dotNET_doc\\POC_Tesseract\\POC Tesseract\\screenshot.png", System.Drawing.Imaging.ImageFormat.Png);
             return bitmap;
         }
 
@@ -85,7 +90,7 @@ namespace POC_Tesseract
         /// </summary>
         /// <param name="text"></param>
         /// <param name="timeout">in milliseconds</param>
-        public Point WaitFor(string text, int timeout = 5000) //TODO wait for an element containing the text and the bitmap object
+        public Point WaitFor(string text, int timeout = 5000)
         {
             int elapsedTime = 0;
             const int interval = 100; // Check every 100 milliseconds
@@ -113,7 +118,7 @@ namespace POC_Tesseract
         /// <param name="timeout"></param>
         /// <returns></returns>
         /// <exception cref="TimeoutException"></exception>
-        public Point WaitFor(Bitmap image, int timeout = 5000) //TODO wait for an element containing the text and the bitmap object
+        public Point WaitFor(Bitmap image, int timeout = 5000)
         {
             int elapsedTime = 0;
             const int interval = 100; // Check every 100 milliseconds
