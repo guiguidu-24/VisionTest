@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using POC_Tesseract;
+using TestSUT;
+using WindowsInput;
 
 namespace TestTesseract
 {
@@ -14,7 +16,7 @@ namespace TestTesseract
         public void Setup()
         {
             // Initialisation avant chaque test
-            appli = new Appli("notepad");
+            appli = new Appli("notepad"); //TODO: Tests non fonctionnels à cause du path du Tessract
         }
 
         [TearDown]

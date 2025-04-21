@@ -1,5 +1,7 @@
 ﻿using POC_Tesseract.UserInterface;
+using System.Collections.Frozen;
 using System.Diagnostics;
+using WindowsInput;
 
 
 namespace POC_Tesseract
@@ -74,7 +76,7 @@ namespace POC_Tesseract
         /// <param name="y"></param>
         public void Click(Point point)
         {
-            Mouse.ClickAt(point.X, point.Y);
+            Simulate.Events().MoveTo(point.X, point.Y).Click().Invoke().Wait();
         }
 
 
@@ -189,16 +191,6 @@ namespace POC_Tesseract
         /// </summary>
         public void CloseWindow()
         {
-            /*
-            Keyboard.KeyDown((byte)VirtualKeyCode.VK_LMENU);
-            Keyboard.KeyDown((byte)VirtualKeyCode.VK_F4);
-
-            Wait(50);
-
-            Keyboard.KeyUp((byte)VirtualKeyCode.VK_LMENU);
-            Keyboard.KeyUp((byte)VirtualKeyCode.VK_F4);
-            */
-
             var processes = Process.GetProcessesByName(processName);
 
             foreach (Process process in processes)
@@ -240,7 +232,7 @@ namespace POC_Tesseract
         /// <param name="text"></param>
         public void Write(string text)
         {
-            Keyboard.WriteString(text);
+            Simulate.Events().Click(text).Invoke().Wait();
         }
     }
 }

@@ -17,6 +17,7 @@
     <PackageReference Include="System.Drawing.Common" Version="9.0.4" />
     <PackageReference Include="Tesseract" Version="5.2.0" />
     <PackageReference Include="Tesseract.Drawing" Version="5.2.0" />
+    <PackageReference Include="WindowsInput" Version="6.4.1" />
   </ItemGroup>
 
 </Project>
