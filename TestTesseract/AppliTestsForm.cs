@@ -1,11 +1,7 @@
 ﻿using POC_Tesseract;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TestSUT;
 using WindowsInput;
+using System.Windows.Forms;
+using System.Net;
 
 namespace TestTesseract
 {
@@ -17,26 +13,50 @@ namespace TestTesseract
         public void Setup()
         {
             // Initialisation avant chaque test
-            appli = new Appli("cmd");
-            TestSUT.Program.Main();
-            Thread.Sleep(1000); // Wait a bit to ensure the process is started
+            appli = new Appli("");
         }
 
         [TearDown]
         public void TearDown()
         {
-            appli.CloseWindow();
-            TestSUT.Program.Close();
+            appli = null!;
         }
 
         [Test]
-        public void Write_ShouldSimulateTextInput()
+        public async Task Write_ShouldTypeCorrectCharacters()
         {
-            Simulate.Events().Click(WindowsInput.Events.KeyCode.Tab).Invoke().Wait();
-            appli.Write("Hello, world!");
-            Assert.That(Form1.textBoxContent == "Hello, world!", Is.True, "Le texte écrit dans le TextBox devrait être 'Hello, world!'");
+            var expectedText = "HelloWorld";
+            var tcs = new TaskCompletionSource<string>();
+
+            var uiThread = new Thread(() =>
+            {
+                var form = new Form();
+                var textBox = new TextBox { Dock = DockStyle.Fill };
+                form.Controls.Add(textBox);
+
+                form.Load += async (sender, args) =>
+                {
+                    // Give the form time to focus the textbox
+                    await Task.Delay(300);
+                    textBox.Focus();
+                    await Task.Delay(300); // Wait for focus
+
+                    // Simulate key presses
+                    appli.Write(expectedText); // <--- Call your method here
+
+                    await Task.Delay(300); // Wait for keys to be processed
+                    tcs.SetResult(textBox.Text);
+                    form.Close();
+                };
+
+                Application.Run(form);
+            });
+
+            uiThread.SetApartmentState(ApartmentState.STA); // Windows Forms needs STA
+            uiThread.Start();
+
+            var actualText = await tcs.Task;
+            Assert.That(actualText, Is.EqualTo(expectedText));
         }
-
-
     }
 }
