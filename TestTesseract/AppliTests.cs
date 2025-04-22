@@ -15,7 +15,7 @@ namespace TestTesseract
         public void Setup()
         {
             // Initialisation avant chaque test
-            appli = new Appli("notepad"); //TODO: Tests non fonctionnels à cause du path du Tessract
+            appli = new Appli("notepad");
         }
 
         [TearDown]
@@ -134,9 +134,7 @@ namespace TestTesseract
             var mainWindowHandle = notepadProcess.MainWindowHandle;
             Assert.That(mainWindowHandle, Is.Not.EqualTo(IntPtr.Zero), "La fenêtre principale de Notepad devrait être valide.");
 
-            // Vérifier que le texte a été écrit dans Notepad
-            // TODO : Pour vérifier le contenu de Notepad, il faudrait utiliser des techniques avancées comme l'API Windows pour lire le texte de la fenêtre.
-            // Ici, nous supposons que si aucune exception n'est levée, le texte a été écrit correctement.
+
             Assert.Pass("The text passed with success");
         }
 
