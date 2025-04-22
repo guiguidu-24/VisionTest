@@ -10,13 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="TestResources.resx.example">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>TestResources.resx.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="TestResources.resx" />
   </ItemGroup>
 
@@ -42,11 +35,6 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
-    <Compile Update="TestResources.resx.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>TestResources.resx.example</DependentUpon>
-    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -54,6 +42,12 @@
       <LastGenOutput>TestResources.Designer.cs</LastGenOutput>
       <Generator>ResXFileCodeGenerator</Generator>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="TestResources.resx.example">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
 
 </Project>
