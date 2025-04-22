@@ -1,29 +1,55 @@
-﻿namespace POC_Tesseract.UserInterface
+﻿using System.Runtime.InteropServices;
+
+
+namespace POC_Tesseract.UserInterface
 {
-    public static class Screen
+    public class Screen
     {
-        public static Rectangle Bounds { get; private set; }
-        public static int Width => Bounds.Width;
-        public static int Height => Bounds.Height;
+        public static int Width => (int)((System.Windows.Forms.Screen.PrimaryScreen?.Bounds.Width ?? 0) * GetScaleFactor());
+        public static int Height => (int)((System.Windows.Forms.Screen.PrimaryScreen?.Bounds.Height ?? 0) * GetScaleFactor());
 
-        static Screen()
+        [DllImport("Shcore.dll")]
+        private static extern int GetScaleFactorForMonitor(IntPtr hMonitor, out DEVICE_SCALE_FACTOR scale);
+
+        [DllImport("User32.dll")]
+        private static extern IntPtr MonitorFromPoint(POINT pt, MONITOR_DEFAULTTO dwFlags);
+
+        private enum MONITOR_DEFAULTTO : uint
         {
-            // Crée un formulaire invisible pour déterminer la taille de l'écran
-            using (var form = new Form())
+            MONITOR_DEFAULTTONULL = 0,
+            MONITOR_DEFAULTTOPRIMARY = 1,
+            MONITOR_DEFAULTTONEAREST = 2
+        }
+
+        private enum DEVICE_SCALE_FACTOR
+        {
+            SCALE_100_PERCENT = 100,
+            SCALE_125_PERCENT = 125,
+            SCALE_150_PERCENT = 150,
+            SCALE_175_PERCENT = 175,
+            SCALE_200_PERCENT = 200,
+            // etc.
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct POINT
+        {
+            public int X;
+            public int Y;
+        }
+
+        public static float GetScaleFactor()
+        {
+            POINT pt = new POINT { X = 1, Y = 1 }; // coin haut gauche
+            IntPtr hMonitor = MonitorFromPoint(pt, MONITOR_DEFAULTTO.MONITOR_DEFAULTTONEAREST);
+
+            if (GetScaleFactorForMonitor(hMonitor, out DEVICE_SCALE_FACTOR scale) == 0)
             {
-                form.FormBorderStyle = FormBorderStyle.None; // Supprime les bordures
-                form.StartPosition = FormStartPosition.Manual; // Positionne la fenêtre manuellement
-                form.Location = new Point(0, 0); // Place la fenêtre en haut à gauche
-                form.ShowInTaskbar = false; // Ne pas afficher dans la barre des tâches
-                form.Opacity = 0; // Rendre le formulaire invisible
-
-                // Affiche et maximise la fenêtre
-                form.Show();
-                form.WindowState = FormWindowState.Maximized;
-
-                // Récupère la taille de la fenêtre maximisée
-                Bounds = new Rectangle(0, 0, form.Width, form.Height);
+                return (float)scale / 100f;
             }
+
+            return 1.0f; // fallback
         }
     }
+
 }

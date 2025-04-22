@@ -1,6 +1,5 @@
-using NUnit.Framework;
 using POC_Tesseract.UserInterface;
-using System.Drawing;
+using System.Resources;
 
 namespace TestTesseract
 {
@@ -10,20 +9,40 @@ namespace TestTesseract
         [Test]
         public void Screen_ShouldHaveCorrectBounds()
         {
-            // Dimensions connues de l'écran (à adapter selon votre environnement)
-            const int expectedWidth = 1920;
-            const int expectedHeight = 1080;
+            // Load expected dimensions from TestResources.resx
+            var resourceManager = new ResourceManager("TestTesseract.TestResources", typeof(ScreenTests).Assembly);
+            var widthString = resourceManager.GetString("ScreenWidth");
+            var heightString = resourceManager.GetString("ScreenHeight");
 
-            // Vérifie les dimensions de l'écran
             Assert.Multiple(() =>
             {
-                Assert.That(Screen.Width, Is.EqualTo(expectedWidth), "La largeur de l'écran ne correspond pas à la valeur attendue.");
-                Assert.That(Screen.Height, Is.EqualTo(expectedHeight), "La hauteur de l'écran ne correspond pas à la valeur attendue.");
+                Assert.That(widthString, Is.Not.Null.And.Not.Empty, "'ScreenWidth' value in resources is empty or null.");
+                Assert.That(heightString, Is.Not.Null.And.Not.Empty, "'ScreenHeight' value in resources is empty or null.");
             });
 
-            // Vérifie les coordonnées du rectangle Bounds
-            var expectedBounds = new Rectangle(0, 0, expectedWidth, expectedHeight);
-            Assert.That(Screen.Bounds, Is.EqualTo(expectedBounds), "Les dimensions du rectangle Bounds ne correspondent pas à la valeur attendue.");
+            var expectedWidth = int.Parse(widthString);
+            var expectedHeight = int.Parse(heightString);
+
+            // Verify screen dimensions
+            Assert.Multiple(() =>
+            {
+                Assert.That(Screen.Width, Is.EqualTo(expectedWidth), "The screen width does not match the expected value.");
+                Assert.That(Screen.Height, Is.EqualTo(expectedHeight), "The screen height does not match the expected value.");
+            });
+        }
+
+        [Test]
+        public void GetScaleFactor_ShouldMatchResourceValue()
+        {
+            // Load the expected value from TestResources.resx  
+            var resourceManager = new ResourceManager("TestTesseract.TestResources", typeof(ScreenTests).Assembly);
+            var scaleFactorString = resourceManager.GetString("ScreenScale");
+            Assert.That(scaleFactorString, Is.Not.Null.And.Not.Empty, "'ScreenScale' value in resources is empty or null.");
+            var expectedScaleFactor = float.Parse(scaleFactorString.TrimEnd('%')) / 100;
+
+            // Call the method and verify the value  
+            var actualScaleFactor = Screen.GetScaleFactor();
+            Assert.That(actualScaleFactor, Is.EqualTo(expectedScaleFactor), "The returned scale factor does not match the expected value in resources.");
         }
     }
 }

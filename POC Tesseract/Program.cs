@@ -15,3 +15,7 @@ namespace POC_Tesseract
         }
     }
 }
+
+
+//TODO : Make an element recorder for the tests. The recorder should be a Visual Studio Extension with a window
+//that pops up and enables you to make image treatment and choose witch attributes you want to use.

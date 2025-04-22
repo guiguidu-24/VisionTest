@@ -138,6 +138,25 @@ namespace TestTesseract
             Assert.Pass("The text passed with success");
         }
 
+        [Test]
+        public void GetScreen_ShouldCaptureFullScreenWithCorrectDimensions()
+        {
+            // Arrange  
+            appli.Open();
+            Thread.Sleep(1000); // Wait for the application to open  
+
+            int expectedWidth = int.Parse(TestResources.ScreenWidth ?? throw new FileFormatException("The value with the key ScreenWidth is empty in the file TestResources.resx"));
+            int expectedHeight = int.Parse(TestResources.ScreenHeight ?? throw new FileFormatException("The value with the key ScreenHeight is empty in the file TestResources.resx"));
+
+            // Act  
+            var screenshot = appli.GetScreen();
+
+            // Assert  
+            Assert.IsNotNull(screenshot, "The screenshot should not be null.");
+            Assert.That(screenshot.Width, Is.EqualTo(expectedWidth), $"The screenshot width should be {expectedWidth}.");
+            Assert.That(screenshot.Height, Is.EqualTo(expectedHeight), $"The screenshot height should be {expectedHeight}.");
+        }
+
 
     }
 }

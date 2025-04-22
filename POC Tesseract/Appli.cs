@@ -59,7 +59,13 @@ namespace POC_Tesseract
                 throw new InvalidOperationException("Primary screen is not available.");
             }
 
-            Rectangle bounds = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
+            Rectangle bounds = new Rectangle(
+                0,
+                0,
+                UserInterface.Screen.Width,
+                UserInterface.Screen.Height
+            );
+
 
             Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height);
             using Graphics g = Graphics.FromImage(bitmap);
@@ -106,7 +112,7 @@ namespace POC_Tesseract
             }
 
             return new Point(area.X + area.Width / 2, area.Y + area.Height / 2);
-        }
+        } 
 
         /// <summary>
         /// Waits for a specific image to appear on the screen.
@@ -184,7 +190,7 @@ namespace POC_Tesseract
         /// <param name="ms"></param>
         public void Wait(int ms)
         {
-            Thread.Sleep(ms);
+            Task.Delay(ms).Wait();
         }
 
         /// <summary>

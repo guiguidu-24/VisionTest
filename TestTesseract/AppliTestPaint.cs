@@ -1,5 +1,7 @@
 ﻿using System.Drawing;
+using System.Resources;
 using POC_Tesseract;
+using WindowsInput;
 
 
 namespace TestTesseract
@@ -8,15 +10,20 @@ namespace TestTesseract
     internal class AppliTestPaint
     {
         private Appli appli;
-        private string paintPath = @"C:\Windows\System32\mspaint.exe";
+        private string paintPath = string.Empty;// TestResources.PaintPath;// @"C:\Windows\System32\mspaint.exe";
         private string bigImagePath = @"..\..\..\images\big.png";
         private string smallImagePath = @"..\..\..\images\small.png";
 
         [SetUp]
         public void Setup()
         {
+            var resourceManager = new ResourceManager("TestTesseract.TestResources", typeof(AppliTestPaint).Assembly);
+            var stringPaintPath = resourceManager.GetString("PaintPath");
+            Assert.That(stringPaintPath, Is.Not.Null.And.Not.Empty, "'PaintPath' value in resources is empty or null.");
+            paintPath = stringPaintPath;
+
             // Ensure the paths exist  
-            if (!File.Exists(paintPath))
+            if (paintPath.Contains(".exe") && !File.Exists(paintPath))
                 throw new FileNotFoundException("Paint application not found.", paintPath);
 
             if (!File.Exists(bigImagePath))
@@ -41,8 +48,11 @@ namespace TestTesseract
             appli.Wait(1000); // Wait for the application to open and load the image
             // Maximize the Paint window  
             appli.MaximizeWindow();
+            Simulate.Events().Click(WindowsInput.Events.KeyCode.F11).Invoke().Wait();
+            appli.Wait(500); // Wait for the application to maximize
+
             var screen = appli.GetScreen();
-            screen.Save(@"E:\Projects data\POC_Tesseract\TestTesseract\screenshot.png");
+            screen.Save(@"C:\Users\guill\Programmation\dotNET_doc\POC_Tesseract\TestTesseract\screenshot.png");
 
             // Load the small image  
             Bitmap smallImage = new Bitmap(smallImagePath);

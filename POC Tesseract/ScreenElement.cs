@@ -2,7 +2,7 @@
 
 namespace POC_Tesseract
 {
-    public struct ScreenElement
+    public struct ScreenElement //TODO : an element can have multiple images of reference and image treatment settings for each one
     {
         public ScreenElement()
         {
