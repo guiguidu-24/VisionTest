@@ -2,7 +2,7 @@
 
 namespace TestTesseract
 {
-    internal partial class AppliTests
+    internal partial class AppliTest
     {
         [DllImport("user32.dll")]
         private static extern bool GetWindowPlacement(IntPtr hWnd, ref WINDOWPLACEMENT lpwndpl);

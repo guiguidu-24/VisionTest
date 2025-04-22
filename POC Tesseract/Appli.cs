@@ -1,6 +1,7 @@
 ﻿using POC_Tesseract.UserInterface;
 using System.Diagnostics;
 using WindowsInput;
+using WindowsInput.Events;
 
 
 namespace POC_Tesseract
@@ -58,18 +59,13 @@ namespace POC_Tesseract
                 throw new InvalidOperationException("Primary screen is not available.");
             }
 
-            Rectangle bounds = new Rectangle( //TODO make the resolution dynamic
-                0,
-                0,
-                1280,
-                720
-            );
+            Rectangle bounds = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
 
             Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height);
             using Graphics g = Graphics.FromImage(bitmap);
             g.CopyFromScreen(Point.Empty, Point.Empty, bounds.Size);
 
-            bitmap.Save("C:\\Users\\guill\\Programmation\\dotNET_doc\\POC_Tesseract\\POC Tesseract\\screenshot.png", System.Drawing.Imaging.ImageFormat.Png);
+
             return bitmap;
         }
 
@@ -81,7 +77,8 @@ namespace POC_Tesseract
         /// <param name="y"></param>
         public void Click(Point point)
         {
-            Simulate.Events().MoveTo(point.X, point.Y).Click().Invoke().Wait();
+            Simulate.Events().MoveTo(point.X, point.Y).Invoke().Wait();
+            Simulate.Events().Click(ButtonCode.Left).Invoke().Wait();
         }
 
 
@@ -190,7 +187,6 @@ namespace POC_Tesseract
             Thread.Sleep(ms);
         }
 
-
         /// <summary>
         /// Closes the application window
         /// </summary>
@@ -200,8 +196,9 @@ namespace POC_Tesseract
 
             foreach (Process process in processes)
             {
-                if (!process.CloseMainWindow())
-                    throw new InvalidOperationException($"Failed to close the process {process.ProcessName}.");
+                //if (!process.CloseMainWindow())
+                //    throw new InvalidOperationException($"Failed to close the process {process.ProcessName}.");
+                process.Kill();
             }
         }
 

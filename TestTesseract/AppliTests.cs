@@ -7,7 +7,7 @@ namespace TestTesseract
     /// <summary>
     /// Tests for the Appli class.
     /// </summary>
-    internal partial class AppliTests
+    internal partial class AppliTest
     {
         private Appli appli;
 
@@ -139,5 +139,7 @@ namespace TestTesseract
             // Ici, nous supposons que si aucune exception n'est levée, le texte a été écrit correctement.
             Assert.Pass("The text passed with success");
         }
+
+
     }
 }
