@@ -17,8 +17,8 @@ namespace TestTesseract
         [SetUp]
         public void Setup()
         {
-            var resourceManager = new ResourceManager("TestTesseract.TestResources", typeof(AppliTestPaint).Assembly);
-            var stringPaintPath = resourceManager.GetString("PaintPath");
+            //var resourceManager = new ResourceManager("TestTesseract.TestResources", typeof(AppliTestPaint).Assembly);
+            var stringPaintPath = TestResources.PaintPath; // resourceManager.GetString("PaintPath");
             Assert.That(stringPaintPath, Is.Not.Null.And.Not.Empty, "'PaintPath' value in resources is empty or null.");
             paintPath = stringPaintPath;
 
@@ -38,8 +38,8 @@ namespace TestTesseract
         [Test]
         public void WaitFor_ImageAppearsWithinTimeout_ReturnsCorrectPosition()
         {
-            const int expectedX = 313;
-            const int expectedY = 722;
+            int expectedX = int.Parse(TestResources.bigX ?? throw new NullReferenceException("'bigX' value in resources is empty or null.")); //313; //309
+            int expectedY = int.Parse(TestResources.bigY ?? throw new NullReferenceException("'bigY' value in resources is empty or null.")); //722; //577
             const int tolerance = 10;
 
             // Open Paint with the big image  
@@ -52,7 +52,7 @@ namespace TestTesseract
             appli.Wait(500); // Wait for the application to maximize
 
             var screen = appli.GetScreen();
-            screen.Save(@"C:\Users\guill\Programmation\dotNET_doc\POC_Tesseract\TestTesseract\screenshot.png");
+            //screen.Save(@"E:\Projects data\POC_Tesseract\TestTesseract\screenshot.png");
 
             // Load the small image  
             Bitmap smallImage = new Bitmap(smallImagePath);
@@ -82,8 +82,8 @@ namespace TestTesseract
         [Test]
         public void WaitForElement_ImageAppearsWithinTimeout_ReturnsCorrectPosition()
         {
-            const int expectedX = 313;
-            const int expectedY = 722;
+            int expectedX = int.Parse(TestResources.bigX ?? throw new NullReferenceException("'bigX' value in resources is empty or null."));//13;
+            int expectedY = int.Parse(TestResources.bigY ?? throw new NullReferenceException("'bigY' value in resources is empty or null."));//722;
             const int tolerance = 10;
 
             // Open Paint with the big image  
@@ -92,8 +92,10 @@ namespace TestTesseract
             appli.Wait(1000); // Wait for the application to open and load the image
             // Maximize the Paint window  
             appli.MaximizeWindow();
+            Simulate.Events().Click(WindowsInput.Events.KeyCode.F11).Invoke().Wait();
+            appli.Wait(500); // Wait for the application to maximize
             var screen = appli.GetScreen();
-            screen.Save(@"E:\Projects data\POC_Tesseract\TestTesseract\screenshot.png");
+            //screen.Save(@"E:\Projects data\POC_Tesseract\TestTesseract\screenshot.png");
 
             // Load the small image  
             Bitmap smallImage = new Bitmap(smallImagePath);

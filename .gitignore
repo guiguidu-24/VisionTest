@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 /POC Tesseract/App.config
 /TestTesseract/TestResources.resx
+/TestTesseract/TestResources.Designer.cs
