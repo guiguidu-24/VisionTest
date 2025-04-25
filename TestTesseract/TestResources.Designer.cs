@@ -61,7 +61,25 @@ namespace TestTesseract {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to mspaint.
+        ///   Looks up a localized string similar to 309.
+        /// </summary>
+        internal static string bigX {
+            get {
+                return ResourceManager.GetString("bigX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 577.
+        /// </summary>
+        internal static string bigY {
+            get {
+                return ResourceManager.GetString("bigY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to C:\Windows\system32\mspaint.exe.
         /// </summary>
         internal static string PaintPath {
             get {
@@ -79,7 +97,7 @@ namespace TestTesseract {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 150%.
+        ///   Looks up a localized string similar to 100%.
         /// </summary>
         internal static string ScreenScale {
             get {
