@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TestTesseract {
+namespace TestsImplementation {
     using System;
     
     
@@ -22,14 +22,14 @@ namespace TestTesseract {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class TestResources {
+    internal class LocalResources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal TestResources() {
+        internal LocalResources() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace TestTesseract {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestTesseract.TestResources", typeof(TestResources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestsImplementation.LocalResources", typeof(LocalResources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,56 +61,20 @@ namespace TestTesseract {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 309.
+        ///   Looks up a localized string similar to C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe.
         /// </summary>
-        internal static string bigX {
+        internal static string Msedge {
             get {
-                return ResourceManager.GetString("bigX", resourceCulture);
+                return ResourceManager.GetString("Msedge", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 577.
+        ///   Looks up a localized string similar to ..\..\..\TestScriptData.
         /// </summary>
-        internal static string bigY {
+        internal static string TestScriptData {
             get {
-                return ResourceManager.GetString("bigY", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to C:\Windows\system32\mspaint.exe.
-        /// </summary>
-        internal static string PaintPath {
-            get {
-                return ResourceManager.GetString("PaintPath", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to 1080.
-        /// </summary>
-        internal static string ScreenHeight {
-            get {
-                return ResourceManager.GetString("ScreenHeight", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to 100%.
-        /// </summary>
-        internal static string ScreenScale {
-            get {
-                return ResourceManager.GetString("ScreenScale", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to 1920.
-        /// </summary>
-        internal static string ScreenWidth {
-            get {
-                return ResourceManager.GetString("ScreenWidth", resourceCulture);
+                return ResourceManager.GetString("TestScriptData", resourceCulture);
             }
         }
     }

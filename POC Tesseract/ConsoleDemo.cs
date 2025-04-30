@@ -180,7 +180,7 @@ namespace POC_Tesseract
         public static void textAsImage()
         {
             var appli = new Appli("notepad", new string[] { @"..\..\..\..\TestTesseract\engText.txt" });
-            var imgEngine = new ImgEngine(0.9f);
+            var imgEngine = new ImgEngine();
 
             appli.Open();
             using var target = new Bitmap(@"..\..\..\TargetImages\cottonLike2.png");

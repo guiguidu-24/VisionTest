@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using WindowsInput;
 using WindowsInput.Events;
+using static System.Net.Mime.MediaTypeNames;
 
 
 namespace POC_Tesseract
@@ -83,8 +84,41 @@ namespace POC_Tesseract
         /// <param name="y"></param>
         public void Click(Point point)
         {
-            Simulate.Events().MoveTo(point.X, point.Y).Invoke().Wait();
+            Simulate.Events().MoveTo((int)(point.X/UserInterface.Screen.GetScaleFactor()), (int)(point.Y / UserInterface.Screen.GetScaleFactor())).Invoke().Wait();
             Simulate.Events().Click(ButtonCode.Left).Invoke().Wait();
+        }
+
+        /// <summary>
+        /// Simulates a mouse click on a specific text on the screen.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="timeout"></param>
+        public void Click(string text, int timeout = 5000)
+        {
+            var point = WaitFor(text, timeout);
+            Click(point);
+        }
+
+        /// <summary>
+        /// Simulates a mouse click on a specific image on the screen.
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="timeout"></param>
+        public void Click(Bitmap image, int timeout = 5000)
+        {
+            var point = WaitFor(image, timeout);
+            Click(point);
+        }
+
+        /// <summary>
+        /// Simulates a mouse click on a specific screen element.
+        /// </summary>
+        /// <param name="elt"></param>
+        /// <param name="timeout"></param>
+        public void Click(ScreenElement elt, int timeout = 5000)
+        {
+            var point = WaitFor(elt, timeout);
+            Click(point);
         }
 
 
@@ -95,20 +129,21 @@ namespace POC_Tesseract
         /// <param name="timeout">in milliseconds</param>
         public Point WaitFor(string text, int timeout = 5000)
         {
-            int elapsedTime = 0;
             const int interval = 100; // Check every 100 milliseconds
             Rectangle area;
+            DateTime start = DateTime.Now;
+            
 
             // Wait for the text to appear on the screen
             while (!ocrEngine.Find(GetScreen(), text, out area))
             {
-                if (elapsedTime >= timeout)
+                //if (elapsedTime >= timeout)
+                if (DateTime.Now.Subtract(start).TotalMilliseconds >= timeout)
                 {
                     throw new TimeoutException($"The text '{text}' did not appear within the timeout period of {timeout} milliseconds.");
                 }
 
                 Wait(interval);
-                elapsedTime += interval;
             }
 
             return new Point(area.X + area.Width / 2, area.Y + area.Height / 2);
@@ -121,22 +156,21 @@ namespace POC_Tesseract
         /// <param name="timeout"></param>
         /// <returns></returns>
         /// <exception cref="TimeoutException"></exception>
-        public Point WaitFor(Bitmap image, int timeout = 5000)
+        public Point WaitFor(Bitmap image, int timeout = 5000, float threshold = 0.9f) //TODO When you wait for an image, you should not use the path directly and not the bitmap or maybe just a database request
         {
-            int elapsedTime = 0;
+            DateTime start = DateTime.Now;
             const int interval = 100; // Check every 100 milliseconds
             Rectangle area;
 
             // Wait for the text to appear on the screen
-            while (!imgEngine.Find(GetScreen(), image, out area))
+            while (!imgEngine.Find(GetScreen(), image, out area,threshold: threshold))
             {
-                if (elapsedTime >= timeout)
+                if (DateTime.Now.Subtract(start).TotalMilliseconds >= timeout)
                 {
                     throw new TimeoutException($"The image did not appear within the timeout period of {timeout} milliseconds.");
                 }
 
                 Wait(interval);
-                elapsedTime += interval;
             }
 
             return new Point(area.X + area.Width / 2, area.Y + area.Height / 2);
@@ -151,7 +185,7 @@ namespace POC_Tesseract
         /// <exception cref="TimeoutException"></exception>
         public Point WaitFor(ScreenElement elt, int timeout = 5000)
         {
-            int elapsedTime = 0;
+            DateTime start = DateTime.Now;
             const int interval = 100; // Check every 100 milliseconds
             Rectangle area = Rectangle.Empty;
 
@@ -171,13 +205,12 @@ namespace POC_Tesseract
                 }
 
                 // Check if timeout has been reached
-                if (elapsedTime >= timeout)
+                if (DateTime.Now.Subtract(start).TotalMilliseconds >= timeout)
                 {
                     throw new TimeoutException($"The element was not found within the timeout period of {timeout} milliseconds.");
                 }
 
                 Wait(interval);
-                elapsedTime += interval;
             }
 
             // Return the center point of the found area
@@ -204,7 +237,8 @@ namespace POC_Tesseract
             {
                 //if (!process.CloseMainWindow())
                 //    throw new InvalidOperationException($"Failed to close the process {process.ProcessName}.");
-                process.Kill();
+                if (!process.CloseMainWindow())
+                    process.Kill();
             }
         }
 

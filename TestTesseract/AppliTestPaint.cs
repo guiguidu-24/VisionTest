@@ -1,5 +1,4 @@
 ﻿using System.Drawing;
-using System.Resources;
 using POC_Tesseract;
 using WindowsInput;
 
@@ -46,13 +45,13 @@ namespace TestTesseract
             appli.Open();
 
             appli.Wait(1000); // Wait for the application to open and load the image
-            // Maximize the Paint window  
             appli.MaximizeWindow();
+            appli.Wait(100); // Wait for the application to maximize
             Simulate.Events().Click(WindowsInput.Events.KeyCode.F11).Invoke().Wait();
             appli.Wait(500); // Wait for the application to maximize
 
             var screen = appli.GetScreen();
-            //screen.Save(@"E:\Projects data\POC_Tesseract\TestTesseract\screenshot.png");
+            screen.Save(@"C:\Users\guill\Programmation\dotNET_doc\POC_Tesseract\TestTesseract\screenshot.png");
 
             // Load the small image  
             Bitmap smallImage = new Bitmap(smallImagePath);

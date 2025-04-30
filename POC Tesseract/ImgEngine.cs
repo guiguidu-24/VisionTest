@@ -7,29 +7,28 @@ namespace POC_Tesseract
 {
     internal class ImgEngine
     {
-        private float threshold = 0.9f; // Default threshold for template matching
-        public ImgEngine(float threshold)
-        {
-            if (threshold < 0 || threshold > 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(threshold), "Threshold must be between 0 and 1.");
-            }
-            this.threshold = threshold;
-        }
+        //private float threshold = 0.9f; // Default threshold for template matching
+        
 
         public ImgEngine()
         {
             // Default constructor with default threshold
         }
 
-
-        public bool Find(Bitmap image, Bitmap target, out Rectangle area)
+        /// <summary>
+        /// Finds the target image in the source image using template matching.
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="target"></param>
+        /// <param name="area"></param>
+        /// <returns></returns>
+        public bool Find(Bitmap image, Bitmap target, out Rectangle area, bool color = false, float threshold = 0.9f)
         {
             area = Rectangle.Empty;
 
             // Load images
-            using Mat bigImage = ConvertToBGRA(BitmapConverter.ToMat(image));
-            using Mat smallImage = ConvertToBGRA(BitmapConverter.ToMat(target));
+            using Mat bigImage = color ? ConvertToBGRA(BitmapConverter.ToMat(image)) : ConvertToGray(BitmapConverter.ToMat(image));
+            using Mat smallImage = color ? ConvertToBGRA(BitmapConverter.ToMat(target)) : ConvertToGray(BitmapConverter.ToMat(target));
 
 
             // Result image to store match confidence
@@ -44,8 +43,6 @@ namespace POC_Tesseract
 
             if (maxVal >= threshold) // You can tweak this threshold
             {
-                Console.WriteLine($"Match found at: {maxLoc.X}, {maxLoc.Y}");
-
                 area = new Rectangle(maxLoc.X, maxLoc.Y, smallImage.Width, smallImage.Height);
                 return true;
             }
@@ -71,6 +68,23 @@ namespace POC_Tesseract
                 3 => ConvertTo(src, ColorConversionCodes.BGR2BGRA),
                 1 => ConvertTo(src, ColorConversionCodes.GRAY2BGRA),
                 4 => src.Clone(), // déjà en BGRA
+                _ => throw new NotSupportedException($"Nombre de canaux non supporté : {src.Channels()}")
+            };
+        }
+
+        /// <summary>
+        /// Converts an image Mat OpenCV to grayscale.
+        /// </summary>
+        /// <param name="src"></param>
+        /// <returns></returns>
+        /// <exception cref="NotSupportedException"></exception>
+        private static Mat ConvertToGray(Mat src)
+        {
+            return src.Channels() switch
+            {
+                3 => ConvertTo(src, ColorConversionCodes.BGR2GRAY),
+                1 => src.Clone(), // déjà en gris
+                4 => ConvertTo(src, ColorConversionCodes.BGRA2GRAY),
                 _ => throw new NotSupportedException($"Nombre de canaux non supporté : {src.Channels()}")
             };
         }
