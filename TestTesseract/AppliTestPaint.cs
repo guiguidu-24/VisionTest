@@ -98,7 +98,8 @@ namespace TestTesseract
 
             // Load the small image  
             Bitmap smallImage = new Bitmap(smallImagePath);
-            var targetElement = new ScreenElement() { Image = smallImage };
+            var targetElement = new ScreenElement();
+            targetElement.Images.Add(smallImage);
 
             try
             {

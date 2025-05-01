@@ -1,4 +1,5 @@
-﻿using POC_Tesseract.UserInterface;
+﻿using OpenCvSharp.XImgProc;
+using POC_Tesseract.UserInterface;
 using System.Diagnostics;
 using WindowsInput;
 using WindowsInput.Events;
@@ -84,7 +85,7 @@ namespace POC_Tesseract
         /// <param name="y"></param>
         public void Click(Point point)
         {
-            Simulate.Events().MoveTo((int)(point.X/UserInterface.Screen.GetScaleFactor()), (int)(point.Y / UserInterface.Screen.GetScaleFactor())).Invoke().Wait();
+            Simulate.Events().MoveTo((int)(point.X / UserInterface.Screen.GetScaleFactor()), (int)(point.Y / UserInterface.Screen.GetScaleFactor())).Invoke().Wait();
             Simulate.Events().Click(ButtonCode.Left).Invoke().Wait();
         }
 
@@ -121,7 +122,6 @@ namespace POC_Tesseract
             Click(point);
         }
 
-
         /// <summary>
         /// Waits for a specific text to appear on the screen.
         /// </summary>
@@ -132,7 +132,7 @@ namespace POC_Tesseract
             const int interval = 100; // Check every 100 milliseconds
             Rectangle area;
             DateTime start = DateTime.Now;
-            
+
 
             // Wait for the text to appear on the screen
             while (!ocrEngine.Find(GetScreen(), text, out area))
@@ -147,7 +147,7 @@ namespace POC_Tesseract
             }
 
             return new Point(area.X + area.Width / 2, area.Y + area.Height / 2);
-        } 
+        }
 
         /// <summary>
         /// Waits for a specific image to appear on the screen.
@@ -156,14 +156,14 @@ namespace POC_Tesseract
         /// <param name="timeout"></param>
         /// <returns></returns>
         /// <exception cref="TimeoutException"></exception>
-        public Point WaitFor(Bitmap image, int timeout = 5000, float threshold = 0.9f) //TODO When you wait for an image, you should not use the path directly and not the bitmap or maybe just a database request
+        public Point WaitFor(Bitmap image, int timeout = 5000, float threshold = 0.9f) //TODO When you wait for an image, you should not use the path directly and not the bitmap or maybe just a database id
         {
             DateTime start = DateTime.Now;
             const int interval = 100; // Check every 100 milliseconds
             Rectangle area;
 
             // Wait for the text to appear on the screen
-            while (!imgEngine.Find(GetScreen(), image, out area,threshold: threshold))
+            while (!imgEngine.Find(GetScreen(), image, out area, threshold: threshold))
             {
                 if (DateTime.Now.Subtract(start).TotalMilliseconds >= timeout)
                 {
@@ -183,31 +183,72 @@ namespace POC_Tesseract
         /// <param name="timeout">The maximum time to wait for</param>
         /// <returns></returns>
         /// <exception cref="TimeoutException"></exception>
-        public Point WaitFor(ScreenElement elt, int timeout = 5000)
+        public Point WaitFor(ScreenElement elt, int timeout = 5000) 
         {
             DateTime start = DateTime.Now;
             const int interval = 100; // Check every 100 milliseconds
             Rectangle area = Rectangle.Empty;
+            bool elementFound = false;
 
             // Wait for either the image or the text to appear on the screen
-            while (true)
+            while (!elementFound)
             {
-                // Check for the image
-                if (elt.Image != default && imgEngine.Find(GetScreen(), elt.Image, out area))
+                if (elt.Boxes.Count == 0)
                 {
-                    break; // Image found
-                }
+                    foreach (var img in elt.Images)
+                    {
+                        if (imgEngine.Find(GetScreen(), img, out area))
+                            elementFound = true; // Image found
 
-                // Check for the text
-                if (elt.Text != default && ocrEngine.Find(GetScreen(), elt.Text, out area))
-                {
-                    break; // Text found
-                }
+                        if (elementFound)
+                            break; // If image was found, no need to check for text
+                    }
 
-                // Check if timeout has been reached
-                if (DateTime.Now.Subtract(start).TotalMilliseconds >= timeout)
+                    // Check for the text
+                    foreach (var text in elt.Texts)
+                    {
+                        if (ocrEngine.Find(GetScreen(), text, out area))
+                            elementFound = true; // Text found
+
+                        if (elementFound)
+                            break; // If image was found, no need to check for text
+                    }
+
+                    // Check if timeout has been reached
+                    if (!elementFound && DateTime.Now.Subtract(start).TotalMilliseconds >= timeout)
+                    {
+                        throw new TimeoutException($"The element was not found within the timeout period of {timeout} milliseconds.");
+                    }
+                }
+                else
                 {
-                    throw new TimeoutException($"The element was not found within the timeout period of {timeout} milliseconds.");
+                    foreach (var box in elt.Boxes)
+                    {
+                        foreach (var img in elt.Images)
+                        {
+                            if (imgEngine.Find(GetScreen(),img, box, out area))
+                                elementFound = true; // Image found
+
+                            if (elementFound)
+                                break; // If image was found, no need to check for text
+                        }
+
+                        // Check for the text
+                        foreach (var text in elt.Texts)
+                        {
+                            if (ocrEngine.Find(GetScreen(), text, box, out area))
+                                elementFound = true; // Text found
+
+                            if (elementFound)
+                                break; // If image was found, no need to check for text
+                        }
+
+                        // Check if timeout has been reached
+                        if (!elementFound && DateTime.Now.Subtract(start).TotalMilliseconds >= timeout)
+                        {
+                            throw new TimeoutException($"The element was not found within the timeout period of {timeout} milliseconds.");
+                        }
+                    }
                 }
 
                 Wait(interval);
@@ -215,6 +256,34 @@ namespace POC_Tesseract
 
             // Return the center point of the found area
             return new Point(area.X + area.Width / 2, area.Y + area.Height / 2);
+        }
+
+        /// <summary>
+        /// Waits for any of the specified screen elements to appear on the screen.
+        /// </summary>
+        /// <param name="elts"></param>
+        /// <param name="timeout"></param>
+        /// <returns></returns>
+        /// <exception cref="TimeoutException"></exception>
+        public Point WaitFor(ScreenElement[] elts, int timeout = 5000) //TODO erase if not useful or implement sth to return witch element appeared
+        {
+            var start = DateTime.Now;
+            while (DateTime.Now.Subtract(start).TotalMilliseconds >= timeout)
+            {
+                foreach (var elt in elts)
+                {
+                    try
+                    {
+                        return WaitFor(elt, 0);
+                    }
+                    catch (TimeoutException)
+                    {
+                        // Ignore and continue to the next element
+                    }
+                }
+            }
+
+            throw new TimeoutException($"None of the elements were found within the timeout period of {timeout} milliseconds.");
         }
 
         /// <summary>
@@ -276,5 +345,26 @@ namespace POC_Tesseract
         {
             Simulate.Events().Click(text).Invoke().Wait();
         }
+
+        #region helpers
+        private void WaitForGeneral(bool condition, int timeout, string timeoutMessage)
+        {
+            const int interval = 100; // Check every 100 milliseconds
+            DateTime start = DateTime.Now;
+
+
+            // Wait for the text to appear on the screen
+            while (!condition)
+            {
+                //if (elapsedTime >= timeout)
+                if (DateTime.Now.Subtract(start).TotalMilliseconds >= timeout)
+                {
+                    throw new TimeoutException(timeoutMessage);
+                }
+
+                Wait(interval);
+            }
+        }
+        #endregion
     }
 }

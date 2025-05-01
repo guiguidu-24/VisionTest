@@ -155,7 +155,8 @@ namespace TestTesseract
         public async Task WaitforElement_ShouldReturnCenterOfTextOnScreen()
         {
             var targetText = "TargetLabelText";
-            var targetElement = new ScreenElement() { Text = targetText};
+            var targetElement = new ScreenElement();
+            targetElement.Texts.Add(targetText);
             var tcs = new TaskCompletionSource<(Point? actual, Point? expected, Exception? exception)>();
 
             var uiThread = new Thread(() =>

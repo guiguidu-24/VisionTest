@@ -95,5 +95,19 @@ namespace POC_Tesseract
 
             return false;
         }
+
+        /// <summary>
+        /// Finds the text in the image and returns the area of the text in the searching area.
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="text"></param>
+        /// <param name="boxToSearchIn">the area in the screen it is allowed to find the text</param>
+        /// <param name="area">The box around the text if the text is found</param>
+        /// <returns></returns>
+        public bool Find(Bitmap image, string text, Rectangle boxToSearchIn, out Rectangle area)
+        {
+            return Find(image.Clone(boxToSearchIn, image.PixelFormat), text, out area);
+        }
+
     }
 }

@@ -52,6 +52,20 @@ namespace POC_Tesseract
             }
         }
 
+        /// <summary>
+        /// Finds the target image in the source image part highlighted using template matching 
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="target"></param>
+        /// <param name="boxToSearchIn">The area to search the target in</param>
+        /// <param name="area"></param>
+        /// <param name="color"></param>
+        /// <param name="threshold"></param>
+        /// <returns></returns>
+        public bool Find(Bitmap image, Bitmap target, Rectangle boxToSearchIn, out Rectangle area, bool color = false, float threshold = 0.9f)
+        {
+            return Find(image.Clone(boxToSearchIn, image.PixelFormat), target, out area, color, threshold);
+        }
 
 
         #region helper preprocessing methods

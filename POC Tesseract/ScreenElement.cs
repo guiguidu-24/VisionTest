@@ -6,15 +6,12 @@ namespace POC_Tesseract
     {
         public ScreenElement()
         {
-            Box = default;
-            Image = default;
-            Locator = default;
-            Text = default;
+            //do nothing
         }
 
-        public Rectangle Box { get; set; }
-        public Bitmap? Image { get; set; }
-        public By? Locator { get; set; }
-        public string? Text { get; set; }
+        public List<Rectangle> Boxes { get; private set; } = new List<Rectangle>();
+        public List<Bitmap> Images { get; private set; } = new List<Bitmap>();
+        public List<By> Locators { get; private set; } = new List<By>();
+        public List<string> Texts { get; private set; } = new List<string>();
     }
 }
