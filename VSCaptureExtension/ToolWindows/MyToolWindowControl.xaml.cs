@@ -8,11 +8,7 @@ namespace VSCaptureExtension
         public MyToolWindowControl()
         {
             InitializeComponent();
-        }
-
-        private void button1_Click(object sender, RoutedEventArgs e)
-        {
-            VS.MessageBox.Show("VSCaptureExtension", "Button clicked");
+            DataContext = new MainViewModel();
         }
     }
 }

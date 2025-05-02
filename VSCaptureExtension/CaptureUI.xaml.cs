@@ -23,6 +23,7 @@ namespace VSCaptureExtension
         public CaptureUI()
         {
             InitializeComponent();
+            //DataContext = new MainViewModel();
         }
     }
 }

@@ -7,7 +7,7 @@
              xmlns:theming="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Imaging"
              xmlns:util="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Utilities"
              xmlns:catalog="clr-namespace:Microsoft.VisualStudio.Imaging;assembly=Microsoft.VisualStudio.ImageCatalog"
-             xmlns:toolkit="clr-namespace:Community.VisualStudio.Toolkit;assembly=Community.VisualStudio.Toolkit"
+             xmlns:toolkit="clr-namespace:Community.VisualStudio.Toolkit;assembly=Community.VisualStudio.Toolkit" xmlns:vscaptureextension="clr-namespace:VSCaptureExtension" d:DataContext="{d:DesignInstance Type=vscaptureextension:MainViewModel}"
              toolkit:Themes.UseVsTheme="True"
              mc:Ignorable="d"
              d:DesignHeight="300"
@@ -15,7 +15,7 @@
              Name="MyToolWindow">
     <Grid>
         <!-- Top-left corner button with "+" icon -->
-        <Button x:Name="AddButton" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" Height="30" Padding="5">
+        <Button x:Name="AddButton" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" Height="30" Padding="5" Command="{Binding ClickAddCommand}">
             <Button.Content>
                 <StackPanel Orientation="Horizontal">
                     <Image Source="/VSCaptureExtension;component/Resources/Add.png" Stretch="Fill" Width="auto" Height="auto" VerticalAlignment="Center" Margin="0,0,10,0"/>
