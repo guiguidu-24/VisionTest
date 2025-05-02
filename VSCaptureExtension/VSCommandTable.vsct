@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <Extern href="stdidcmd.h"/>
+  <Extern href="vsshlids.h"/>
+  <Include href="KnownImageIds.vsct"/>
+  <Include href="VSGlobals.vsct"/>
+
+  <Commands package="VSCaptureExtension">
+    <!--This section defines the elements the user can interact with, like a menu command or a button or combo box in a toolbar. -->
+    <Buttons>
+      <Button guid="VSCaptureExtension" id="MyCommand" priority="0x0100" type="Button">
+        <Parent guid="VSMainMenu" id="View.DevWindowsGroup.OtherWindows.Group1"/>
+        <Icon guid="ImageCatalogGuid" id="FigureCaptionTag" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <Strings>
+          <ButtonText>Capture screen element</ButtonText>
+          <LocCanonicalName>.View.MyToolWindow</LocCanonicalName>
+        </Strings>
+      </Button>
+    </Buttons>
+  </Commands>
+
+  <Symbols>
+    <GuidSymbol name="VSCaptureExtension" value="{4af58620-e11d-464e-aad1-21ff69ba591b}">
+      <IDSymbol name="MyCommand" value="0x0100" />
+    </GuidSymbol>
+  </Symbols>
+</CommandTable>
