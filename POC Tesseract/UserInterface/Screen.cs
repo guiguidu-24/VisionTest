@@ -50,6 +50,29 @@ namespace POC_Tesseract.UserInterface
 
             return 1.0f; // fallback
         }
+
+        public static Bitmap ScreenCapture()
+        {
+            if (System.Windows.Forms.Screen.PrimaryScreen == null)
+            {
+                throw new InvalidOperationException("Primary screen is not available.");
+            }
+
+            Rectangle bounds = new Rectangle(
+                0,
+                0,
+                UserInterface.Screen.Width,
+                UserInterface.Screen.Height
+            );
+
+
+            Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height);
+            using Graphics g = Graphics.FromImage(bitmap);
+            g.CopyFromScreen(Point.Empty, Point.Empty, bounds.Size);
+
+
+            return bitmap;
+        }
     }
 
 }

@@ -1,8 +1,7 @@
-﻿using Microsoft.VisualStudio.RpcContracts.Commands;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Shapes;
+
 
 namespace VSCaptureExtension
 {
@@ -51,15 +50,6 @@ namespace VSCaptureExtension
             Canvas.SetTop(SelectionRect, y);
             SelectionRect.Width = width;
             SelectionRect.Height = height;
-
-            // Update the ViewModel property with the new coordinates
-            DataContext.ScreenShotZone = new Rectangle
-            {
-                X = x,
-                Y = y,
-                Width = width,
-                Height = height
-            };
         }
 
         private void Window_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -67,6 +57,27 @@ namespace VSCaptureExtension
             if (!isDrawing) return;
             isDrawing = false;
             ReleaseMouseCapture();
+
+            System.Windows.Point endPoint = e.GetPosition(MainCanvas);
+
+            double x = Math.Min(startPoint.X, endPoint.X);
+            double y = Math.Min(startPoint.Y, endPoint.Y);
+            double width = Math.Abs(endPoint.X - startPoint.X);
+            double height = Math.Abs(endPoint.Y - startPoint.Y);
+
+            // Convert to int rectangle
+            var rect = new System.Drawing.Rectangle(
+                (int)(x + this.Left),
+                (int)(y + this.Top),
+                (int)width,
+                (int)height
+            );
+
+            // Assign to ViewModel
+            if (DataContext is MainViewModel vm)
+            {
+                vm.ScreenShotZone = rect;
+            }
         }
     }
 }

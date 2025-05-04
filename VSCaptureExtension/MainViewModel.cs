@@ -3,7 +3,8 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Shapes;
+using System.Drawing;
+
 
 namespace VSCaptureExtension
 {
@@ -17,7 +18,12 @@ namespace VSCaptureExtension
         public Rectangle ScreenShotZone
         {
             get { return screenShotZone; }
-            set { screenShotZone = value; OnPropertyChanged(); }
+            set 
+            { 
+                screenShotZone = value;
+                //Take a screenshot of the selected area + show it in VS to validate the selection
+                OnPropertyChanged();
+            }
         }
 
         public ScreenshotShape Shape
@@ -58,9 +64,6 @@ namespace VSCaptureExtension
                 transParentWindow.Show();
             });
         }
-
-        
-
 
         public event PropertyChangedEventHandler PropertyChanged;
 
