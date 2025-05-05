@@ -10,10 +10,33 @@ namespace VSCaptureExtension
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        private Window captureUI;
-        private ScreenshotShape shape;
-        private int captureDelay;
+        private ScreenshotShape shape = ScreenshotShape.Rectangle;
+        private int captureDelay = 0;
         private Rectangle screenShotZone;
+        private bool showCaptureUI = false;
+        private bool captureToolStarted = false;
+
+        public bool CaptureToolStarted
+        {
+            get { return captureToolStarted; }
+            set
+            {
+                if (showCaptureUI == value) return;
+                captureToolStarted = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool ShowCaptureUI
+        {
+            get { return showCaptureUI; }
+            set
+            {
+                if (showCaptureUI == value) return;
+                showCaptureUI = value;
+                OnPropertyChanged();
+            }
+        }
 
         public Rectangle ScreenShotZone
         {
@@ -29,13 +52,23 @@ namespace VSCaptureExtension
         public ScreenshotShape Shape
         {
             get { return shape; }
-            set { shape = value; OnPropertyChanged(); }
+            set 
+            { 
+                if(shape == value) return;  
+                shape = value; 
+                OnPropertyChanged(); 
+            }
         }
 
         public int CaptureDelay
         {
             get { return captureDelay; }
-            set { captureDelay = value; OnPropertyChanged(); }
+            set 
+            {
+                if (captureDelay == value) return;
+                captureDelay = value; 
+                OnPropertyChanged(); 
+            }
         }
 
 
@@ -50,18 +83,22 @@ namespace VSCaptureExtension
 
             ClickAddCommand = new RelayCommand(() =>
             {
-                captureUI = new CaptureUI();
-                captureUI.DataContext = this;
-                captureUI.Show();
+                ShowCaptureUI = true;
+                //captureUI = new CaptureUI();
+                //captureUI.DataContext = this;
+                //captureUI.Show();
             });
 
             ClickNewCommand = new RelayCommand(() =>
             {
-                captureUI.Hide();
-                Thread.Sleep(captureDelay * 1000);
-                var transParentWindow = new TransparentWindow();
-                transParentWindow.DataContext = this;
-                transParentWindow.Show();
+                //captureUI.Hide();
+                //Thread.Sleep(captureDelay * 1000);
+                //var transParentWindow = new TransparentWindow();
+                //transParentWindow.DataContext = this;
+                //transParentWindow.Show();
+
+                ShowCaptureUI = false;
+
             });
         }
 
