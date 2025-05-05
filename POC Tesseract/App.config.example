@@ -1,6 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<configuration>
-	<appSettings>
-		<add key="TesseractDataPath" value="C:\Users\user\Project\tessdata\" /> <!--Path to the Tesseract data folder containing the language (eng.traineddata) and pdf.ttf-->
-	</appSettings>
-</configuration>

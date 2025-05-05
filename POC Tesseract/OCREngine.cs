@@ -1,5 +1,6 @@
 ﻿using Tesseract;
 using System.Configuration;
+using System.Reflection;
 
 namespace POC_Tesseract
 {
@@ -13,8 +14,14 @@ namespace POC_Tesseract
             this.language = language;
 
             // Retrieving the Tesseract data path from App.config
-            this.datapath = ConfigurationManager.AppSettings["TesseractDataPath"]
-                            ?? throw new ConfigurationErrorsException("La clé 'TesseractDataPath' est manquante dans App.config.");
+            //this.datapath = ConfigurationManager.AppSettings["TesseractDataPath"]
+            //                ?? throw new ConfigurationErrorsException("La clé 'TesseractDataPath' est manquante dans App.config.");
+
+            string assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new NullReferenceException("The assembly path is null");
+            this.datapath = Path.Combine(assemblyDir, "tessdata");
+
+            
+
         }
 
         public OCREngine(string language, string datapath)

@@ -14,24 +14,8 @@ namespace TestTesseract
         [SetUp]
         public void Setup()
         {
-            // Charger le fichier XML
-            var configFilePath = @"..\..\..\..\POC Tesseract\App.config"; // Chemin relatif vers le fichier XML
-            var configXml = XDocument.Load(configFilePath);
-
-            // Extraire la valeur de la clé "TesseractDataPath"
-            var tessDataPath = configXml
-                .Descendants("appSettings")
-                .Descendants("add")
-                .FirstOrDefault(e => e.Attribute("key")?.Value == "TesseractDataPath")
-                ?.Attribute("value")?.Value;
-
-            if (string.IsNullOrEmpty(tessDataPath))
-            {
-                throw new InvalidOperationException("La clé 'TesseractDataPath' est introuvable ou vide dans le fichier App.config.");
-            }
-
             // Initialiser OCREngine avec le chemin extrait
-            ocrEngine = new OCREngine("eng", tessDataPath);
+            ocrEngine = new OCREngine("eng");
         }
 
         [Test]
