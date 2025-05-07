@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Windows;
 using System.Windows.Input;
 using System.Drawing;
+using System.Threading;
 
 
 namespace VSCaptureExtension
@@ -14,15 +13,27 @@ namespace VSCaptureExtension
         private int captureDelay = 0;
         private Rectangle screenShotZone;
         private bool showCaptureUI = false;
-        private bool captureToolStarted = false;
+        private bool showCaptureTool = false;
+        private Bitmap currentScreenshot = null;
 
-        public bool CaptureToolStarted
+        public Bitmap CurrentScreenShot
         {
-            get { return captureToolStarted; }
+            get { return currentScreenshot; }
             set
             {
-                if (showCaptureUI == value) return;
-                captureToolStarted = value;
+                if (currentScreenshot == value) return;
+                currentScreenshot = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool ShowCaptureTool
+        {
+            get { return showCaptureTool; }
+            set
+            {
+                if (showCaptureTool == value) return;
+                showCaptureTool = value;
                 OnPropertyChanged();
             }
         }
@@ -32,7 +43,6 @@ namespace VSCaptureExtension
             get { return showCaptureUI; }
             set
             {
-                if (showCaptureUI == value) return;
                 showCaptureUI = value;
                 OnPropertyChanged();
             }
@@ -42,10 +52,12 @@ namespace VSCaptureExtension
         {
             get { return screenShotZone; }
             set 
-            { 
+            {
+                ShowCaptureTool = false;
+                ShowCaptureUI = true;
                 screenShotZone = value;
-                //Take a screenshot of the selected area + show it in VS to validate the selection
                 OnPropertyChanged();
+                CurrentScreenShot = Screen.Shoot(screenShotZone);
             }
         }
 
@@ -84,21 +96,13 @@ namespace VSCaptureExtension
             ClickAddCommand = new RelayCommand(() =>
             {
                 ShowCaptureUI = true;
-                //captureUI = new CaptureUI();
-                //captureUI.DataContext = this;
-                //captureUI.Show();
             });
 
             ClickNewCommand = new RelayCommand(() =>
             {
-                //captureUI.Hide();
-                //Thread.Sleep(captureDelay * 1000);
-                //var transParentWindow = new TransparentWindow();
-                //transParentWindow.DataContext = this;
-                //transParentWindow.Show();
-
                 ShowCaptureUI = false;
-
+                Thread.Sleep(captureDelay * 1000);
+                ShowCaptureTool = true;
             });
         }
 

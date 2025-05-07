@@ -14,7 +14,7 @@ namespace VSCaptureExtension
 
         public override Task<FrameworkElement> CreateAsync(int toolWindowId, CancellationToken cancellationToken)
         {
-            return Task.FromResult<FrameworkElement>(new MyToolWindowControl());
+            return Task.FromResult<FrameworkElement>(InitializeView()); //TODO faire la création de la vue
         }
 
         [Guid("3c791ec2-3093-492f-8a32-e7e2905f0afd")]
@@ -24,6 +24,17 @@ namespace VSCaptureExtension
             {
                 BitmapImageMoniker = KnownMonikers.ToolWindow;
             }
+        }
+
+        private FrameworkElement InitializeView()
+        {
+            var toolWindow = new MyToolWindowControl();
+
+            var viewModel = new MainViewModel();
+            toolWindow.DataContext = viewModel;
+            new WindowService(viewModel);
+
+            return toolWindow;
         }
     }
 }

@@ -160,9 +160,24 @@
 
         <!-- Center Text -->
         <Grid Background="#1e1e1e">
-            <TextBlock Text="Press ctrl + alt + print to start capturing."
-                       FontSize="16" FontWeight="SemiBold" TextAlignment="Center" VerticalAlignment="Center"
-                       HorizontalAlignment="Center" TextWrapping="Wrap" />
+            <Grid.Resources>
+                <DataTemplate x:Key="ImageTemplate">
+                    <Image Source="{Binding CurrentScreenShot}" Stretch="Uniform" />
+                </DataTemplate>
+                <DataTemplate x:Key="TextTemplate">
+                    <TextBlock Text="Press ctrl + alt + print to start capturing."
+                               FontSize="16" FontWeight="SemiBold" TextAlignment="Center" VerticalAlignment="Center"
+                               HorizontalAlignment="Center" TextWrapping="Wrap" />
+                </DataTemplate>
+            </Grid.Resources>
+
+            <ContentControl Content="{Binding CurrentScreenShot}">
+                <ContentControl.Resources>
+                    <local:ConditionalTemplateSelector x:Key="ConditionalTemplateSelector"
+                                                       NullTemplate="{StaticResource TextTemplate}"
+                                                       NonNullTemplate="{StaticResource ImageTemplate}" />
+                </ContentControl.Resources>
+            </ContentControl>
         </Grid>
 
     </DockPanel>

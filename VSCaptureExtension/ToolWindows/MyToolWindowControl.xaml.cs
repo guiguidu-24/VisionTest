@@ -1,5 +1,4 @@
-﻿using System.Windows;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 
 namespace VSCaptureExtension
 {
@@ -8,7 +7,6 @@ namespace VSCaptureExtension
         public MyToolWindowControl()
         {
             InitializeComponent();
-            DataContext = new MainViewModel();
         }
     }
 }

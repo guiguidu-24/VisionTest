@@ -45,6 +45,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="IWindowService.cs" />
+    <Compile Include="Model\Screen.cs" />
     <Compile Include="ToolWindows\CaptureUI.xaml.cs">
       <DependentUpon>CaptureUI.xaml</DependentUpon>
     </Compile>
@@ -53,6 +55,7 @@
     <Compile Include="Commands\MyToolWindowCommand.cs" />
     <Compile Include="RelayCommand.cs" />
     <Compile Include="ScreenshotShape.cs" />
+    <Compile Include="ToolWindows\ConditionalTemplateSelector.cs" />
     <Compile Include="ToolWindows\TransparentWindow.xaml.cs">
       <DependentUpon>TransparentWindow.xaml</DependentUpon>
     </Compile>
@@ -67,6 +70,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>VSCommandTable.vsct</DependentUpon>
     </Compile>
+    <Compile Include="WindowService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Timer.png" />
