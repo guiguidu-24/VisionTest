@@ -45,7 +45,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="IWindowService.cs" />
+    <Compile Include="BitmapToImageSourceConverter.cs" />
     <Compile Include="Model\Screen.cs" />
     <Compile Include="ToolWindows\CaptureUI.xaml.cs">
       <DependentUpon>CaptureUI.xaml</DependentUpon>
