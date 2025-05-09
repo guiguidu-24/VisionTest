@@ -7,7 +7,6 @@
         Background="#1e1e1e" Foreground="White" WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
-        <local:BitmapToImageSourceConverter x:Key="BitmapConverter"/>
         <Style  TargetType="Button">
             <Setter Property="Background" Value="#2b2b2b" />
             <Setter Property="Foreground" Value="White" />
@@ -158,60 +157,46 @@
                 <ComboBoxItem Content="5 seconds delay" Tag="5"/>
                 <ComboBoxItem Content="10 seconds delay" Tag="10"/>
             </ComboBox>
+            <Button Command="{Binding ValidateCommand}" HorizontalAlignment="Right">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="pack://application:,,,/VSCaptureExtension;component/Resources/Checkmark.png" Stretch="Fill" Width="auto" Height="auto" VerticalAlignment="Center" Margin="5,8,10,8" />
+                        <TextBlock Text="Validate" FontSize="16" VerticalAlignment="Center" Foreground="White" Margin="0,0,5,0"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
         </StackPanel>
 
         <!-- Center Text -->
         <Grid Background="#1e1e1e">
-            <!--<Grid.Resources>
-                <DataTemplate x:Key="ImageTemplate">
-                    <Image Source="{Binding CurrentScreenShot}" Stretch="Uniform" />
-                </DataTemplate>
-                <DataTemplate x:Key="TextTemplate">
-                    <TextBlock Text="Press ctrl + alt + print to start capturing."
-                               FontSize="16" FontWeight="SemiBold" TextAlignment="Center" VerticalAlignment="Center"
-                               HorizontalAlignment="Center" TextWrapping="Wrap" />
-                </DataTemplate>
+            <!--<Image Source="{Binding CurrentScreenShot}" Stretch="Uniform" />-->
+            <Grid.Resources>
+                <!-- Hide Image if CurrentScreenShot is null -->
+                <Style TargetType="Image">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding CurrentScreenShot}" Value="{x:Null}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+
+                <!-- Hide TextBlock if CurrentScreenShot is not null -->
+                <Style TargetType="TextBlock">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding CurrentScreenShot}" Value="{x:Null}">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
             </Grid.Resources>
 
-            <ContentControl Content="{Binding CurrentScreenShot}">
-                <ContentControl.Resources>
-                    <local:ConditionalTemplateSelector x:Key="ConditionalTemplateSelector"
-                                                       NullTemplate="{StaticResource TextTemplate}"
-                                                       NonNullTemplate="{StaticResource ImageTemplate}" />
-                </ContentControl.Resources>
-            </ContentControl>-->
-            <ContentControl Content="{Binding CurrentScreenShot}">
-                <ContentControl.Style>
-                    <Style TargetType="ContentControl">
-                        <Style.Triggers>
-                            <!-- When screenImg is null -->
-                            <DataTrigger Binding="{Binding CurrentScreenShot}" Value="{x:Null}">
-                                <Setter Property="ContentTemplate">
-                                    <Setter.Value>
-                                        <DataTemplate>
-                                            <TextBlock Text="Press ctrl + alt + print to start capturing."
-                                                       FontSize="16" FontWeight="SemiBold" TextAlignment="Center" VerticalAlignment="Center"
-                                                       HorizontalAlignment="Center" TextWrapping="Wrap" />
-                                        </DataTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </DataTrigger>
+            <!-- Image shown only if CurrentScreenShot is not null -->
+            <Image Source="{Binding CurrentScreenShot}" Stretch="Uniform" />
 
-                            <!-- When screenImg is NOT null -->
-                            <DataTrigger Binding="{Binding CurrentScreenShot}" Value="{x:Static sys:Object}">
-                                <Setter Property="ContentTemplate">
-                                    <Setter.Value>
-                                        <DataTemplate>
-                                            <Image Source="{Binding CurrentScreenShot, Converter={StaticResource BitmapConverter}}"
-                                               Stretch="Uniform"/>
-                                        </DataTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </ContentControl.Style>
-            </ContentControl>
+            <TextBlock Text="Press ctrl + alt + print to start capturing."
+            FontSize="16" FontWeight="SemiBold" TextAlignment="Center" VerticalAlignment="Center"
+            HorizontalAlignment="Center" TextWrapping="Wrap" />
         </Grid>
 
     </DockPanel>

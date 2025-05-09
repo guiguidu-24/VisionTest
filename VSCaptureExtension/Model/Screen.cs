@@ -1,6 +1,8 @@
 ﻿using System.Drawing;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace VSCaptureExtension
 {
@@ -70,11 +72,30 @@ namespace VSCaptureExtension
             return bitmap;
         }
 
-        public static Bitmap Shoot(Rectangle zone)
+        public static BitmapImage Shoot(Rectangle zone)
         {
             var image = Shoot();
-            return image.Clone(zone, image.PixelFormat);
+            return ConvertToBitmapImage(image.Clone(zone, image.PixelFormat));
         }
 
+        /// <summary>
+        /// Convert a Bitmap to BitmapImage for WPF usage
+        /// </summary>
+        /// <param name="bitmap"></param>
+        /// <returns></returns>
+        private static BitmapImage ConvertToBitmapImage(Bitmap bitmap)
+        {
+            using var memory = new MemoryStream();
+            bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Png);
+            memory.Position = 0;
+            var bitmapImage = new BitmapImage();
+            bitmapImage.BeginInit();
+            bitmapImage.StreamSource = memory;
+            bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+            bitmapImage.EndInit();
+            bitmapImage.Freeze(); // Freeze for UI thread safety
+
+            return bitmapImage;
+        }
     }
 }

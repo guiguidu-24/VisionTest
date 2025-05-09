@@ -13,7 +13,18 @@
              d:DesignHeight="300"
              d:DesignWidth="300"
              Name="MyToolWindow">
-    <Grid>
+    <StackPanel>
+        <StackPanel.Resources>
+            <!-- Hide Image if CurrentScreenShot is null -->
+            <Style TargetType="Image" x:Key="PreviewImage">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding CurrentScreenShot}" Value="{x:Null}">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </StackPanel.Resources>
+
         <!-- Top-left corner button with "+" icon -->
         <Button x:Name="AddButton" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" Height="30" Padding="5" Command="{Binding ClickAddCommand}">
             <Button.Content>
@@ -24,13 +35,28 @@
             </Button.Content>
         </Button>
 
+        <Image Grid.Column="1" Style="{StaticResource PreviewImage}" Source="{Binding CurrentScreenShot}" Stretch="Uniform" HorizontalAlignment="Center" MaxHeight="100" MinHeight="40"/>
+
         <!-- Checkboxes and TextBox -->
-        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,50,0,0">
-            <CheckBox x:Name="TextCheckBox" Content="Text" Margin="0,5,0,0"/>
+        <Grid Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <CheckBox Grid.Row="0" x:Name="TextCheckBox" Content="Text" Margin="0,5,0,0"/>
             <!-- TextBox below the Text checkbox -->
-            <TextBox x:Name="PreviewTextBox" Text="Text to find..." Margin="0,5,0,0" Width="200" Height="auto" />
-            <CheckBox x:Name="ImageCheckBox" Content="Image" Margin="0,5,0,0"/>
-            <CheckBox x:Name="ColorCheckBox" Content="Color" Margin="0,5,0,0"/>
-        </StackPanel>
-    </Grid>
+            <TextBox Grid.Row="1" Text="Text to find..." Margin="0,5,0,0" Width="200" Height="auto" />
+            <TextBlock Grid.Row="1" Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Right" Text="{Binding TextFound}"/>
+            <TextBox Grid.Row="1" Grid.Column="2" x:Name="FoundTextBox" Text="Text found" Margin="0,5,0,0" Width="200" Height="auto" />
+            <CheckBox Grid.Row="2" x:Name="ImageCheckBox" Content="Image" Margin="0,5,0,0"/>
+            <CheckBox Grid.Row="3" x:Name="ColorCheckBox" Content="Color" Margin="0,5,0,0"/>
+        </Grid>
+    </StackPanel>
 </UserControl>

@@ -3,6 +3,8 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Drawing;
 using System.Threading;
+using System.Windows.Media.Imaging;
+using System.IO;
 
 
 namespace VSCaptureExtension
@@ -14,9 +16,22 @@ namespace VSCaptureExtension
         private Rectangle screenShotZone;
         private bool showCaptureUI = false;
         private bool showCaptureTool = false;
-        private Bitmap currentScreenshot = null;
+        private BitmapImage currentScreenshot = null;
+        private string textFound = string.Empty;
+        private PreviewApiService previewApiService = new PreviewApiService();
 
-        public Bitmap CurrentScreenShot
+
+        public string TextFound
+        {
+            get { return textFound; }
+            private set
+            {
+                if (textFound == value) return;
+                textFound = value;
+                OnPropertyChanged();
+            }
+        }
+        public BitmapImage CurrentScreenShot
         {
             get { return currentScreenshot; }
             set
@@ -24,6 +39,11 @@ namespace VSCaptureExtension
                 if (currentScreenshot == value) return;
                 currentScreenshot = value;
                 OnPropertyChanged();
+
+                if (currentScreenshot != null)
+                {
+                    TextFound = previewApiService.GetText(currentScreenshot);
+                }
             }
         }
 
@@ -86,6 +106,7 @@ namespace VSCaptureExtension
 
         public ICommand ClickAddCommand { get; }
         public ICommand ClickNewCommand { get; }
+        public ICommand ValidateCommand { get; }
 
 
         public MainViewModel()
@@ -103,6 +124,12 @@ namespace VSCaptureExtension
                 ShowCaptureUI = false;
                 Thread.Sleep(captureDelay * 1000);
                 ShowCaptureTool = true;
+            });
+
+            ValidateCommand = new RelayCommand(() =>
+            {
+                ShowCaptureUI = false;
+                ShowCaptureTool = false;
             });
         }
 

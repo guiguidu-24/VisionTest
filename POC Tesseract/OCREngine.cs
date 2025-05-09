@@ -116,5 +116,12 @@ namespace POC_Tesseract
             return Find(image.Clone(boxToSearchIn, image.PixelFormat), text, out area);
         }
 
+        public string GetText(Bitmap image)
+        {
+            using var engine = new TesseractEngine(datapath, language, EngineMode.Default);
+            using Page page = engine.Process(image);
+            return page.GetText();
+        }
+
     }
 }

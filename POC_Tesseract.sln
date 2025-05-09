@@ -10,6 +10,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestsImplementation", "TestsImplementation\TestsImplementation.csproj", "{59CC6803-E49F-4182-9733-D6E761375699}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSCaptureExtension", "VSCaptureExtension\VSCaptureExtension.csproj", "{530B514C-5023-4ECE-91D9-18B457DE9AB6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DA208058-6334-49CD-8729-B780E6639694} = {DA208058-6334-49CD-8729-B780E6639694}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PreviewAPI", "PreviewAPI\PreviewAPI.csproj", "{DA208058-6334-49CD-8729-B780E6639694}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +38,10 @@ Global
 		{530B514C-5023-4ECE-91D9-18B457DE9AB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{530B514C-5023-4ECE-91D9-18B457DE9AB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{530B514C-5023-4ECE-91D9-18B457DE9AB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA208058-6334-49CD-8729-B780E6639694}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA208058-6334-49CD-8729-B780E6639694}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA208058-6334-49CD-8729-B780E6639694}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA208058-6334-49CD-8729-B780E6639694}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
