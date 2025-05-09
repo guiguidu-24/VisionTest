@@ -24,13 +24,14 @@ namespace VSCaptureExtension
         public string TextFound
         {
             get { return textFound; }
-            private set
+            set
             {
                 if (textFound == value) return;
                 textFound = value;
                 OnPropertyChanged();
             }
         }
+
         public BitmapImage CurrentScreenShot
         {
             get { return currentScreenshot; }
@@ -77,6 +78,7 @@ namespace VSCaptureExtension
                 ShowCaptureUI = true;
                 screenShotZone = value;
                 OnPropertyChanged();
+                Thread.Sleep(100);
                 CurrentScreenShot = Screen.Shoot(screenShotZone);
             }
         }

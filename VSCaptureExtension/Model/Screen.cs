@@ -10,6 +10,7 @@ namespace VSCaptureExtension
     {
         public static int Width => (int)(SystemParameters.PrimaryScreenWidth * GetScaleFactor());
         public static int Height => (int)(SystemParameters.PrimaryScreenWidth * GetScaleFactor());
+        //public static float ScaleFactor { get; } = GetScaleFactor();
 
         [DllImport("Shcore.dll")]
         private static extern int GetScaleFactorForMonitor(IntPtr hMonitor, out DEVICE_SCALE_FACTOR scale);
@@ -75,7 +76,9 @@ namespace VSCaptureExtension
         public static BitmapImage Shoot(Rectangle zone)
         {
             var image = Shoot();
-            return ConvertToBitmapImage(image.Clone(zone, image.PixelFormat));
+            var scaleFactor = GetScaleFactor();
+            var zoneAdjusted = new Rectangle((int)(zone.X * scaleFactor), (int)(zone.Y * scaleFactor),(int) (zone.Width * scaleFactor), (int)(zone.Height* scaleFactor));
+            return ConvertToBitmapImage(image.Clone(zoneAdjusted, image.PixelFormat));
         }
 
         /// <summary>

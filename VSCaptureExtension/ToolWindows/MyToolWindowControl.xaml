@@ -53,8 +53,8 @@
             <CheckBox Grid.Row="0" x:Name="TextCheckBox" Content="Text" Margin="0,5,0,0"/>
             <!-- TextBox below the Text checkbox -->
             <TextBox Grid.Row="1" Text="Text to find..." Margin="0,5,0,0" Width="200" Height="auto" />
-            <TextBlock Grid.Row="1" Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Right" Text="{Binding TextFound}"/>
-            <TextBox Grid.Row="1" Grid.Column="2" x:Name="FoundTextBox" Text="Text found" Margin="0,5,0,0" Width="200" Height="auto" />
+            <TextBlock Grid.Row="1" Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Right" Text="Text found"/>
+            <TextBox Grid.Row="1" Grid.Column="2" x:Name="FoundTextBox" Text="{Binding TextFound}" Margin="0,5,0,0" Width="200" Height="auto" />
             <CheckBox Grid.Row="2" x:Name="ImageCheckBox" Content="Image" Margin="0,5,0,0"/>
             <CheckBox Grid.Row="3" x:Name="ColorCheckBox" Content="Color" Margin="0,5,0,0"/>
         </Grid>
