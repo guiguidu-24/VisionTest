@@ -365,3 +365,5 @@ FodyWeavers.xsd
 /TestTesseract/TestResources.resx
 /TestTesseract/TestResources.Designer.cs
 /TestTesseract/TestResources.Designer.cs
+
+/VSCaptureExtension/PreviewAPI/*

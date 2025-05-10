@@ -73,6 +73,14 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Timer.png" />
+    <None Include="PreviewAPI\POC Tesseract.dll.config" />
+    <None Include="PreviewAPI\PreviewAPI.deps.json" />
+    <None Include="PreviewAPI\PreviewAPI.runtimeconfig.json" />
+    <None Include="PreviewAPI\selenium-manager\linux\selenium-manager" />
+    <None Include="PreviewAPI\selenium-manager\macos\selenium-manager" />
+    <None Include="PreviewAPI\tessdata\eng.traineddata" />
+    <None Include="PreviewAPI\tessdata\fra.traineddata" />
+    <None Include="PreviewAPI\tessdata\pdf.ttf" />
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
       <Generator>VsixManifestGenerator</Generator>
@@ -130,6 +138,30 @@
     <Resource Include="Resources\window-maximize.png" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="PreviewAPI\Microsoft.Win32.SystemEvents.dll" />
+    <Content Include="PreviewAPI\OpenCvSharp.dll" />
+    <Content Include="PreviewAPI\OpenCvSharp.Extensions.dll" />
+    <Content Include="PreviewAPI\POC Tesseract.dll" />
+    <Content Include="PreviewAPI\POC Tesseract.pdb" />
+    <Content Include="PreviewAPI\PreviewAPI.dll" />
+    <Content Include="PreviewAPI\PreviewAPI.exe" />
+    <Content Include="PreviewAPI\PreviewAPI.pdb" />
+    <Content Include="PreviewAPI\runtimes\win-x64\native\OpenCvSharpExtern.dll" />
+    <Content Include="PreviewAPI\runtimes\win-x64\native\opencv_videoio_ffmpeg4100_64.dll" />
+    <Content Include="PreviewAPI\runtimes\win-x86\native\OpenCvSharpExtern.dll" />
+    <Content Include="PreviewAPI\runtimes\win-x86\native\opencv_videoio_ffmpeg4100.dll" />
+    <Content Include="PreviewAPI\runtimes\win\lib\net8.0\Microsoft.Win32.SystemEvents.dll" />
+    <Content Include="PreviewAPI\selenium-manager\windows\selenium-manager.exe" />
+    <Content Include="PreviewAPI\System.Drawing.Common.dll" />
+    <Content Include="PreviewAPI\System.Private.Windows.Core.dll" />
+    <Content Include="PreviewAPI\Tesseract.dll" />
+    <Content Include="PreviewAPI\Tesseract.Drawing.dll" />
+    <Content Include="PreviewAPI\WebDriver.dll" />
+    <Content Include="PreviewAPI\WindowsInput.dll" />
+    <Content Include="PreviewAPI\x64\leptonica-1.82.0.dll" />
+    <Content Include="PreviewAPI\x64\tesseract50.dll" />
+    <Content Include="PreviewAPI\x86\leptonica-1.82.0.dll" />
+    <Content Include="PreviewAPI\x86\tesseract50.dll" />
     <Content Include="Resources\Checkmark.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

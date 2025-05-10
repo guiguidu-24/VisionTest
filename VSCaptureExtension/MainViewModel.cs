@@ -4,7 +4,6 @@ using System.Windows.Input;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Media.Imaging;
-using System.IO;
 
 
 namespace VSCaptureExtension

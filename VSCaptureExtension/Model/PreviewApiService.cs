@@ -4,48 +4,45 @@ using System.Windows.Media.Imaging;
 
 namespace VSCaptureExtension
 {
-    internal class PreviewApiService : IDisposable
+    internal class PreviewApiService
     {
-        private Process _process;
 
-        public PreviewApiService()
-        {
-            // Start the console app in headless mode
-            _process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "C:\\Users\\guill\\Programmation\\dotNET_doc\\POC_Tesseract\\PreviewAPI\\bin\\Debug\\net8.0-windows\\PreviewAPI.exe", //TODO  Import the exe into the project as a resource
-                    RedirectStandardInput = true,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                }
-            };
-
-            _process.Start();
-        }
 
         public string GetText(BitmapImage bitmapImage)
         {
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = "C:\\Users\\guill\\Programmation\\dotNET_doc\\POC_Tesseract\\PreviewAPI\\bin\\Debug\\net8.0-windows\\PreviewAPI.exe", //TODO  Import the exe into the project as a resource
+                RedirectStandardInput = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            };
+
             if (bitmapImage == null)
             {
                 throw new ArgumentNullException(nameof(bitmapImage), "BitmapImage cannot be null.");
             }
 
             // Save the BitmapImage to a temporary file
-            string tempFilePath = Path.Combine(Path.GetTempPath(), $"previewFilesUI\\{Guid.NewGuid()}.png");
+            string tempFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.png");
             SaveBitmapImageToFile(bitmapImage, tempFilePath);
 
-
             // Send the "ocr" command to the running process
-            _process.StandardInput.WriteLine($"ocr {tempFilePath}");
-            _process.StandardInput.Flush();
+            startInfo.Arguments = $"ocr {tempFilePath}";
 
-            
+            using var process = new Process
+            {
+                StartInfo = startInfo,
+                EnableRaisingEvents = true
+            };
+
+
+            process.Start();
+
             // Read the response from the process
-            string header = _process.StandardOutput.ReadLine();
+            string header = process.StandardOutput.ReadLine();
 
             // Return the response
             if (header.Trim() != "Extracted Text:")
@@ -53,10 +50,20 @@ namespace VSCaptureExtension
                 throw new InvalidOperationException($"Unexpected response from OCR process: {header}");
             }
 
-            var output = _process.StandardOutput.ReadLine().Trim();
+            var output = process.StandardOutput.ReadLine().Trim();
 
-            // Clear any remaining data in the StandardOutput stream
-            _process.StandardOutput.ReadLine();
+            process.WaitForExit();
+
+
+            try
+            {
+                File.Delete(tempFilePath);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to delete temporary file: {ex.Message}");
+                throw;
+            }
 
             return output;
         }
@@ -81,28 +88,6 @@ namespace VSCaptureExtension
             if (!File.Exists(filePath))
             {
                 throw new IOException($"Failed to create the temporary file at {filePath}");
-            }
-        }
-
-        public void Dispose()
-        {
-            // Stop the process
-            _process.StandardInput.WriteLine("exit");
-            _process.WaitForExit();
-            _process.Dispose();
-
-            // Delete the temporary directory
-            string tempDirectoryPath = Path.Combine(Path.GetTempPath(), "previewFilesUI");
-            if (Directory.Exists(tempDirectoryPath))
-            {
-                try
-                {
-                    Directory.Delete(tempDirectoryPath, recursive: true);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Failed to delete temporary directory: {ex.Message}");
-                }
             }
         }
     }

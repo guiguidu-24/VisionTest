@@ -9,48 +9,33 @@ namespace PreviewAPI
     {
         static void Main(string[] args)
         {
-           
-            while (true)
+            // Check if arguments are provided
+            if (args.Length < 2)
             {
-                string? input = Console.ReadLine(); // Allow input to be nullable  
+                Console.WriteLine("Usage: previewAPI.exe ocr <imagePath>");
+                return;
+            }
 
-                if (string.IsNullOrWhiteSpace(input))
-                {
-                    Console.WriteLine("Invalid command. Please try again.");
-                    continue;
-                }
+            // Parse the command and arguments
+            string command = args[0].ToLower();
+            string imagePath = args[1];
 
-                string[] commandParts = input.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
-                string command = commandParts[0].ToLower();
+            switch (command)
+            {
+                case "ocr":
+                    ProcessOCRCommand(imagePath);
+                    break;
 
-                switch (command)
-                {
-                    case "ocr":
-                        if (commandParts.Length < 2)
-                        {
-                            Console.WriteLine("Usage: ocr <imagePath>");
-                        }
-                        else
-                        {
-                            string imagePath = commandParts[1];
-                            ProcessOCRCommand(imagePath);
-                        }
-                        break;
-
-                    case "exit":
-                        Console.WriteLine("Exiting the application. Goodbye!");
-                        return;
-
-                    default:
-                        Console.WriteLine($"Unknown command: {command}");
-                        break;
-                }
+                default:
+                    Console.WriteLine($"Unknown command: {command}");
+                    Console.WriteLine("Usage: previewAPI.exe ocr <imagePath>");
+                    break;
             }
         }
 
         private static void ProcessOCRCommand(string imagePath)
         {
-            // Validate the image path  
+            // Validate the image path
             if (!File.Exists(imagePath))
             {
                 Console.WriteLine($"Error: The file '{imagePath}' does not exist.");
@@ -59,16 +44,16 @@ namespace PreviewAPI
 
             try
             {
-                // Load the image  
+                // Load the image
                 using Bitmap image = new Bitmap(imagePath);
 
-                // Initialize the OCR engine  
+                // Initialize the OCR engine
                 OCREngine ocrEngine = new OCREngine("eng");
 
-                // Perform OCR to extract text  
+                // Perform OCR to extract text
                 string extractedText = ocrEngine.GetText(image);
 
-                // Output the extracted text  
+                // Output the extracted text
                 Console.WriteLine("Extracted Text:");
                 Console.WriteLine(extractedText);
             }
