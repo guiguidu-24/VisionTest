@@ -4,7 +4,7 @@ using System.Windows.Media.Imaging;
 
 namespace VSCaptureExtension
 {
-    internal class PreviewApiService
+    public class PreviewApiService //TODO: IPreviewApiService 
     {
 
 

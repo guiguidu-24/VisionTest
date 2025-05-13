@@ -4,6 +4,7 @@ using System.Windows.Input;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Media.Imaging;
+using VSCaptureExtension.Model;
 
 
 namespace VSCaptureExtension
@@ -18,7 +19,19 @@ namespace VSCaptureExtension
         private BitmapImage currentScreenshot = null;
         private string textFound = string.Empty;
         private PreviewApiService previewApiService = new PreviewApiService();
+        private bool isTextActivated = false;
+        private ScreenElementRepository Repository  = new ScreenElementRepository();
 
+        public bool IsTextActivated
+        {
+            get { return isTextActivated; }
+            set
+            {
+                if (isTextActivated == value) return;
+                isTextActivated = value;
+                OnPropertyChanged();
+            }
+        }
 
         public string TextFound
         {
@@ -108,6 +121,7 @@ namespace VSCaptureExtension
         public ICommand ClickAddCommand { get; }
         public ICommand ClickNewCommand { get; }
         public ICommand ValidateCommand { get; }
+        public ICommand SaveCommand { get; }
 
 
         public MainViewModel()
@@ -131,6 +145,16 @@ namespace VSCaptureExtension
             {
                 ShowCaptureUI = false;
                 ShowCaptureTool = false;
+            });
+
+            SaveCommand = new RelayCommand(() =>
+            {
+                //TODO Repository.InsertOrUpdateScreenElement()
+
+                ShowCaptureUI = false;
+                ShowCaptureTool = false;
+                CurrentScreenShot = null;
+
             });
         }
 

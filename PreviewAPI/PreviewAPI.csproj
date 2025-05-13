@@ -5,6 +5,7 @@
     <TargetFramework>net8.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <BaseOutputPath>C:\Users\guill\Programmation\dotNET_doc\POC_Tesseract\VSCaptureExtension\Resources\PreviewAPI</BaseOutputPath>
   </PropertyGroup>
 
   <ItemGroup>

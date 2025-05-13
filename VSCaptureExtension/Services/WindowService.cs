@@ -3,7 +3,7 @@ using System.Windows;
 
 namespace VSCaptureExtension
 {
-    public class WindowService
+    public class WindowService //TODO : IWindowService make two window services one for each window
     {
         private readonly MainViewModel _dataContext;
         private Window window = null;
