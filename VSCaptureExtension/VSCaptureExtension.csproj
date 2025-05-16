@@ -35,6 +35,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -45,17 +47,19 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Model\PreviewApiService.cs" />
+    <Compile Include="Services\Interfaces\IProjectDirectoryService.cs" />
+    <Compile Include="Services\PreviewApiService.cs" />
     <Compile Include="Model\Screen.cs" />
     <Compile Include="Model\ScreenElement.cs" />
-    <Compile Include="Model\ScreenElementRepository.cs" />
+    <Compile Include="Services\ProjectDirectoryService.cs" />
+    <Compile Include="Services\ScreenElementRepository.cs" />
     <Compile Include="ToolWindows\CaptureUI.xaml.cs">
       <DependentUpon>CaptureUI.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Commands\MyToolWindowCommand.cs" />
-    <Compile Include="RelayCommand.cs" />
+    <Compile Include="Commands\RelayCommand.cs" />
     <Compile Include="ScreenshotShape.cs" />
     <Compile Include="ToolWindows\TransparentWindow.xaml.cs">
       <DependentUpon>TransparentWindow.xaml</DependentUpon>
@@ -71,10 +75,13 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>VSCommandTable.vsct</DependentUpon>
     </Compile>
-    <Compile Include="WindowService.cs" />
+    <Compile Include="Services\WindowService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Timer.png" />
+    <Content Include="ScreenElements.db">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
       <Generator>VsixManifestGenerator</Generator>
@@ -124,10 +131,10 @@
   <ItemGroup>
     <PackageReference Include="Community.VisualStudio.VSCT" Version="16.0.29.6" PrivateAssets="all" />
     <PackageReference Include="Community.VisualStudio.Toolkit.17" Version="17.0.507" ExcludeAssets="Runtime" />
-    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.9.3168" />
-    <PackageReference Include="System.Data.SQLite">
-      <Version>1.0.119</Version>
+    <PackageReference Include="Microsoft.Data.Sqlite">
+      <Version>9.0.5</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.9.3168" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\monitor-screenshot.png" />

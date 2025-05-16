@@ -20,7 +20,32 @@ namespace VSCaptureExtension
         private string textFound = string.Empty;
         private PreviewApiService previewApiService = new PreviewApiService();
         private bool isTextActivated = false;
-        private ScreenElementRepository Repository  = new ScreenElementRepository();
+        private ScreenElementRepository repository  = new ScreenElementRepository();
+        private string currentElementName = string.Empty;
+        private string textToFind = string.Empty;
+        private bool isImageActivated = false;
+
+        public bool IsImageActivated
+        {
+            get { return isImageActivated; }
+            set
+            {
+                if (isImageActivated == value) return;
+                isImageActivated = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string CurrentElementName
+        {
+            get { return currentElementName; }
+            set
+            {
+                if (currentElementName == value) return;
+                currentElementName = value;
+                OnPropertyChanged();
+            }
+        }
 
         public bool IsTextActivated
         {
@@ -149,12 +174,29 @@ namespace VSCaptureExtension
 
             SaveCommand = new RelayCommand(() =>
             {
+                //TODO: Check if the name is already used
                 //TODO Repository.InsertOrUpdateScreenElement()
+
+                string text = null;
+                BitmapImage image = null;
+                if (isTextActivated)
+                {
+                    text = textToFind;
+                }
+                if (isImageActivated)
+                {
+                    image = currentScreenshot;
+                }
+                if (!(isTextActivated || isImageActivated))
+                {
+                    return;
+                }
+
+                repository.InsertOrUpdateScreenElement(currentElementName, text, image);
 
                 ShowCaptureUI = false;
                 ShowCaptureTool = false;
                 CurrentScreenShot = null;
-
             });
         }
 

@@ -1,6 +1,10 @@
-﻿using System.Data.SQLite;
-using System.IO;
+﻿using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
+using EnvDTE;
+using EnvDTE80;
+using Microsoft.Data.Sqlite;
+using Microsoft.VisualStudio.Shell;
 
 namespace VSCaptureExtension.Model
 {
@@ -28,18 +32,25 @@ namespace VSCaptureExtension.Model
         {
             if (!File.Exists(_dbPath))
             {
-                SQLiteConnection.CreateFile(_dbPath);
+                throw new FileNotFoundException($"Database file not found at {_dbPath}");
+                //File.Create(_dbPath).Dispose(); // Create the file if it doesn't exist
             }
 
-            using var connection = new SQLiteConnection($"Data Source={_dbPath}");
+            using var connection = new SqliteConnection($"Data Source={_dbPath}");
+            //using var connection =    new SQLiteConnection($"Data Source=ScreenElements.db");
             connection.Open();
 
-            var command = new SQLiteCommand(@"
-            CREATE TABLE IF NOT EXISTS ScreenElements (
-                Id TEXT PRIMARY KEY,
-                Text TEXT,
-                Image BLOB
-            );", connection);
+            var command = connection.CreateCommand();
+
+
+
+            command.CommandText =
+            @"
+                CREATE TABLE IF NOT EXISTS ScreenElements (
+                    Id TEXT PRIMARY KEY,
+                    Text TEXT,
+                    Image BLOB);
+            ";
 
             command.ExecuteNonQuery();
         }
@@ -48,7 +59,7 @@ namespace VSCaptureExtension.Model
         /// Inserts or updates a screen element in the database.
         /// </summary>
         /// <param name="item"></param>
-        public void InsertOrUpdateScreenElement(string id, string text = null, BitmapImage image = null)
+        public void InsertOrUpdateScreenElement(string id, string text, BitmapImage image)
         {
             var item = new ScreenElement
             {
@@ -57,16 +68,18 @@ namespace VSCaptureExtension.Model
                 Image = image
             };
 
-            using var connection = new SQLiteConnection($"Data Source={_dbPath}");
+            using var connection = new SqliteConnection($"Data Source={_dbPath}");
             connection.Open();
 
-            var command = new SQLiteCommand(@"
+            var command = connection.CreateCommand();
+            command.CommandText =
+            @"
             INSERT INTO ScreenElements (Id, Text, Image)
             VALUES (@Id, @Text, @Image)
             ON CONFLICT(Id) DO UPDATE SET
                 Text = excluded.Text,
                 Image = excluded.Image;
-        ", connection);
+            ";
 
             command.Parameters.AddWithValue("@Id", item.Id);
             command.Parameters.AddWithValue("@Text", (object)item.Text ?? DBNull.Value);
@@ -89,10 +102,12 @@ namespace VSCaptureExtension.Model
         /// <returns></returns>
         public ScreenElement GetScreenElementById(string id)
         {
-            using var connection = new SQLiteConnection($"Data Source={_dbPath}");
+            using var connection = new SqliteConnection($"Data Source={_dbPath}");
             connection.Open();
 
-            var command = new SQLiteCommand("SELECT Id, Text, Image FROM ScreenElements WHERE Id = @Id", connection);
+            var command = connection.CreateCommand();
+
+            command.CommandText = "SELECT Id, Text, Image FROM ScreenElements WHERE Id = @Id";
             command.Parameters.AddWithValue("@Id", id);
 
             using var reader = command.ExecuteReader();
@@ -115,10 +130,11 @@ namespace VSCaptureExtension.Model
         /// <param name="id"></param>
         public void DeleteScreenElement(string id)
         {
-            using var connection = new SQLiteConnection($"Data Source={_dbPath}");
+            using var connection = new SqliteConnection($"Data Source={_dbPath}");
             connection.Open();
 
-            var command = new SQLiteCommand("DELETE FROM ScreenElements WHERE Id = @Id", connection);
+            var command = connection.CreateCommand();
+            command.CommandText = "DELETE FROM ScreenElements WHERE Id = @Id";
             command.Parameters.AddWithValue("@Id", id);
             command.ExecuteNonQuery();
         }
@@ -145,5 +161,6 @@ namespace VSCaptureExtension.Model
             encoder.Save(stream);
             return stream.ToArray();
         }
+
     }
 }
