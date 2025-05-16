@@ -2,7 +2,7 @@
 using System.Configuration;
 using System.Reflection;
 
-namespace POC_Tesseract
+namespace Core.Recognition
 {
     public class OCREngine
     {
@@ -18,7 +18,7 @@ namespace POC_Tesseract
             //                ?? throw new ConfigurationErrorsException("La clé 'TesseractDataPath' est manquante dans App.config.");
 
             string assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new NullReferenceException("The assembly path is null");
-            this.datapath = Path.Combine(assemblyDir, "tessdata");
+            datapath = Path.Combine(assemblyDir, "tessdata");
 
             
 

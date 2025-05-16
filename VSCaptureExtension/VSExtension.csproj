@@ -51,8 +51,6 @@
     <Compile Include="Services\PreviewApiService.cs" />
     <Compile Include="Model\Screen.cs" />
     <Compile Include="Model\ScreenElement.cs" />
-    <Compile Include="Services\ProjectDirectoryService.cs" />
-    <Compile Include="Services\ScreenElementRepository.cs" />
     <Compile Include="ToolWindows\CaptureUI.xaml.cs">
       <DependentUpon>CaptureUI.xaml</DependentUpon>
     </Compile>
@@ -79,9 +77,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Timer.png" />
-    <Content Include="ScreenElements.db">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
       <Generator>VsixManifestGenerator</Generator>

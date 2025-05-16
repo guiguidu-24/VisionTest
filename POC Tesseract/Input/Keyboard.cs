@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace POC_Tesseract.UserInterface
+namespace Core.UserInterface
 {
     /// <summary>
     ///  All the virtual key codes can be found on the microsoft website 

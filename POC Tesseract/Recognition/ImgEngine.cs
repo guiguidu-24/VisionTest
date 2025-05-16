@@ -3,7 +3,7 @@ using OpenCvSharp.Extensions;
 using System.Drawing;
 
 
-namespace POC_Tesseract
+namespace Core.Recognition
 {
     internal class ImgEngine
     {
@@ -27,8 +27,8 @@ namespace POC_Tesseract
             area = Rectangle.Empty;
 
             // Load images
-            using Mat bigImage = color ? ConvertToBGRA(BitmapConverter.ToMat(image)) : ConvertToGray(BitmapConverter.ToMat(image));
-            using Mat smallImage = color ? ConvertToBGRA(BitmapConverter.ToMat(target)) : ConvertToGray(BitmapConverter.ToMat(target));
+            using Mat bigImage = color ? ConvertToBGRA(image.ToMat()) : ConvertToGray(image.ToMat());
+            using Mat smallImage = color ? ConvertToBGRA(target.ToMat()) : ConvertToGray(target.ToMat());
 
 
             // Result image to store match confidence

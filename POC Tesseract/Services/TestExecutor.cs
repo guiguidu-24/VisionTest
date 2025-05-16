@@ -1,21 +1,22 @@
-﻿using OpenCvSharp.XImgProc;
-using POC_Tesseract.UserInterface;
+﻿using Core.Models;
+using Core.Recognition;
+using Core.UserInterface;
+using OpenCvSharp.XImgProc;
 using System.Diagnostics;
 using WindowsInput;
 using WindowsInput.Events;
-using static System.Net.Mime.MediaTypeNames;
 
 
-namespace POC_Tesseract
+namespace Core.Services
 {
-    public class Appli
+    public class TestExecutor
     {
         private OCREngine ocrEngine;
         private ImgEngine imgEngine;
         private ProcessStartInfo processStartInfo;
         private string processName;
 
-        public Appli(string appPath)
+        public TestExecutor(string appPath)
         {
             ocrEngine = new OCREngine("eng");
             imgEngine = new ImgEngine();
@@ -29,10 +30,10 @@ namespace POC_Tesseract
                 CreateNoWindow = false
             };
 
-            processName = String.Empty;
+            processName = string.Empty;
         }
 
-        public Appli(string appPath, string[] args) : this(appPath)
+        public TestExecutor(string appPath, string[] args) : this(appPath)
         {
             processStartInfo.Arguments = string.Join(" ", args);
         }
@@ -47,7 +48,7 @@ namespace POC_Tesseract
 
             var processInst = new Process() { StartInfo = processStartInfo };
             processInst.Start();
-            this.processName = processInst.ProcessName;
+            processName = processInst.ProcessName;
         }
 
         /// <summary>

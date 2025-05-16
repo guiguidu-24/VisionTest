@@ -1,14 +1,9 @@
 ﻿using OpenQA.Selenium;
 
-namespace POC_Tesseract
+namespace Core.Models
 {
-    public struct ScreenElement //TODO : an element can have multiple images of reference and image treatment settings for each one
+    public class ScreenElement //TODO : an element can have multiple images of reference and image treatment settings for each one
     {
-        public ScreenElement()
-        {
-            //do nothing
-        }
-
         public List<Rectangle> Boxes { get; private set; } = new List<Rectangle>();
         public List<Bitmap> Images { get; private set; } = new List<Bitmap>();
         public List<By> Locators { get; private set; } = new List<By>();

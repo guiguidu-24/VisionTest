@@ -3,18 +3,19 @@ using System.Windows.Forms;
 using System.Drawing;
 using System.Diagnostics;
 using WindowsInput.Events;
+using Core.Services;
 
 namespace TestTesseract
 {
     internal class AppliTestsForm
     {
-        private Appli appli;
+        private TestExecutor appli;
 
         [SetUp]
         public void Setup()
         {
             // Initialisation avant chaque test
-            appli = new Appli("");
+            appli = new TestExecutor("");
         }
 
         [TearDown]

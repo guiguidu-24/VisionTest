@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using POC_Tesseract;
+using Core.Services;
 using WindowsInput;
 
 namespace TestTesseract
@@ -9,13 +9,13 @@ namespace TestTesseract
     /// </summary>
     internal partial class AppliTest
     {
-        private Appli appli;
+        private TestExecutor appli;
 
         [SetUp]
         public void Setup()
         {
             // Initialisation avant chaque test
-            appli = new Appli("notepad");
+            appli = new TestExecutor("notepad");
         }
 
         [TearDown]

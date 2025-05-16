@@ -1,6 +1,7 @@
 ﻿using System;
+namespace Core.UserInterface;
 
-internal enum VirtualKeyCode
+public enum VirtualKeyCode
 {
     // Modifier keys
     VK_LBUTTON = 0x01, // Left mouse button

@@ -1,4 +1,4 @@
-﻿using POC_Tesseract;
+﻿using Core.Services;
 using System.Drawing;
 using WindowsInput;
 
@@ -7,7 +7,7 @@ namespace TestsImplementation
     [TestFixture]
     internal class GoogleResearch
     {
-        private Appli appli;
+        private TestExecutor appli;
 
         [Test]
         public void Execute()
@@ -23,7 +23,7 @@ namespace TestsImplementation
         [SetUp]
         public void Setup()
         {
-            appli = new Appli(LocalResources.Msedge, ["www.google.com"]);
+            appli = new TestExecutor(LocalResources.Msedge, ["www.google.com"]);
             appli.Open();
             appli.Wait(1000);
         }

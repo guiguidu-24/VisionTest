@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using Core.Services;
 using POC_Tesseract;
 using WindowsInput;
 
@@ -8,7 +9,7 @@ namespace TestTesseract
     [TestFixture]
     internal class AppliTestPaint
     {
-        private Appli appli;
+        private TestExecutor appli;
         private string paintPath = string.Empty;// TestResources.PaintPath;// @"C:\Windows\System32\mspaint.exe";
         private string bigImagePath = @"..\..\..\images\big.png";
         private string smallImagePath = @"..\..\..\images\small.png";
@@ -31,7 +32,7 @@ namespace TestTesseract
             if (!File.Exists(smallImagePath))
                 throw new FileNotFoundException("Small image not found.", smallImagePath);
 
-            appli = new Appli(paintPath, [bigImagePath]);
+            appli = new TestExecutor(paintPath, [bigImagePath]);
         }
 
         [Test]
