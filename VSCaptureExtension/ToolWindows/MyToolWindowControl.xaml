@@ -69,7 +69,7 @@
                    </Style>
                </Rectangle.Style>
             </Rectangle>
-            <TextBox Grid.Row="1" Grid.Column="0" Text="Text to find..." Margin="5" GotFocus="TextBox_GotFocus"/>
+            <TextBox Grid.Row="1" Grid.Column="0" Text="Text to find..." Margin="5" GotFocus="TextBox_GotFocus" TextChanged="TextBox_TextChanged"/>
 
             <TextBlock Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Text="Text found" />
             <TextBox Grid.Row="1" Grid.Column="2" x:Name="FoundTextBox" Text="{Binding TextFound}" Margin="5" IsReadOnly="True"/>

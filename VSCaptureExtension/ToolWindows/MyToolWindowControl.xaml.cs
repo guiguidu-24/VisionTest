@@ -17,5 +17,10 @@ namespace VSCaptureExtension
                 textBox.Text = string.Empty;
             }
         }
+
+        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
+        }
     }
 }
