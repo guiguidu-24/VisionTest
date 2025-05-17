@@ -1,9 +1,7 @@
-﻿using System;
-using System.Drawing;
-using System.IO;
-using POC_Tesseract;
+﻿using System.Drawing;
+using Core.Recognition;
 
-namespace PreviewAPI
+namespace Runner
 {
     class Program
     {
@@ -12,7 +10,7 @@ namespace PreviewAPI
             // Check if arguments are provided
             if (args.Length < 2)
             {
-                Console.WriteLine("Usage: previewAPI.exe ocr <imagePath>");
+                Console.WriteLine("Usage: runner.exe ocr <imagePath>");
                 return;
             }
 
@@ -28,7 +26,7 @@ namespace PreviewAPI
 
                 default:
                     Console.WriteLine($"Unknown command: {command}");
-                    Console.WriteLine("Usage: previewAPI.exe ocr <imagePath>");
+                    Console.WriteLine("Usage: runner.exe ocr <imagePath>");
                     break;
             }
         }

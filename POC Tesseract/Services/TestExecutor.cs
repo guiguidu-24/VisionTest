@@ -1,8 +1,8 @@
 ﻿using Core.Models;
 using Core.Recognition;
-using Core.UserInterface;
 using System.Diagnostics;
 using Core.Input;
+using Core.Utils;
 
 /*
 Responsibilities of TestExecutor
@@ -26,40 +26,53 @@ Responsibilities of TestExecutor
 
 namespace Core.Services
 {
-    //TODO add all the interfaces
-    //TODO clean this class
-    //TODO complete the other classes 
     public class TestExecutor
     {
         private readonly IMouse _mouse = new Mouse();
         private readonly IScreen _screen = new Input.Screen();
-        private OCREngine ocrEngine;
-        private ImgEngine imgEngine;
-        private ProcessStartInfo processStartInfo;
-        private string processName;
+        private readonly IRecognitionEngine<string> ocrEngine;
+        private readonly IRecognitionEngine<Bitmap> imgEngine;
+        private ProcessStartInfo? processStartInfo;
 
-        public TestExecutor(string appPath)
+        private string? appPath;
+
+        public string AppPath
+        {
+            set 
+            {
+                processStartInfo = new ProcessStartInfo
+                {
+                    FileName = appPath,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = false
+                };
+                appPath = value; 
+            }
+        }
+
+
+        public string[] Arguments
+        {
+            set 
+            {
+                if (processStartInfo == null)
+                {
+                    throw new InvalidOperationException("ProcessStartInfo is not initialized. Set AppPath first.");
+                }
+
+                if (value.Length != 0)
+                    processStartInfo.Arguments = string.Join(" ", value);
+            }
+        }
+
+
+        public TestExecutor()
         {
             ocrEngine = new OCREngine("eng");
             imgEngine = new ImgEngine();
-
-            processStartInfo = new ProcessStartInfo
-            {
-                FileName = appPath,
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                CreateNoWindow = false
-            };
-
-            processName = string.Empty;
         }
-
-        public TestExecutor(string appPath, string[] args) : this(appPath)
-        {
-            processStartInfo.Arguments = string.Join(" ", args);
-        }
-
 
         /// <summary>
         /// Starts the application.
@@ -67,10 +80,17 @@ namespace Core.Services
         /// <exception cref="InvalidOperationException"></exception>
         public void Open()
         {
+            if (string.IsNullOrEmpty(appPath))
+            {
+                throw new InvalidOperationException("Application path is not set.");
+            }
+            if (processStartInfo == null)
+            {
+                throw new InvalidOperationException("ProcessStartInfo is not initialized. Set AppPath first.");
+            }
 
             var processInst = new Process() { StartInfo = processStartInfo };
             processInst.Start();
-            processName = processInst.ProcessName;
         }
 
         /// <summary>
@@ -91,8 +111,8 @@ namespace Core.Services
         /// <param name="timeout"></param>
         public void Click(string text, int timeout = 5000)
         {
-            var point = WaitFor(text, timeout);
-            Click(point);
+            Rectangle area = WaitFor(text, timeout);
+            Click(area.Center());
         }
 
         /// <summary>
@@ -102,8 +122,46 @@ namespace Core.Services
         /// <param name="timeout"></param>
         public void Click(Bitmap image, int timeout = 5000)
         {
-            var point = WaitFor(image, timeout);
-            Click(point);
+            Rectangle area = WaitFor(image, timeout);
+            Click(area.Center());
+        }
+
+        //public void Click<TTarget>(TTarget target, int timeout = 5000)
+        //{
+        //    if (target == null)
+        //    {
+        //        throw new ArgumentNullException(nameof(target), "Target cannot be null.");
+        //    }
+
+        //    Rectangle area = Rectangle.Empty;
+
+        //    if (typeof(TTarget) == typeof(string))
+        //    {
+        //        area = WaitFor(ocrEngine, target as string, timeout);
+        //    }
+        //    else if (typeof(TTarget) == typeof(Bitmap))
+        //    {
+        //        area = WaitFor(imgEngine, target as Bitmap, timeout);
+        //    }
+        //    else
+        //    {
+        //        throw new ArgumentException("Unsupported target type.", nameof(target));
+        //    }
+
+        //    if (area == Rectangle.Empty)
+        //    {
+        //        throw new TimeoutException($"The target '{target}' did not appear within the timeout period of {timeout} milliseconds.");
+        //    }
+        //    Click(area.Center());
+        //}
+
+        public void Click(string text, string imagePath, int timeout = 5000)
+        {
+            var screenElement = new ScreenElement();
+            screenElement.Texts.Append(text);
+            var img = new Bitmap(imagePath);
+            screenElement.Images.Append(img);
+            Click(screenElement, timeout);
         }
 
         /// <summary>
@@ -113,35 +171,45 @@ namespace Core.Services
         /// <param name="timeout"></param>
         public void Click(ScreenElement elt, int timeout = 5000)
         {
-            var point = WaitFor(elt, timeout);
-            Click(point);
+            Rectangle area = WaitFor(elt, timeout);
+            Click(area.Center());
         }
 
-        /// <summary>
-        /// Waits for a specific text to appear on the screen.
-        /// </summary>
-        /// <param name="text"></param>
-        /// <param name="timeout">in milliseconds</param>
-        public Point WaitFor(string text, int timeout = 5000)
+        private Rectangle WaitFor<TTarget>(IRecognitionEngine<TTarget> engine, TTarget target,  int timeout)
         {
+            if (target == null)
+            {
+                throw new ArgumentNullException(nameof(target), "Target cannot be null.");
+            }
+
             const int interval = 100; // Check every 100 milliseconds
-            Rectangle area;
             DateTime start = DateTime.Now;
 
 
             // Wait for the text to appear on the screen
-            while (!ocrEngine.Find(_screen.CaptureScreen(), text, out area))
+            IEnumerable<Rectangle> recognitionResult;
+            while (!(recognitionResult = engine.Find(_screen.CaptureScreen(), target)).Any())
             {
-                //if (elapsedTime >= timeout)
                 if (DateTime.Now.Subtract(start).TotalMilliseconds >= timeout)
                 {
-                    throw new TimeoutException($"The text '{text}' did not appear within the timeout period of {timeout} milliseconds.");
+                    throw new TimeoutException($"The {target.GetType()} '{target}' did not appear within the timeout period of {timeout} milliseconds.");
                 }
 
                 Wait(interval);
             }
 
-            return new Point(area.X + area.Width / 2, area.Y + area.Height / 2);
+            // TODO: Warning if more than one result is found
+            return recognitionResult.First();
+        }
+
+        /// <summary>
+        /// Waits for a specific text to appear on the screen.
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="timeout">in milliseconds</param>
+        public Rectangle WaitFor(string target, int timeout = 5000)
+        {
+            return WaitFor(ocrEngine, target, timeout);
         }
 
         /// <summary>
@@ -151,24 +219,20 @@ namespace Core.Services
         /// <param name="timeout"></param>
         /// <returns></returns>
         /// <exception cref="TimeoutException"></exception>
-        public Point WaitFor(Bitmap image, int timeout = 5000, float threshold = 0.9f) //TODO When you wait for an image, you should not use the path directly and not the bitmap or maybe just a database id
+        public Rectangle WaitFor(Bitmap image, int timeout = 5000, float threshold = 0.9f) //TODO When you wait for an image, you should not use the path directly and not the bitmap or maybe just a database id
         {
-            DateTime start = DateTime.Now;
-            const int interval = 100; // Check every 100 milliseconds
-            Rectangle area;
+            ((ImgEngine)imgEngine).Threshold = threshold;
+            return WaitFor(imgEngine, image, timeout);
+        }
 
-            // Wait for the text to appear on the screen
-            while (!imgEngine.Find(_screen.CaptureScreen(), image, out area, threshold: threshold))
-            {
-                if (DateTime.Now.Subtract(start).TotalMilliseconds >= timeout)
-                {
-                    throw new TimeoutException($"The image did not appear within the timeout period of {timeout} milliseconds.");
-                }
+        public Rectangle WaitFor(string text, string imagePath, int timeout = 5000) 
+        {
+            var screenElement = new ScreenElement();
+            screenElement.Texts.Append(text);
+            var img = new Bitmap(imagePath);
+            screenElement.Images.Append(img);
 
-                Wait(interval);
-            }
-
-            return new Point(area.X + area.Width / 2, area.Y + area.Height / 2);
+            return WaitFor(screenElement, timeout);
         }
 
         /// <summary>
@@ -178,7 +242,7 @@ namespace Core.Services
         /// <param name="timeout">The maximum time to wait for</param>
         /// <returns></returns>
         /// <exception cref="TimeoutException"></exception>
-        public Point WaitFor(ScreenElement elt, int timeout = 5000) 
+        public Rectangle WaitFor(ScreenElement elt, int timeout = 5000) //TODO : Do the search in parallel asynchronously
         {
             DateTime start = DateTime.Now;
             const int interval = 100; // Check every 100 milliseconds
@@ -188,12 +252,16 @@ namespace Core.Services
             // Wait for either the image or the text to appear on the screen
             while (!elementFound)
             {
-                if (elt.Boxes.Count == 0)
+                if (!elt.Boxes.Any())
                 {
                     foreach (var img in elt.Images)
                     {
-                        if (imgEngine.Find(_screen.CaptureScreen(), img, out area))
+                        IEnumerable<Rectangle> recognitionResult;
+                        if ((recognitionResult = imgEngine.Find(_screen.CaptureScreen(), img)).Any())
+                        {
                             elementFound = true; // Image found
+                            area = recognitionResult.First(); // Get the first match
+                        }
 
                         if (elementFound)
                             break; // If image was found, no need to check for text
@@ -202,8 +270,12 @@ namespace Core.Services
                     // Check for the text
                     foreach (var text in elt.Texts)
                     {
-                        if (ocrEngine.Find(_screen.CaptureScreen(), text, out area))
+                        IEnumerable<Rectangle> recognitionResult;
+                        if ((recognitionResult = ocrEngine.Find(_screen.CaptureScreen(), text)).Any())
+                        {
                             elementFound = true; // Text found
+                            area = recognitionResult.First(); // Get the first match
+                        }
 
                         if (elementFound)
                             break; // If image was found, no need to check for text
@@ -221,8 +293,12 @@ namespace Core.Services
                     {
                         foreach (var img in elt.Images)
                         {
-                            if (imgEngine.Find(_screen.CaptureScreen(), img, box, out area))
+                            IEnumerable<Rectangle> recognitionResult;
+                            if ((recognitionResult = imgEngine.Find(_screen.CaptureScreen(), img)).Any())
+                            {
                                 elementFound = true; // Image found
+                                area = recognitionResult.First(); // Get the first match
+                            }
 
                             if (elementFound)
                                 break; // If image was found, no need to check for text
@@ -231,8 +307,12 @@ namespace Core.Services
                         // Check for the text
                         foreach (var text in elt.Texts)
                         {
-                            if (ocrEngine.Find(_screen.CaptureScreen(), text, box, out area))
+                            IEnumerable<Rectangle> recognitionResult;
+                            if ((recognitionResult = ocrEngine.Find(_screen.CaptureScreen(), text)).Any())
+                            {
                                 elementFound = true; // Text found
+                                area = recognitionResult.First(); // Get the first match
+                            }
 
                             if (elementFound)
                                 break; // If image was found, no need to check for text
@@ -250,7 +330,7 @@ namespace Core.Services
             }
 
             // Return the center point of the found area
-            return new Point(area.X + area.Width / 2, area.Y + area.Height / 2);
+            return area;
         }
 
         /// <summary>
@@ -260,7 +340,7 @@ namespace Core.Services
         /// <param name="timeout"></param>
         /// <returns></returns>
         /// <exception cref="TimeoutException"></exception>
-        public Point WaitFor(ScreenElement[] elts, int timeout = 5000) //TODO erase if not useful or implement sth to return witch element appeared
+        public Rectangle WaitFor(ScreenElement[] elts, int timeout = 5000) //TODO erase if not useful or implement sth to return witch element appeared
         {
             var start = DateTime.Now;
             while (DateTime.Now.Subtract(start).TotalMilliseconds >= timeout)
@@ -289,6 +369,5 @@ namespace Core.Services
         {
             Task.Delay(ms).Wait();
         }
-
     }
 }
