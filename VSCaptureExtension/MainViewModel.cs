@@ -4,10 +4,10 @@ using System.Windows.Input;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Media.Imaging;
-using VSCaptureExtension.Model;
+using VSExtension.Model;
 
 
-namespace VSCaptureExtension
+namespace VSExtension
 {
     public class MainViewModel : INotifyPropertyChanged
     {

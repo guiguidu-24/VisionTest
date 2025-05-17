@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace VSCaptureExtension
+namespace VSExtension
 {
     /// <summary>
     /// Interaction logic for CaptureUI.xaml

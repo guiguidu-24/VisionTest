@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using System.Windows;
 
-namespace VSCaptureExtension
+namespace VSExtension
 {
     public class WindowService //TODO : IWindowService make two window services one for each window
     {

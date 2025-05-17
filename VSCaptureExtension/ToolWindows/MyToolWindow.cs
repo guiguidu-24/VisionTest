@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace VSCaptureExtension
+namespace VSExtension
 {
     public class MyToolWindow : BaseToolWindow<MyToolWindow>
     {

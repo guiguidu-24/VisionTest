@@ -4,7 +4,7 @@
 //     Available from https://marketplace.visualstudio.com/items?itemName=MadsKristensen.VsixSynchronizer64
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace VSCaptureExtension
+namespace VSExtension
 {
     using System;
 

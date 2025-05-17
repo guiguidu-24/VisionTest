@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
-namespace VSCaptureExtension
+namespace VSExtension
 {
     public class Screen
     {

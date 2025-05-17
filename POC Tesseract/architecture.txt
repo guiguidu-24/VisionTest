@@ -1,0 +1,34 @@
+﻿VisionTest.Core/
+├── Input/
+│   ├── IKeyboard.cs
+│   ├── IMouse.cs
+│   ├── IScreen.cs
+│   ├── IWindow.cs
+│   ├── VirtualKeyCode.cs
+│   ├── Keyboard.cs
+│   ├── Mouse.cs
+│   └── Window.cs
+│
+├── Recognition/
+│   ├── IImageEngine.cs
+│   ├── IOcrEngine.cs
+│   ├── ImgEngine.cs
+│   └── OCREngine.cs
+│
+├── Models/
+│   └── ScreenElement.cs
+│
+├── Services/
+│   ├── IScreenElementService.cs
+│   └── ScreenElementService.cs
+│
+├── Data/
+│   ├── TestDbContext.cs
+│   ├── IElementRepository.cs
+│   └── ElementRepository.cs
+│
+├── Utils/
+│   └── ImageUtils.cs
+│   └── ScreenCaptureHelper.cs
+│
+├── VisionTest.Core.csproj

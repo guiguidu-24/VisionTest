@@ -1,16 +1,38 @@
 ﻿using Core.Models;
 using Core.Recognition;
 using Core.UserInterface;
-using OpenCvSharp.XImgProc;
 using System.Diagnostics;
-using WindowsInput;
-using WindowsInput.Events;
+using Core.Input;
 
+/*
+Responsibilities of TestExecutor
+
+✅ Does:
+
+    Encapsulates coordination logic
+
+    Abstracts direct engine and input use
+
+    Provides high-level actions: "click on this element", "type into this box"
+
+🚫 Does not:
+
+    Manage databases (use ScreenElementService for that)
+
+    Do raw image/ocr logic (delegates that to engines)
+
+    Directly interact with WPF/Visual Studio UI
+*/
 
 namespace Core.Services
 {
+    //TODO add all the interfaces
+    //TODO clean this class
+    //TODO complete the other classes 
     public class TestExecutor
     {
+        private readonly IMouse _mouse = new Mouse();
+        private readonly IScreen _screen = new Input.Screen();
         private OCREngine ocrEngine;
         private ImgEngine imgEngine;
         private ProcessStartInfo processStartInfo;
@@ -52,42 +74,14 @@ namespace Core.Services
         }
 
         /// <summary>
-        /// Gets the screen capture of the primary screen.
-        /// </summary>
-        /// <returns></returns>
-        public Bitmap GetScreen()
-        {
-            if (System.Windows.Forms.Screen.PrimaryScreen == null)
-            {
-                throw new InvalidOperationException("Primary screen is not available.");
-            }
-
-            Rectangle bounds = new Rectangle(
-                0,
-                0,
-                UserInterface.Screen.Width,
-                UserInterface.Screen.Height
-            );
-
-
-            Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height);
-            using Graphics g = Graphics.FromImage(bitmap);
-            g.CopyFromScreen(Point.Empty, Point.Empty, bounds.Size);
-
-
-            return bitmap;
-        }
-
-
-        /// <summary>
         /// Simulates a mouse click at the specified screen coordinates.
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
         public void Click(Point point)
         {
-            Simulate.Events().MoveTo((int)(point.X / UserInterface.Screen.GetScaleFactor()), (int)(point.Y / UserInterface.Screen.GetScaleFactor())).Invoke().Wait();
-            Simulate.Events().Click(ButtonCode.Left).Invoke().Wait();
+            _mouse.MoveTo((int)(point.X / _screen.ScaleFactor), (int)(point.Y / _screen.ScaleFactor));
+            _mouse.LeftClick();
         }
 
         /// <summary>
@@ -136,7 +130,7 @@ namespace Core.Services
 
 
             // Wait for the text to appear on the screen
-            while (!ocrEngine.Find(GetScreen(), text, out area))
+            while (!ocrEngine.Find(_screen.CaptureScreen(), text, out area))
             {
                 //if (elapsedTime >= timeout)
                 if (DateTime.Now.Subtract(start).TotalMilliseconds >= timeout)
@@ -164,7 +158,7 @@ namespace Core.Services
             Rectangle area;
 
             // Wait for the text to appear on the screen
-            while (!imgEngine.Find(GetScreen(), image, out area, threshold: threshold))
+            while (!imgEngine.Find(_screen.CaptureScreen(), image, out area, threshold: threshold))
             {
                 if (DateTime.Now.Subtract(start).TotalMilliseconds >= timeout)
                 {
@@ -198,7 +192,7 @@ namespace Core.Services
                 {
                     foreach (var img in elt.Images)
                     {
-                        if (imgEngine.Find(GetScreen(), img, out area))
+                        if (imgEngine.Find(_screen.CaptureScreen(), img, out area))
                             elementFound = true; // Image found
 
                         if (elementFound)
@@ -208,7 +202,7 @@ namespace Core.Services
                     // Check for the text
                     foreach (var text in elt.Texts)
                     {
-                        if (ocrEngine.Find(GetScreen(), text, out area))
+                        if (ocrEngine.Find(_screen.CaptureScreen(), text, out area))
                             elementFound = true; // Text found
 
                         if (elementFound)
@@ -227,7 +221,7 @@ namespace Core.Services
                     {
                         foreach (var img in elt.Images)
                         {
-                            if (imgEngine.Find(GetScreen(),img, box, out area))
+                            if (imgEngine.Find(_screen.CaptureScreen(), img, box, out area))
                                 elementFound = true; // Image found
 
                             if (elementFound)
@@ -237,7 +231,7 @@ namespace Core.Services
                         // Check for the text
                         foreach (var text in elt.Texts)
                         {
-                            if (ocrEngine.Find(GetScreen(), text, box, out area))
+                            if (ocrEngine.Find(_screen.CaptureScreen(), text, box, out area))
                                 elementFound = true; // Text found
 
                             if (elementFound)
@@ -296,76 +290,5 @@ namespace Core.Services
             Task.Delay(ms).Wait();
         }
 
-        /// <summary>
-        /// Closes the application window
-        /// </summary>
-        public void CloseWindow()
-        {
-            var processes = Process.GetProcessesByName(processName);
-
-            foreach (Process process in processes)
-            {
-                //if (!process.CloseMainWindow())
-                //    throw new InvalidOperationException($"Failed to close the process {process.ProcessName}.");
-                if (!process.CloseMainWindow())
-                    process.Kill();
-            }
-        }
-
-        /// <summary>
-        /// Resizes the window of the application to the specified width and height.
-        /// </summary>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        public void ResizeWindow(int width, int height)
-        {
-            var processes = Process.GetProcessesByName(processName);
-            foreach (Process process in processes)
-            {
-                Window.Resize(width, height, process.MainWindowHandle);
-            }
-        }
-
-        /// <summary>
-        /// Maximizes the window of the application.
-        /// </summary>
-        public void MaximizeWindow()
-        {
-            var processes = Process.GetProcessesByName(processName);
-            foreach (Process process in processes)
-            {
-                Window.MaximizeWindow(process.MainWindowHandle);
-            }
-        }
-
-        /// <summary>
-        /// Simulates a keyboard input of the specified text.
-        /// </summary>
-        /// <param name="text"></param>
-        public void Write(string text)
-        {
-            Simulate.Events().Click(text).Invoke().Wait();
-        }
-
-        #region helpers
-        private void WaitForGeneral(bool condition, int timeout, string timeoutMessage)
-        {
-            const int interval = 100; // Check every 100 milliseconds
-            DateTime start = DateTime.Now;
-
-
-            // Wait for the text to appear on the screen
-            while (!condition)
-            {
-                //if (elapsedTime >= timeout)
-                if (DateTime.Now.Subtract(start).TotalMilliseconds >= timeout)
-                {
-                    throw new TimeoutException(timeoutMessage);
-                }
-
-                Wait(interval);
-            }
-        }
-        #endregion
     }
 }

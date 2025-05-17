@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace VSCaptureExtension
+namespace VSExtension
 {
     public partial class MyToolWindowControl : UserControl
     {

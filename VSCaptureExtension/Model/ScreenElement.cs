@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Media.Imaging;
 
-namespace VSCaptureExtension
+namespace VSExtension
 {
     public class ScreenElement 
     {

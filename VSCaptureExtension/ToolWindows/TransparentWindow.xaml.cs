@@ -3,7 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 
 
-namespace VSCaptureExtension
+namespace VSExtension
 {
     public partial class TransparentWindow : Window
     {

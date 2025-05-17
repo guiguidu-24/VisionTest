@@ -1,27 +1,66 @@
-﻿using System.Runtime.InteropServices;
-namespace Core.UserInterface;
+﻿using WindowsInput.Events;
+using WindowsInput;
 
-class Mouse
+namespace Core.Input
 {
-    [DllImport("user32.dll")]
-    private static extern bool SetCursorPos(int x, int y);
 
-    [DllImport("user32.dll")]
-    private static extern void mouse_event(uint dwFlags, int dx, int dy, uint dwData, IntPtr dwExtraInfo);
-
-    private const uint MOUSEEVENTF_LEFTDOWN = 0x0002;
-    private const uint MOUSEEVENTF_LEFTUP = 0x0004;
-
-    /// <summary>
-    /// Simulates a mouse click at the specified screen coordinates.
-    /// </summary>
-    /// <param name="x"></param>
-    /// <param name="y"></param>
-    public static void ClickAt(int x, int y)
+    public class Mouse : IMouse
     {
-        SetCursorPos(x, y);                          // Move cursor
-        Thread.Sleep(50);                            // Short delay (optional)
-        mouse_event(MOUSEEVENTF_LEFTDOWN, x, y, 0, IntPtr.Zero); // Mouse down
-        mouse_event(MOUSEEVENTF_LEFTUP, x, y, 0, IntPtr.Zero); // Mouse up
+        public void DoubleClick()
+        {
+            Simulate.Events().DoubleClick(ButtonCode.Left).Invoke().Wait();
+        }
+
+        public void LeftClick()
+        {
+            Simulate.Events().Click(ButtonCode.Left);
+        }
+
+        public void LeftDown()
+        {
+            Simulate.Events().Hold(ButtonCode.Left).Invoke().Wait();
+        }
+
+        public void LeftUp()
+        {
+            Simulate.Events().Release(ButtonCode.Left).Invoke().Wait();
+        }
+
+        public void MoveBy(int deltaX, int deltaY)
+        {
+            Simulate.Events().MoveBy(deltaX, deltaY).Invoke().Wait();
+        }
+
+        public void MoveTo(int x, int y)
+        {
+            Simulate.Events().MoveTo(x, y).Invoke().Wait();
+        }
+
+        public void RightClick()
+        {
+            Simulate.Events().Click(ButtonCode.Right).Invoke().Wait();
+        }
+
+        public void RightDown()
+        {
+            Simulate.Events().Hold(ButtonCode.Right).Invoke().Wait();
+        }
+
+        public void RightUp()
+        {
+            Simulate.Events().Release(ButtonCode.Right).Invoke().Wait();
+        }
+
+        [Obsolete("⚠️ Not tested — use with caution.", false)]
+        public void ScrollHorizontal(int delta) //TODO Test scrolling
+        {
+            Simulate.Events().Scroll(ButtonCode.None, ButtonScrollDirection.Right, delta).Invoke().Wait();
+        }
+
+        [Obsolete("⚠️ Not tested — use with caution.", false)]
+        public void ScrollVertical(int delta)
+        {
+            Simulate.Events().Scroll( ButtonCode.None, ButtonScrollDirection.Up, delta).Invoke().Wait();
+        }
     }
 }

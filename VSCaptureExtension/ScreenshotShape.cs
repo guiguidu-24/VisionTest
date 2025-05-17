@@ -1,6 +1,6 @@
 ﻿
 
-namespace VSCaptureExtension
+namespace VSExtension
 {
     public enum ScreenshotShape
     {

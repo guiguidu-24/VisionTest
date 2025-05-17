@@ -1,6 +1,6 @@
 ﻿using System.Windows.Input;
 
-namespace VSCaptureExtension
+namespace VSExtension
 {
     public class RelayCommand : ICommand
     {

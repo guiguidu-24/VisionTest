@@ -2,7 +2,7 @@
 using System.IO;
 using System.Windows.Media.Imaging;
 
-namespace VSCaptureExtension
+namespace VSExtension
 {
     public class PreviewApiService //TODO: IPreviewApiService 
     {

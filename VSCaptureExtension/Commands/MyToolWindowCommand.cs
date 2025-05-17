@@ -1,4 +1,4 @@
-﻿namespace VSCaptureExtension
+﻿namespace VSExtension
 {
     [Command(PackageIds.MyCommand)]
     internal sealed class MyToolWindowCommand : BaseCommand<MyToolWindowCommand>

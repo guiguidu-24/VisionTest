@@ -1,12 +1,36 @@
 ﻿using System.Runtime.InteropServices;
 
 
-namespace Core.UserInterface
+namespace Core.Input
 {
-    public class Screen
+    public class Screen : IScreen       
     {
-        public static int Width => (int)((System.Windows.Forms.Screen.PrimaryScreen?.Bounds.Width ?? 0) * GetScaleFactor());
-        public static int Height => (int)((System.Windows.Forms.Screen.PrimaryScreen?.Bounds.Height ?? 0) * GetScaleFactor());
+        public Size ScreenSize => new Size(width, height);
+
+        public float ScaleFactor => GetScaleFactor();
+
+        [Obsolete("⚠️ Not tested — use with caution.", false)]
+        public Bitmap CaptureRegion(Rectangle region)
+        {
+            if (System.Windows.Forms.Screen.PrimaryScreen == null)
+            {
+                throw new InvalidOperationException("Primary screen is not available.");
+            }
+
+            Rectangle bounds = new Rectangle(
+                region.X,
+                region.Y,
+                region.Width,
+                region.Height
+            );
+            Bitmap bitmap = new Bitmap(region.Width, region.Height);
+            using Graphics g = Graphics.FromImage(bitmap);
+            g.CopyFromScreen(bounds.Location, Point.Empty, bounds.Size);
+            return bitmap;
+        }
+
+        private int width = (int)((System.Windows.Forms.Screen.PrimaryScreen?.Bounds.Width ?? 0) * GetScaleFactor());
+        private int height = (int)((System.Windows.Forms.Screen.PrimaryScreen?.Bounds.Height ?? 0) * GetScaleFactor());
 
         [DllImport("Shcore.dll")]
         private static extern int GetScaleFactorForMonitor(IntPtr hMonitor, out DEVICE_SCALE_FACTOR scale);
@@ -38,7 +62,7 @@ namespace Core.UserInterface
             public int Y;
         }
 
-        public static float GetScaleFactor()
+        private static float GetScaleFactor()
         {
             POINT pt = new POINT { X = 1, Y = 1 }; // coin haut gauche
             IntPtr hMonitor = MonitorFromPoint(pt, MONITOR_DEFAULTTO.MONITOR_DEFAULTTONEAREST);
@@ -51,7 +75,7 @@ namespace Core.UserInterface
             return 1.0f; // fallback
         }
 
-        public static Bitmap ScreenCapture()
+        public Bitmap CaptureScreen()
         {
             if (System.Windows.Forms.Screen.PrimaryScreen == null)
             {
@@ -61,8 +85,8 @@ namespace Core.UserInterface
             Rectangle bounds = new Rectangle(
                 0,
                 0,
-                UserInterface.Screen.Width,
-                UserInterface.Screen.Height
+                width,
+                height
             );
 
 
