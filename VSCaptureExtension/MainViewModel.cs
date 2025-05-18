@@ -4,7 +4,6 @@ using System.Windows.Input;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Media.Imaging;
-using VSExtension.Model;
 
 
 namespace VSExtension
@@ -20,7 +19,6 @@ namespace VSExtension
         private string textFound = string.Empty;
         private PreviewApiService previewApiService = new PreviewApiService();
         private bool isTextActivated = false;
-        private ScreenElementRepository repository  = new ScreenElementRepository();
         private string currentElementName = string.Empty;
         private string textToFind = string.Empty;
         private bool isImageActivated = false;
@@ -192,7 +190,7 @@ namespace VSExtension
                     return;
                 }
 
-                repository.InsertOrUpdateScreenElement(currentElementName, text, image);
+                //repository.InsertOrUpdateScreenElement(currentElementName, text, image);
 
                 ShowCaptureUI = false;
                 ShowCaptureTool = false;

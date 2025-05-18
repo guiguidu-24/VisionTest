@@ -33,8 +33,9 @@ namespace Core.Services
         private readonly IRecognitionEngine<string> ocrEngine;
         private readonly IRecognitionEngine<Bitmap> imgEngine;
         private ProcessStartInfo? processStartInfo;
-
         private string? appPath;
+
+        public string ProcessName { get; private set; } = string.Empty;
 
         public string AppPath
         {
@@ -42,7 +43,7 @@ namespace Core.Services
             {
                 processStartInfo = new ProcessStartInfo
                 {
-                    FileName = appPath,
+                    FileName = value,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
@@ -51,7 +52,6 @@ namespace Core.Services
                 appPath = value; 
             }
         }
-
 
         public string[] Arguments
         {
@@ -66,7 +66,6 @@ namespace Core.Services
                     processStartInfo.Arguments = string.Join(" ", value);
             }
         }
-
 
         public TestExecutor()
         {
@@ -91,6 +90,7 @@ namespace Core.Services
 
             var processInst = new Process() { StartInfo = processStartInfo };
             processInst.Start();
+            ProcessName = processInst.ProcessName;
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Core.Services
         /// <param name="y"></param>
         public void Click(Point point)
         {
-            _mouse.MoveTo((int)(point.X / _screen.ScaleFactor), (int)(point.Y / _screen.ScaleFactor));
+            _mouse.MoveTo(point.X, point.Y); //(point.X / _screen.ScaleFactor), (int)(point.Y / _screen.ScaleFactor));
             _mouse.LeftClick();
         }
 
@@ -368,6 +368,21 @@ namespace Core.Services
         public void Wait(int ms)
         {
             Task.Delay(ms).Wait();
+        }
+
+        /// <summary>
+        /// Closes the application.
+        /// </summary>
+        public void Close()
+        {
+            var processes = Process.GetProcessesByName(ProcessName);
+            foreach (var process in processes)
+            {
+                if(!process.CloseMainWindow()) // Close the main window of the process
+                    process.Kill();
+               
+                process.WaitForExit();
+            }
         }
     }
 }

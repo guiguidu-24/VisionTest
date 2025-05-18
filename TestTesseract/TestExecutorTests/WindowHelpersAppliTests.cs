@@ -1,11 +1,11 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace TestTesseract
+namespace Tests.TestExecutorTests
 {
-    internal partial class AppliTest
+    internal partial class Basics
     {
         [DllImport("user32.dll")]
-        private static extern bool GetWindowPlacement(IntPtr hWnd, ref WINDOWPLACEMENT lpwndpl);
+        private static extern bool GetWindowPlacement(nint hWnd, ref WINDOWPLACEMENT lpwndpl);
 
         private const int SW_SHOWMAXIMIZED = 3;
 
@@ -38,6 +38,6 @@ namespace TestTesseract
 
 
         [DllImport("user32.dll")]
-        private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+        private static extern bool GetWindowRect(nint hWnd, out RECT lpRect);
     }
 }

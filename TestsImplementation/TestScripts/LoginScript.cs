@@ -11,7 +11,7 @@ namespace TestsImplementation
         [SetUp]
         public void Setup()
         {
-            appli = new TestExecutor(@"C:\Program Files(x86)\Microsoft\Edge\Application\msedge.exe", ["https://ds006g7k:9443/jts/dashboards"]);
+            //appli = new TestExecutor(@"C:\Program Files(x86)\Microsoft\Edge\Application\msedge.exe", ["https://ds006g7k:9443/jts/dashboards"]);
 
         }
 

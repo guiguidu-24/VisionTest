@@ -6,6 +6,9 @@ namespace Core.Input
 
     public class Mouse : IMouse
     {
+        private readonly IScreen _screen = new Screen();
+
+        
         public void DoubleClick()
         {
             Simulate.Events().DoubleClick(ButtonCode.Left).Invoke().Wait();
@@ -13,7 +16,7 @@ namespace Core.Input
 
         public void LeftClick()
         {
-            Simulate.Events().Click(ButtonCode.Left);
+            Simulate.Events().Click(ButtonCode.Left).Invoke().Wait();
         }
 
         public void LeftDown()
@@ -28,12 +31,12 @@ namespace Core.Input
 
         public void MoveBy(int deltaX, int deltaY)
         {
-            Simulate.Events().MoveBy(deltaX, deltaY).Invoke().Wait();
+            Simulate.Events().MoveBy(CoordinateCorrection(deltaX), CoordinateCorrection(deltaY)).Invoke().Wait();
         }
 
         public void MoveTo(int x, int y)
         {
-            Simulate.Events().MoveTo(x, y).Invoke().Wait();
+            Simulate.Events().MoveTo(CoordinateCorrection(x), CoordinateCorrection(y)).Invoke().Wait();
         }
 
         public void RightClick()
@@ -61,6 +64,11 @@ namespace Core.Input
         public void ScrollVertical(int delta)
         {
             Simulate.Events().Scroll( ButtonCode.None, ButtonScrollDirection.Up, delta).Invoke().Wait();
+        }
+
+        private int CoordinateCorrection(int coordinate)
+        {
+            return (int)(coordinate / _screen.ScaleFactor);
         }
     }
 }

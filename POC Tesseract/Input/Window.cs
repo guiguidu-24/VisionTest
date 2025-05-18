@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
 using WindowsInput.Events;
 
@@ -29,6 +30,16 @@ namespace Core.Input
         public Window(nint windowHandle)
         {
             _windowHandle = windowHandle;
+        }
+
+        public Window(string processName)
+        {
+            var process = Process.GetProcessesByName(processName).FirstOrDefault();
+            if (process == null)
+            {
+                throw new InvalidOperationException($"Process '{processName}' not found.");
+            }
+            _windowHandle = process.MainWindowHandle;
         }
 
 

@@ -14,7 +14,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSExtension", "VSCaptureExt
 		{DA208058-6334-49CD-8729-B780E6639694} = {DA208058-6334-49CD-8729-B780E6639694}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Runner", "PreviewAPI\Runner.csproj", "{DA208058-6334-49CD-8729-B780E6639694}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleInterop", "PreviewAPI\ConsoleInterop.csproj", "{DA208058-6334-49CD-8729-B780E6639694}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

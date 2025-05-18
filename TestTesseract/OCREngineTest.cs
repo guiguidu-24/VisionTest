@@ -1,11 +1,7 @@
-﻿
-
-using POC_Tesseract;
-using System.Configuration;
+﻿using Core.Recognition;
 using System.Drawing;
-using System.Xml.Linq;
 
-namespace TestTesseract
+namespace Tests
 {
     internal class OCREngineTest
     {

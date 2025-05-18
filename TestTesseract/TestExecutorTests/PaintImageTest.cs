@@ -1,15 +1,18 @@
 ﻿using System.Drawing;
+using Core.Input;
+using Core.Models;
 using Core.Services;
-using POC_Tesseract;
+using Core.Utils;
 using WindowsInput;
+using WindowsInput.Events;
 
 
-namespace TestTesseract
+namespace Tests.TestExecutorTests
 {
     [TestFixture]
-    internal class AppliTestPaint
+    internal class PaintImageTest
     {
-        private TestExecutor appli;
+        private TestExecutor executor;
         private string paintPath = string.Empty;// TestResources.PaintPath;// @"C:\Windows\System32\mspaint.exe";
         private string bigImagePath = @"..\..\..\images\big.png";
         private string smallImagePath = @"..\..\..\images\small.png";
@@ -17,6 +20,7 @@ namespace TestTesseract
         [SetUp]
         public void Setup()
         {
+            
             //var resourceManager = new ResourceManager("TestTesseract.TestResources", typeof(AppliTestPaint).Assembly);
             var stringPaintPath = TestResources.PaintPath; // resourceManager.GetString("PaintPath");
             Assert.That(stringPaintPath, Is.Not.Null.And.Not.Empty, "'PaintPath' value in resources is empty or null.");
@@ -32,7 +36,9 @@ namespace TestTesseract
             if (!File.Exists(smallImagePath))
                 throw new FileNotFoundException("Small image not found.", smallImagePath);
 
-            appli = new TestExecutor(paintPath, [bigImagePath]);
+            executor = new TestExecutor();
+            executor.AppPath = paintPath;
+            executor.Arguments = [bigImagePath];
         }
 
         [Test]
@@ -43,16 +49,15 @@ namespace TestTesseract
             const int tolerance = 10;
 
             // Open Paint with the big image  
-            appli.Open();
+            executor.Open();
 
-            appli.Wait(1000); // Wait for the application to open and load the image
-            appli.MaximizeWindow();
-            appli.Wait(100); // Wait for the application to maximize
+            executor.Wait(1000); // Wait for the application to open and load the image
             Simulate.Events().Click(WindowsInput.Events.KeyCode.F11).Invoke().Wait();
-            appli.Wait(500); // Wait for the application to maximize
+            executor.Wait(500); // Wait for the application to maximize
 
-            var screen = appli.GetScreen();
-            screen.Save(@"C:\Users\guill\Programmation\dotNET_doc\POC_Tesseract\TestTesseract\screenshot.png");
+
+            var screenshot = new Screen().CaptureScreen();
+            //screenshot.Save("C:\\Users\\guill\\Programmation\\dotNET_doc\\POC_Tesseract\\TestTesseract\\screenshot.png");
 
             // Load the small image  
             Bitmap smallImage = new Bitmap(smallImagePath);
@@ -60,7 +65,7 @@ namespace TestTesseract
             try
             {
                 // Wait for the small image to appear in the big image  
-                Point foundPosition = appli.WaitFor(smallImage, timeout: 5000);
+                Point foundPosition = executor.WaitFor(smallImage, timeout: 5000).Center();
 
                 // Assert the position is within the expected bounds with a tolerance
                 Assert.That(foundPosition.X, Is.InRange(expectedX - tolerance, expectedX + tolerance),
@@ -71,11 +76,6 @@ namespace TestTesseract
             catch (TimeoutException ex)
             {
                 Assert.Fail($"The image was not found within the timeout period. Exception: {ex.Message}");
-            }
-            finally
-            {
-                // Close Paint  
-                appli.CloseWindow();
             }
         }
 
@@ -87,14 +87,13 @@ namespace TestTesseract
             const int tolerance = 10;
 
             // Open Paint with the big image  
-            appli.Open();
+            executor.Open();
 
-            appli.Wait(1000); // Wait for the application to open and load the image
+            executor.Wait(1000); // Wait for the application to open and load the image
             // Maximize the Paint window  
-            appli.MaximizeWindow();
             Simulate.Events().Click(WindowsInput.Events.KeyCode.F11).Invoke().Wait();
-            appli.Wait(500); // Wait for the application to maximize
-            var screen = appli.GetScreen();
+            executor.Wait(500); // Wait for the application to maximize
+            var screenshot = new Screen().CaptureScreen();            
             //screen.Save(@"E:\Projects data\POC_Tesseract\TestTesseract\screenshot.png");
 
             // Load the small image  
@@ -105,7 +104,7 @@ namespace TestTesseract
             try
             {
                 // Wait for the small image to appear in the big image  
-                Point foundPosition = appli.WaitFor(targetElement, timeout: 5000);
+                Point foundPosition = executor.WaitFor(targetElement, timeout: 5000).Center();
 
                 // Assert the position is within the expected bounds with a tolerance
                 Assert.That(foundPosition.X, Is.InRange(expectedX - tolerance, expectedX + tolerance),
@@ -117,18 +116,14 @@ namespace TestTesseract
             {
                 Assert.Fail($"The image was not found within the timeout period. Exception: {ex.Message}");
             }
-            finally
-            {
-                // Close Paint  
-                appli.CloseWindow();
-            }
+            
         }
 
 
         [TearDown]
         public void TearDown()
         {
-            appli.CloseWindow();
+            Simulate.Events().ClickChord(WindowsInput.Events.KeyCode.Alt, KeyCode.F4).Invoke().Wait();
         }
     }
 }

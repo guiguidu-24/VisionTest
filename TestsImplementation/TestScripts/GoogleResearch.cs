@@ -1,29 +1,37 @@
-﻿using Core.Services;
+﻿using Core.Input;
+using Core.Services;
+using Core.Utils;
 using System.Drawing;
-using WindowsInput;
+using WindowsInput.Events;
 
-namespace TestsImplementation
+namespace TestsImplementation.TestScripts
 {
     [TestFixture]
     internal class GoogleResearch
     {
         private TestExecutor appli;
+        private IKeyboard keyboard;
 
         [Test]
         public void Execute()
         {
-            var point = appli.WaitFor(new Bitmap(LocalResources.TestScriptData + @"\searchbar_google.png"));
+            Point point = appli.WaitFor(new Bitmap(LocalResources.TestScriptData + @"\searchbar_google.png")).Center();
             Console.WriteLine($"Found at: {point.X}, {point.Y}");
+            var screenshot = new Screen().CaptureScreen();
+            screenshot.Save("C:\\Users\\guill\\Programmation\\dotNET_doc\\POC_Tesseract\\TestsImplementation\\screenshot.png");
             appli.Click(point);
-            appli.Write("Tesseract");
-            Simulate.Events().Click(WindowsInput.Events.KeyCode.Enter).Invoke().Wait();
+            keyboard.TypeText("Tesseract");
+            keyboard.PressKey(KeyCode.Enter);
             appli.WaitFor("Wikipédia");
         }
 
         [SetUp]
         public void Setup()
         {
-            appli = new TestExecutor(LocalResources.Msedge, ["www.google.com"]);
+            keyboard = new Keyboard();
+            appli = new TestExecutor();
+            appli.AppPath = LocalResources.Msedge;
+            appli.Arguments = ["www.google.com"];
             appli.Open();
             appli.Wait(1000);
         }
@@ -31,7 +39,7 @@ namespace TestsImplementation
         [TearDown]
         public void TearDown()
         {
-            appli.CloseWindow();
+            appli.Close();
         }
     }
 }

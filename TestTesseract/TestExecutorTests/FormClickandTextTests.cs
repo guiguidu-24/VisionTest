@@ -1,13 +1,13 @@
-﻿using POC_Tesseract;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 using System.Drawing;
-using System.Diagnostics;
-using WindowsInput.Events;
 using Core.Services;
+using Core.Input;
+using Core.Utils;
+using Core.Models;
 
-namespace TestTesseract
+namespace Tests.TestExecutorTests
 {
-    internal class AppliTestsForm
+    internal class FormClickandTextTests
     {
         private TestExecutor appli;
 
@@ -15,7 +15,7 @@ namespace TestTesseract
         public void Setup()
         {
             // Initialisation avant chaque test
-            appli = new TestExecutor("");
+            appli = new TestExecutor();
         }
 
         [TearDown]
@@ -44,7 +44,7 @@ namespace TestTesseract
                     await Task.Delay(300); // Wait for focus
 
                     // Simulate key presses
-                    appli.Write(expectedText); // <--- Call your method here
+                    new Keyboard().TypeText(expectedText); // <--- Call your method here
 
                     await Task.Delay(300); // Wait for keys to be processed
                     tcs.SetResult(textBox.Text);
@@ -82,7 +82,7 @@ namespace TestTesseract
                     var label = new Label
                     {
                         Text = $"RandomLabel {i}",
-                        Font = new Font("Arial", 8 + i % 5, (i % 2 == 0) ? FontStyle.Bold : FontStyle.Italic),
+                        Font = new Font("Arial", 8 + i % 5, i % 2 == 0 ? FontStyle.Bold : FontStyle.Italic),
                         Location = new Point(10, i * 20 + 10),
                         AutoSize = true
                     };
@@ -114,11 +114,11 @@ namespace TestTesseract
                         var screenLocation = form.PointToScreen(targetLabel.Location);
                         var labelSize = targetLabel.PreferredSize;
                         var expectedCenter = new Point(
-                            screenLocation.X + labelSize.Width / 2,
-                            screenLocation.Y + labelSize.Height / 2
+                            (int)((screenLocation.X + labelSize.Width / 2)*new Core.Input.Screen().ScaleFactor),
+                            (int)((screenLocation.Y + labelSize.Height / 2) * new Core.Input.Screen().ScaleFactor)
                         );
 
-                        tcs.SetResult((actualPoint, expectedCenter, null));
+                        tcs.SetResult((actualPoint.Center(), expectedCenter, null));
                     }
                     catch (TimeoutException ex)
                     {
@@ -175,7 +175,7 @@ namespace TestTesseract
                     var label = new Label
                     {
                         Text = $"RandomLabel {i}",
-                        Font = new Font("Arial", 8 + i % 5, (i % 2 == 0) ? FontStyle.Bold : FontStyle.Italic),
+                        Font = new Font("Arial", 8 + i % 5, i % 2 == 0 ? FontStyle.Bold : FontStyle.Italic),
                         Location = new Point(10, i * 20 + 10),
                         AutoSize = true
                     };
@@ -207,11 +207,11 @@ namespace TestTesseract
                         var screenLocation = form.PointToScreen(targetLabel.Location);
                         var labelSize = targetLabel.PreferredSize;
                         var expectedCenter = new Point(
-                            screenLocation.X + labelSize.Width / 2,
-                            screenLocation.Y + labelSize.Height / 2
+                            (int)((screenLocation.X + labelSize.Width / 2)* int.Parse(TestResources.ScreenScale.TrimEnd('%'))/100.0f),
+                            (int)((screenLocation.Y + labelSize.Height / 2) * int.Parse(TestResources.ScreenScale.TrimEnd('%')) / 100.0f)
                         );
 
-                        tcs.SetResult((actualPoint, expectedCenter, null));
+                        tcs.SetResult((actualPoint.Center(), expectedCenter, null));
                     }
                     catch (TimeoutException ex)
                     {
@@ -279,7 +279,7 @@ namespace TestTesseract
 
                     // Calculate the button's screen coordinates
                     var buttonScreenLocation = form.PointToScreen(button.Location);
-                    var clickPoint = new Point(buttonScreenLocation.X + button.Width / 2, buttonScreenLocation.Y + button.Height / 2);
+                    var clickPoint = new Point((int) ((buttonScreenLocation.X + button.Width / 2) * int.Parse(TestResources.ScreenScale.TrimEnd('%'))/100f), (int)((buttonScreenLocation.Y + button.Height / 2) * int.Parse(TestResources.ScreenScale.TrimEnd('%')) / 100f));
 
                     // Act
                     appli.Click(clickPoint);
