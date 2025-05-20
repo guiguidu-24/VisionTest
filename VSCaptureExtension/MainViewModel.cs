@@ -2,8 +2,10 @@
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Drawing;
-using System.Threading;
 using System.Windows.Media.Imaging;
+using EnvDTE80;
+using VSExtension.Services;
+using System.Threading;
 
 
 namespace VSExtension
@@ -17,11 +19,13 @@ namespace VSExtension
         private bool showCaptureTool = false;
         private BitmapImage currentScreenshot = null;
         private string textFound = string.Empty;
-        private PreviewApiService previewApiService = new PreviewApiService();
+        private readonly PreviewApiService previewApiService = new PreviewApiService();
         private bool isTextActivated = false;
         private string currentElementName = string.Empty;
         private string textToFind = string.Empty;
         private bool isImageActivated = false;
+        private readonly DTE2 _dte;
+        private ImageSaver imageSaver;
 
         public bool IsImageActivated
         {
@@ -110,11 +114,12 @@ namespace VSExtension
             set 
             {
                 ShowCaptureTool = false;
-                ShowCaptureUI = true;
                 screenShotZone = value;
                 OnPropertyChanged();
                 Thread.Sleep(100);
                 CurrentScreenShot = Screen.Shoot(screenShotZone);
+                Thread.Sleep(100);
+                ShowCaptureUI = true;
             }
         }
 
@@ -147,8 +152,11 @@ namespace VSExtension
         public ICommand SaveCommand { get; }
 
 
-        public MainViewModel()
+        public MainViewModel(DTE2 dte)
         {
+            this._dte = dte;
+            imageSaver = new ImageSaver(dte);
+
             shape = ScreenshotShape.Rectangle;
             captureDelay = 0;
 
@@ -160,7 +168,7 @@ namespace VSExtension
             ClickNewCommand = new RelayCommand(() =>
             {
                 ShowCaptureUI = false;
-                Thread.Sleep(captureDelay * 1000);
+                System.Threading.Thread.Sleep(captureDelay * 1000);
                 ShowCaptureTool = true;
             });
 
@@ -191,6 +199,7 @@ namespace VSExtension
                 }
 
                 //repository.InsertOrUpdateScreenElement(currentElementName, text, image);
+                imageSaver.SaveImageToProjectDirectory(currentScreenshot, $"TestScriptData\\{currentElementName}.png");
 
                 ShowCaptureUI = false;
                 ShowCaptureTool = false;

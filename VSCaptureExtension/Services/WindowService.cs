@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows;
 
 namespace VSExtension
@@ -18,6 +19,7 @@ namespace VSExtension
                 {
                     if (_dataContext.ShowCaptureUI)
                     {
+                        //Attendre un peu pour afficher la fenêtre mais si on attend ici, on ne prend pas la capture d'écran. Il faut donc attendre dans le ViewModel ou de manière asynchrone
                         ShowWindow();
                     }
                     else

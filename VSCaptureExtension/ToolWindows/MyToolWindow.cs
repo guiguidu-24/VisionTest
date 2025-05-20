@@ -1,8 +1,11 @@
-﻿using Microsoft.VisualStudio.Imaging;
+﻿using EnvDTE;
+using EnvDTE80;
+using Microsoft.VisualStudio.Imaging;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using VSExtension.Services;
 
 namespace VSExtension
 {
@@ -29,8 +32,8 @@ namespace VSExtension
         private FrameworkElement InitializeView()
         {
             var toolWindow = new MyToolWindowControl();
-
-            var viewModel = new MainViewModel();
+            var dte = ExtensionPackage.GetGlobalService(typeof(DTE)) as DTE2;
+            var viewModel = new MainViewModel(dte);
             toolWindow.DataContext = viewModel;
             new WindowService(viewModel);
 

@@ -47,7 +47,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Services\Interfaces\IProjectDirectoryService.cs" />
+    <Compile Include="Services\ExtensionPackage.cs" />
+    <Compile Include="Services\ImageSaver.cs" />
     <Compile Include="Services\PreviewApiService.cs" />
     <Compile Include="Model\Screen.cs" />
     <Compile Include="Model\ScreenElement.cs" />
@@ -62,6 +63,7 @@
     <Compile Include="ToolWindows\TransparentWindow.xaml.cs">
       <DependentUpon>TransparentWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Utils\ImageProcessing.cs" />
     <Compile Include="VSCaptureExtensionPackage.cs" />
     <Compile Include="source.extension.cs">
       <AutoGen>True</AutoGen>

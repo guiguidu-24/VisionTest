@@ -16,7 +16,7 @@
 
     <Canvas x:Name="MainCanvas">
         <Rectangle x:Name="SelectionRect"
-           Stroke="DodgerBlue"
+           Stroke="DarkGray"
            StrokeThickness="2"
            Fill="Transparent"
            Visibility="Collapsed"/>
