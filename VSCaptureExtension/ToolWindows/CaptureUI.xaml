@@ -116,7 +116,7 @@
 
     </Window.Resources>
     <DockPanel LastChildFill="True">
-        <StackPanel Orientation="Horizontal" Height="50" Background="#2b2b2b" DockPanel.Dock="Top">
+        <DockPanel Height="50" Background="#2b2b2b" DockPanel.Dock="Top">
             <Button Command="{Binding ClickNewCommand}">
                 <Button.Content>
                     <StackPanel Orientation="Horizontal">
@@ -125,38 +125,6 @@
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <ComboBox SelectedValue="{Binding Shape, Mode=TwoWay}" SelectedValuePath="Tag">
-                <ComboBoxItem Tag="{x:Static local:ScreenshotShape.Rectangle}">
-                    <StackPanel Orientation="Horizontal" Height="20">
-                        <Image Source="pack://application:,,,/VSCaptureExtension;component/Resources/CreatePropertyBrush.png" Margin="0,0,5,0"/>
-                        <TextBlock Text="Rectangle" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </ComboBoxItem>
-                <ComboBoxItem Tag="{x:Static local:ScreenshotShape.Window}">
-                    <StackPanel Orientation="Horizontal" Height="20">
-                        <Image Source="pack://application:,,,/VSCaptureExtension;component/Resources/window-maximize.png" Margin="0,0,5,0"/>
-                        <TextBlock Text="Window" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </ComboBoxItem>
-                <ComboBoxItem Tag="{x:Static local:ScreenshotShape.Fullscreen}">
-                    <StackPanel Orientation="Horizontal" Height="20">
-                        <Image Source="pack://application:,,,/VSCaptureExtension;component/Resources/monitor-screenshot.png" Margin="0,0,5,0"/>
-                        <TextBlock Text="Full screen" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </ComboBoxItem>
-                <ComboBoxItem Tag="{x:Static local:ScreenshotShape.FreeShape}">
-                    <StackPanel Orientation="Horizontal" Height="20">
-                        <Image Source="pack://application:,,,/VSCaptureExtension;component/Resources/shape-oval-plus.png" Margin="0,0,5,0"/>
-                        <TextBlock Text="Free shape" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </ComboBoxItem>
-            </ComboBox>
-            <ComboBox SelectedValue="{Binding CaptureDelay, Mode=TwoWay}" SelectedValuePath="Tag">
-                <ComboBoxItem Content="No delay" Tag="0"/>
-                <ComboBoxItem Content="3 seconds delay" Tag="3"/>
-                <ComboBoxItem Content="5 seconds delay" Tag="5"/>
-                <ComboBoxItem Content="10 seconds delay" Tag="10"/>
-            </ComboBox>
             <Button Command="{Binding ValidateCommand}" HorizontalAlignment="Right">
                 <Button.Content>
                     <StackPanel Orientation="Horizontal">
@@ -165,7 +133,7 @@
                     </StackPanel>
                 </Button.Content>
             </Button>
-        </StackPanel>
+        </DockPanel>
 
         <!-- Center Text -->
         <Grid Background="#1e1e1e">
@@ -194,7 +162,7 @@
             <!-- Image shown only if CurrentScreenShot is not null -->
             <Image Source="{Binding CurrentScreenShot}" Stretch="Uniform" />
 
-            <TextBlock Text="Press ctrl + alt + print to start capturing."
+            <TextBlock Text="Click on + to start capturing."
             FontSize="16" FontWeight="SemiBold" TextAlignment="Center" VerticalAlignment="Center"
             HorizontalAlignment="Center" TextWrapping="Wrap" />
         </Grid>

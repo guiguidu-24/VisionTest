@@ -47,35 +47,17 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
             <!-- Dark transparent rectangle -->
 
-            <CheckBox Grid.Row="0" x:Name="TextCheckBox" Content="Text" Margin="0,5,0,0" IsChecked="{Binding IsTextActivated}"/>
-            <Rectangle Grid.Row="1" Grid.RowSpan="1" Grid.ColumnSpan="3" Fill="Black" Opacity="0.5" Panel.ZIndex="99">
-               <Rectangle.Style>
-                   <Style TargetType="Rectangle">
-                       <Setter Property="Visibility" Value="Collapsed" />
-                       <Style.Triggers>
-                           <DataTrigger Binding="{Binding IsTextActivated}" Value="False">
-                               <Setter Property="Visibility" Value="Visible" />
-                           </DataTrigger>
-                           <DataTrigger Binding="{Binding IsTextActivated}" Value="True">
-                               <Setter Property="Visibility" Value="Hidden" />
-                           </DataTrigger>
-                       </Style.Triggers>
-                   </Style>
-               </Rectangle.Style>
-            </Rectangle>
-            <TextBox Grid.Row="1" Grid.Column="0" Text="Text to find..." Margin="5" GotFocus="TextBox_GotFocus" TextChanged="TextBox_TextChanged"/>
 
-            <TextBlock Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Text="Text found" />
-            <TextBox Grid.Row="1" Grid.Column="2" x:Name="FoundTextBox" Text="{Binding TextFound}" Margin="5" IsReadOnly="True"/>
-            <CheckBox Grid.Row="2" x:Name="ImageCheckBox" Content="Image" Margin="0,5,0,0" IsChecked="{Binding IsImageActivated}"/>
-            <TextBlock Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Text="Image name" />
-            <TextBox Grid.Row="2" Grid.Column="2" Margin="5" Text="{Binding CurrentElementName}"/>
+
+            <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Center" Text="Text found : " Margin="5" />
+            <TextBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"  x:Name="FoundTextBox" Text="{Binding TextFound}" Margin="5" IsReadOnly="True"
+                     MinLines="3" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"/>
+            <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" Text="Image name : " />
+            <TextBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Margin="5" Text="{Binding CurrentElementName}"/>
         </Grid>
         <Button Content="Save" HorizontalAlignment="Right" Padding="20,1" Margin="10,20" Command="{Binding SaveCommand}"/>
     </StackPanel>
