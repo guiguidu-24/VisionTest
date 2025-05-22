@@ -12,7 +12,6 @@ namespace VSExtension
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        private ScreenshotShape shape = ScreenshotShape.Rectangle;
         private int captureDelay = 0;
         private Rectangle screenShotZone;
         private bool showCaptureUI = false;
@@ -20,24 +19,11 @@ namespace VSExtension
         private BitmapImage currentScreenshot = null;
         private string textFound = string.Empty;
         private readonly PreviewApiService previewApiService = new PreviewApiService();
-        private bool isTextActivated = false;
         private string currentElementName = string.Empty;
-        private string textToFind = string.Empty;
-        private bool isImageActivated = false;
         private readonly DTE2 _dte;
         private ImageSaver imageSaver;
 
-        public bool IsImageActivated
-        {
-            get { return isImageActivated; }
-            set
-            {
-                if (isImageActivated == value) return;
-                isImageActivated = value;
-                OnPropertyChanged();
-            }
-        }
-
+        
         public string CurrentElementName
         {
             get { return currentElementName; }
@@ -45,17 +31,6 @@ namespace VSExtension
             {
                 if (currentElementName == value) return;
                 currentElementName = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool IsTextActivated
-        {
-            get { return isTextActivated; }
-            set
-            {
-                if (isTextActivated == value) return;
-                isTextActivated = value;
                 OnPropertyChanged();
             }
         }
@@ -123,17 +98,6 @@ namespace VSExtension
             }
         }
 
-        public ScreenshotShape Shape
-        {
-            get { return shape; }
-            set 
-            { 
-                if(shape == value) return;  
-                shape = value; 
-                OnPropertyChanged(); 
-            }
-        }
-
         public int CaptureDelay
         {
             get { return captureDelay; }
@@ -154,10 +118,9 @@ namespace VSExtension
 
         public MainViewModel(DTE2 dte)
         {
-            this._dte = dte;
+            _dte = dte;
             imageSaver = new ImageSaver(dte);
 
-            shape = ScreenshotShape.Rectangle;
             captureDelay = 0;
 
             ClickAddCommand = new RelayCommand(() =>
@@ -168,7 +131,7 @@ namespace VSExtension
             ClickNewCommand = new RelayCommand(() =>
             {
                 ShowCaptureUI = false;
-                System.Threading.Thread.Sleep(captureDelay * 1000);
+                Thread.Sleep(captureDelay * 1000);
                 ShowCaptureTool = true;
             });
 
@@ -180,25 +143,6 @@ namespace VSExtension
 
             SaveCommand = new RelayCommand(() =>
             {
-                //TODO: Check if the name is already used
-                //TODO Repository.InsertOrUpdateScreenElement()
-
-                string text = null;
-                BitmapImage image = null;
-                if (isTextActivated)
-                {
-                    text = textToFind;
-                }
-                if (isImageActivated)
-                {
-                    image = currentScreenshot;
-                }
-                if (!(isTextActivated || isImageActivated))
-                {
-                    return;
-                }
-
-                //repository.InsertOrUpdateScreenElement(currentElementName, text, image);
                 imageSaver.SaveImageToProjectDirectory(currentScreenshot, $"TestScriptData\\{currentElementName}.png");
 
                 ShowCaptureUI = false;
