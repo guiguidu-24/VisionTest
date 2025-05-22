@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\POC Tesseract\Core.csproj" />
+    <ProjectReference Include="..\POC Tesseract\POC Tesseract.csproj" />
   </ItemGroup>
 
   <ItemGroup>
