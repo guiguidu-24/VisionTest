@@ -1,25 +1,18 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.VisualStudio.Shell.Interop;
+using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Windows.Media.Imaging;
+using VSExtension.Services;
 
 namespace VSExtension
 {
-    public class PreviewApiService //TODO: IPreviewApiService 
+    public class PreviewApiService //TODO: IPreviewApiService TODO Rename
     {
 
 
         public string GetText(BitmapImage bitmapImage)
         {
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = "C:\\Users\\guill\\Programmation\\dotNET_doc\\POC_Tesseract\\PreviewAPI\\bin\\Debug\\net8.0-windows\\PreviewAPI.exe", //TODO  Import the exe into the project as a resource
-                RedirectStandardInput = true,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-            };
-
             if (bitmapImage == null)
             {
                 throw new ArgumentNullException(nameof(bitmapImage), "BitmapImage cannot be null.");
@@ -27,18 +20,11 @@ namespace VSExtension
 
             // Save the BitmapImage to a temporary file
             string tempFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.png");
+
             SaveBitmapImageToFile(bitmapImage, tempFilePath);
 
             // Send the "ocr" command to the running process
-            startInfo.Arguments = $"ocr {tempFilePath}";
-
-            using var process = new Process
-            {
-                StartInfo = startInfo,
-                EnableRaisingEvents = true
-            };
-
-
+            using var process = new InteropProcess($"ocr {tempFilePath}");
             process.Start();
 
             // Read the response from the process

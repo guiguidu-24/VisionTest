@@ -17,18 +17,22 @@
 	</ItemGroup>
 
 	<!--The directory the output is copied for the VSExtension -->
-	<PropertyGroup>
-		<CopyToDir>$(ProjectDir)..\VSCaptureExtension\InteropTools\</CopyToDir>
-	</PropertyGroup>
+    <PropertyGroup>
+    <CopyToDir>$(ProjectDir)..\VSCaptureExtension\InteropTools\</CopyToDir>
+    </PropertyGroup>
 
+    <Target Name="PostBuild" AfterTargets="Build">
+    <Message Text="Executing PostBuild task" Importance="High" />
 
-	<Target Name="PostBuild" AfterTargets="Build">
-		<Message Text="Executing PostBuild task" Importance="High" />
-		
-		<Copy
-  SourceFiles="$(TargetDir)$(ProjectName).exe;$(TargetDir)$(ProjectName).dll"
-  DestinationFolder="$(CopyToDir)" />
-		
-		<Message Text="Copied build files" Importance="High" />
-	</Target>
+    <ItemGroup>
+    <FilesToCopy Include="$(TargetDir)\**\*" />
+    </ItemGroup>
+
+    <Copy
+    SourceFiles="@(FilesToCopy)"
+    DestinationFiles="@(FilesToCopy->'$(CopyToDir)%(RecursiveDir)%(Filename)%(Extension)')"
+    SkipUnchangedFiles="false" />
+
+    <Message Text="Copied build files" Importance="High" />
+    </Target>
 </Project>

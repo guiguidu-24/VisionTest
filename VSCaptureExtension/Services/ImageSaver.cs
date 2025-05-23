@@ -34,6 +34,11 @@ namespace VSExtension.Services
             string fullPath = Path.Combine(projectDir, relativePath);
             Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!); // Ensure folder exists
 
+            if (File.Exists(fullPath))
+            {
+                throw new ArgumentException($"File already exists: {relativePath}");
+            }
+
             image.ConvertToBitmap().Save(fullPath, ImageFormat.Png);
 
         }

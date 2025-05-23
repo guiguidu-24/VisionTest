@@ -370,3 +370,13 @@ FodyWeavers.xsd
 /VSExtension/InteropTools/
 /VSCaptureExtension/InteropTools/ConsoleInterop.dll
 /VSCaptureExtension/InteropTools/ConsoleInterop.exe
+/VSCaptureExtension/InteropTools/tessdata/eng.traineddata
+/VSCaptureExtension/InteropTools/tessdata/fra.traineddata
+/VSCaptureExtension/InteropTools/tessdata/pdf.ttf
+/VSCaptureExtension/InteropTools/D3DCompiler_47_cor3.dll
+/VSCaptureExtension/InteropTools/OpenCvSharpExtern.dll
+/VSCaptureExtension/InteropTools/opencv_videoio_ffmpeg4100_64.dll
+/VSCaptureExtension/InteropTools/PenImc_cor3.dll
+/VSCaptureExtension/InteropTools/PresentationNative_cor3.dll
+/VSCaptureExtension/InteropTools/vcruntime140_cor3.dll
+/VSCaptureExtension/InteropTools/wpfgfx_cor3.dll
