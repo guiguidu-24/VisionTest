@@ -3,18 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "POC Tesseract\Core.csproj", "{31C0C0B7-9677-404E-BAAC-290722C36AF6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisionTest.Core", "VisionTest.Core\VisionTest.Core.csproj", "{31C0C0B7-9677-404E-BAAC-290722C36AF6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "TestTesseract\Tests.csproj", "{B1650C9D-6206-46DF-A1D0-F6A5CC5771E5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisionTest.Tests", "VisionTest.Tests\VisionTest.Tests.csproj", "{B1650C9D-6206-46DF-A1D0-F6A5CC5771E5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestsImplementation", "TestsImplementation\TestsImplementation.csproj", "{59CC6803-E49F-4182-9733-D6E761375699}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisionTest.TestsImplementation", "VisionTest.TestsImplementation\VisionTest.TestsImplementation.csproj", "{59CC6803-E49F-4182-9733-D6E761375699}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSExtension", "VSCaptureExtension\VSExtension.csproj", "{530B514C-5023-4ECE-91D9-18B457DE9AB6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisionTest.VSExtension", "VisionTest.VSExtension\VisionTest.VSExtension.csproj", "{530B514C-5023-4ECE-91D9-18B457DE9AB6}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DA208058-6334-49CD-8729-B780E6639694} = {DA208058-6334-49CD-8729-B780E6639694}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleInterop", "PreviewAPI\ConsoleInterop.csproj", "{DA208058-6334-49CD-8729-B780E6639694}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisionTest.ConsoleInterop", "VisionTest.ConsoleInterop\VisionTest.ConsoleInterop.csproj", "{DA208058-6334-49CD-8729-B780E6639694}"
+	ProjectSection(ProjectDependencies) = postProject
+		{31C0C0B7-9677-404E-BAAC-290722C36AF6} = {31C0C0B7-9677-404E-BAAC-290722C36AF6}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
