@@ -367,3 +367,6 @@ FodyWeavers.xsd
 /TestTesseract/TestResources.Designer.cs
 
 /VSCaptureExtension/PreviewAPI/*
+/VSExtension/InteropTools/
+/VSCaptureExtension/InteropTools/ConsoleInterop.dll
+/VSCaptureExtension/InteropTools/ConsoleInterop.exe
