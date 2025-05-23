@@ -26,7 +26,7 @@ Responsibilities of TestExecutor
 
 namespace Core.Services
 {
-    public class TestExecutor
+    public class TestExecutor //TODO : for an image, directly use the name of the image instead of the path
     {
         private readonly IMouse _mouse = new Mouse();
         private readonly IScreen _screen = new Input.Screen();

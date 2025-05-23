@@ -61,6 +61,15 @@ namespace TestsImplementation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to C:\Program Files\Mozilla Firefox.
+        /// </summary>
+        internal static string Firefox {
+            get {
+                return ResourceManager.GetString("Firefox", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe.
         /// </summary>
         internal static string Msedge {
