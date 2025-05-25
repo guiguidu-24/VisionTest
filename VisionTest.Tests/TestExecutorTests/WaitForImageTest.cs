@@ -10,7 +10,7 @@ using WindowsInput.Events;
 namespace VisionTest.Tests.TestExecutorTests
 {
     [TestFixture]
-    internal class PaintImageTest
+    internal class WaitForImageTest
     {
         private TestExecutor executor;
         private string paintPath = string.Empty;// TestResources.PaintPath;// @"C:\Windows\System32\mspaint.exe";
