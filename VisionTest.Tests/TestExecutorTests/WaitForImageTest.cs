@@ -119,7 +119,49 @@ namespace VisionTest.Tests.TestExecutorTests
             
         }
 
+        [Test]
+        public async Task WaitFor_Text_ImagePath_ImageAppearsWithinTimeout_ReturnsCorrectPosition()
+        {
+            await WaitFor_Generic_ImageAppearsWithinTimeout_ReturnsCorrectPosition(image => executor.WaitFor("hfulhlsq", image), smallImagePath);
+        }
 
+        private async Task WaitFor_Generic_ImageAppearsWithinTimeout_ReturnsCorrectPosition<T>(Func<T, Rectangle> methodUnderTest, T argument)
+        {
+            int expectedX = int.Parse(TestResources.bigX ?? throw new NullReferenceException("'bigX' value in resources is empty or null.")); //313; //309
+            int expectedY = int.Parse(TestResources.bigY ?? throw new NullReferenceException("'bigY' value in resources is empty or null.")); //722; //577
+            const int tolerance = 10;
+
+            // Open Paint with the big image  
+            executor.Open();
+
+            await Task.Delay(1000);
+            Simulate.Events().Click(WindowsInput.Events.KeyCode.F11).Invoke().Wait();
+            await Task.Delay(1000); // Wait for the application to maximize
+
+
+            //var screenshot = new Screen().CaptureScreen();
+            //screenshot.Save("C:\\Users\\guill\\Programmation\\dotNET_doc\\POC_Tesseract\\TestTesseract\\screenshot.png");
+
+            // Load the small image  
+            Bitmap smallImage = new Bitmap(smallImagePath);
+
+            try
+            {
+                // Wait for the small image to appear in the big image  
+                Point foundPosition = methodUnderTest(argument).Center();
+
+                // Assert the position is within the expected bounds with a tolerance
+                Assert.That(foundPosition.X, Is.InRange(expectedX - tolerance, expectedX + tolerance),
+                    $"X coordinate should be within {tolerance} pixels of {expectedX}.");
+                Assert.That(foundPosition.Y, Is.InRange(expectedY - tolerance, expectedY + tolerance),
+                    $"Y coordinate should be within {tolerance} pixels of {expectedY}.");
+            }
+            catch (TimeoutException ex)
+            {
+                Assert.Fail($"The image was not found within the timeout period. Exception: {ex.Message}");
+            }
+        }
+        
         [TearDown]
         public void TearDown()
         {

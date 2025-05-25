@@ -107,42 +107,10 @@ namespace VisionTest.Core.Services
             Click(area.Center());
         }
 
-        //public void Click<TTarget>(TTarget target, int timeout = 5000)
-        //{
-        //    if (target == null)
-        //    {
-        //        throw new ArgumentNullException(nameof(target), "Target cannot be null.");
-        //    }
-
-        //    Rectangle area = Rectangle.Empty;
-
-        //    if (typeof(TTarget) == typeof(string))
-        //    {
-        //        area = WaitFor(ocrEngine, target as string, timeout);
-        //    }
-        //    else if (typeof(TTarget) == typeof(Bitmap))
-        //    {
-        //        area = WaitFor(imgEngine, target as Bitmap, timeout);
-        //    }
-        //    else
-        //    {
-        //        throw new ArgumentException("Unsupported target type.", nameof(target));
-        //    }
-
-        //    if (area == Rectangle.Empty)
-        //    {
-        //        throw new TimeoutException($"The target '{target}' did not appear within the timeout period of {timeout} milliseconds.");
-        //    }
-        //    Click(area.Center());
-        //}
-
         public void Click(string text, string imagePath, int timeout = 5000)
         {
-            var screenElement = new ScreenElement();
-            screenElement.Texts.Add(text);
-            var img = new Bitmap(imagePath);
-            screenElement.Images.Add(img);
-            Click(screenElement, timeout);
+            Rectangle area = WaitFor(text, imagePath, timeout);
+            Click(area.Center());
         }
 
         /// <summary>
