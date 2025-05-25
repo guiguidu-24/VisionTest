@@ -42,7 +42,7 @@ namespace VisionTest.Tests.TestExecutorTests
         }
 
         [Test]
-        public void WaitFor_ImageAppearsWithinTimeout_ReturnsCorrectPosition()
+        public async Task WaitFor_ImageAppearsWithinTimeout_ReturnsCorrectPosition()
         {
             int expectedX = int.Parse(TestResources.bigX ?? throw new NullReferenceException("'bigX' value in resources is empty or null.")); //313; //309
             int expectedY = int.Parse(TestResources.bigY ?? throw new NullReferenceException("'bigY' value in resources is empty or null.")); //722; //577
@@ -51,12 +51,12 @@ namespace VisionTest.Tests.TestExecutorTests
             // Open Paint with the big image  
             executor.Open();
 
-            executor.Wait(1000); // Wait for the application to open and load the image
+            await Task.Delay(1000);
             Simulate.Events().Click(WindowsInput.Events.KeyCode.F11).Invoke().Wait();
-            executor.Wait(500); // Wait for the application to maximize
+            await Task.Delay(1000); // Wait for the application to maximize
 
 
-            var screenshot = new Screen().CaptureScreen();
+            //var screenshot = new Screen().CaptureScreen();
             //screenshot.Save("C:\\Users\\guill\\Programmation\\dotNET_doc\\POC_Tesseract\\TestTesseract\\screenshot.png");
 
             // Load the small image  

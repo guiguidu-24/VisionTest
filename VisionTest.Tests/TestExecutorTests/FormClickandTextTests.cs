@@ -103,6 +103,7 @@ namespace VisionTest.Tests.TestExecutorTests
                 {
                     form.BringToFront();
                     form.Activate();
+                    form.WindowState = FormWindowState.Maximized; // Maximize the form to ensure visibility
                     await Task.Delay(1000); // Let form render and become visible
 
                     try
@@ -196,6 +197,7 @@ namespace VisionTest.Tests.TestExecutorTests
                 {
                     form.BringToFront();
                     form.Activate();
+                    form.WindowState = FormWindowState.Maximized; // Maximize the form to ensure visibility
                     await Task.Delay(1000); // Let form render and become visible
 
                     try
