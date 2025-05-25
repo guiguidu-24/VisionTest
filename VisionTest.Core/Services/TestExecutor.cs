@@ -4,25 +4,6 @@ using System.Diagnostics;
 using VisionTest.Core.Input;
 using VisionTest.Core.Utils;
 
-/*
-Responsibilities of TestExecutor
-
-✅ Does:
-
-    Encapsulates coordination logic
-
-    Abstracts direct engine and input use
-
-    Provides high-level actions: "click on this element", "type into this box"
-
-🚫 Does not:
-
-    Manage databases (use ScreenElementService for that)
-
-    Do raw image/ocr logic (delegates that to engines)
-
-    Directly interact with WPF/Visual Studio UI
-*/
 
 namespace VisionTest.Core.Services
 {
@@ -225,12 +206,19 @@ namespace VisionTest.Core.Services
             return WaitFor(imgEngine, image, timeout);
         }
 
+        /// <summary>
+        /// Waits for a specific text and image to appear on the screen.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="imagePath">The path of the png image</param>
+        /// <param name="timeout"></param>
+        /// <returns></returns>
         public Rectangle WaitFor(string text, string imagePath, int timeout = 5000) 
         {
             var screenElement = new ScreenElement();
-            screenElement.Texts.Append(text);
+            screenElement.Texts.Add(text);
             var img = new Bitmap(imagePath);
-            screenElement.Images.Append(img);
+            screenElement.Images.Add(img);
 
             return WaitFor(screenElement, timeout);
         }
