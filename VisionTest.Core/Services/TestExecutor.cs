@@ -139,9 +139,9 @@ namespace VisionTest.Core.Services
         public void Click(string text, string imagePath, int timeout = 5000)
         {
             var screenElement = new ScreenElement();
-            screenElement.Texts.Append(text);
+            screenElement.Texts.Add(text);
             var img = new Bitmap(imagePath);
-            screenElement.Images.Append(img);
+            screenElement.Images.Add(img);
             Click(screenElement, timeout);
         }
 
