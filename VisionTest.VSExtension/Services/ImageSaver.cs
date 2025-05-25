@@ -47,13 +47,21 @@ namespace VisionTest.VSExtension.Services
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            Array activeSolutionProjects = (Array)_dte.ActiveSolutionProjects;
-            if (activeSolutionProjects.Length > 0)
+            try
             {
-                return activeSolutionProjects.GetValue(0) as Project;
+                Array activeSolutionProjects = (Array)_dte.ActiveSolutionProjects;
+                if (activeSolutionProjects.Length > 0)
+                {
+                    return activeSolutionProjects.GetValue(0) as Project;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
             }
 
-            return null;
+
         }
     }
 

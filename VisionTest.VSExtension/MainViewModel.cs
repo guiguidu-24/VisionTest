@@ -143,11 +143,23 @@ namespace VisionTest.VSExtension
 
             SaveCommand = new RelayCommand(() =>
             {
-                imageSaver.SaveImageToProjectDirectory(currentScreenshot, $"TestScriptData\\{currentElementName}.png");
-
-                ShowCaptureUI = false;
-                ShowCaptureTool = false;
-                CurrentScreenShot = null;
+                try
+                {
+                    imageSaver.SaveImageToProjectDirectory(currentScreenshot, $"TestScriptData\\{currentElementName}.png");
+                    ShowCaptureUI = false;
+                    ShowCaptureTool = false;
+                    CurrentScreenShot = null;
+                }
+                catch (InvalidOperationException ex)
+                {
+                    System.Windows.MessageBox.Show(ex.Message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                    return;
+                }
+                catch (ArgumentException ex)
+                {
+                    System.Windows.MessageBox.Show(ex.Message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                    return;
+                }
             });
         }
 
