@@ -18,32 +18,13 @@ namespace VisionTest.TestsImplementation.TestScripts
         [Test]
         public void Run()
         {
-            //testExecutor.Open();
-            testExecutor.Click(new Bitmap("C:\\Users\\guill\\Programmation\\dotNET_doc\\VisionTest\\TestsImplementation\\TestScriptData\\Firefox.png"));
+            testExecutor.Click(new Bitmap("C:\\Users\\guill\\Programmation\\dotNET_doc\\VisionTest\\VisionTest.TestsImplementation\\TestScriptData\\Firefox.png"));
 
-            testExecutor.Click("Rechercher", "C:\\Users\\guill\\Programmation\\dotNET_doc\\VisionTest\\TestsImplementation\\TestScriptData\\Rechercher.png", 10000); //TODO not working
+            testExecutor.Click("Rechercher", "C:\\Users\\guill\\Programmation\\dotNET_doc\\VisionTest\\VisionTest.TestsImplementation\\TestScriptData\\rechercher_ytb.png");
 
             keyboard.TypeText("blueg");
 
             testExecutor.Click("bluegrass");
-
-            testExecutor.Wait(10000);
-
-        }
-
-
-        [SetUp]
-        public void Setup()
-        {
-            //testExecutor.AppPath = LocalResources.Firefox;
-            //testExecutor.Arguments = [ "www.youtube.com" ];
-        }
-
-
-        [TearDown]
-        public void TearDown()
-        {
-            //testExecutor.Close();
         }
     }
 }
