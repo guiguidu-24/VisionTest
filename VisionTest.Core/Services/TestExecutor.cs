@@ -9,6 +9,9 @@ namespace VisionTest.Core.Services
 {
     public class TestExecutor //TODO : for an image, directly use the name of the image instead of the path
     {
+        private const float defaultThreshold = 0.9f; // Default threshold for image recognition
+        private const int defaultTimeout = 5000; // Default timeout for waiting for elements
+
         private readonly IMouse _mouse = new Mouse();
         private readonly IScreen _screen = new Input.Screen();
         private readonly IRecognitionEngine<string> ocrEngine;
@@ -20,7 +23,7 @@ namespace VisionTest.Core.Services
 
         public string AppPath
         {
-            set 
+            set
             {
                 processStartInfo = new ProcessStartInfo
                 {
@@ -30,13 +33,13 @@ namespace VisionTest.Core.Services
                     RedirectStandardError = true,
                     CreateNoWindow = false
                 };
-                appPath = value; 
+                appPath = value;
             }
         }
 
         public string[] Arguments
         {
-            set 
+            set
             {
                 if (processStartInfo == null)
                 {
@@ -74,6 +77,7 @@ namespace VisionTest.Core.Services
             ProcessName = processInst.ProcessName;
         }
 
+
         /// <summary>
         /// Simulates a mouse click at the specified screen coordinates.
         /// </summary>
@@ -90,7 +94,7 @@ namespace VisionTest.Core.Services
         /// </summary>
         /// <param name="text"></param>
         /// <param name="timeout"></param>
-        public void Click(string text, int timeout = 5000)
+        public void Click(string text, int timeout = defaultTimeout)
         {
             Rectangle area = WaitFor(text, timeout);
             Click(area.Center());
@@ -101,13 +105,13 @@ namespace VisionTest.Core.Services
         /// </summary>
         /// <param name="image"></param>
         /// <param name="timeout"></param>
-        public void Click(Bitmap image, int timeout = 5000)
+        public void Click(Bitmap image, int timeout = defaultTimeout)
         {
             Rectangle area = WaitFor(image, timeout);
             Click(area.Center());
         }
 
-        public void Click(string text, string imagePath, int timeout = 5000)
+        public void Click(string text, string imagePath, int timeout = defaultTimeout)
         {
             Rectangle area = WaitFor(text, imagePath, timeout);
             Click(area.Center());
@@ -118,13 +122,14 @@ namespace VisionTest.Core.Services
         /// </summary>
         /// <param name="elt"></param>
         /// <param name="timeout"></param>
-        public void Click(ScreenElement elt, int timeout = 5000)
+        public void Click(ScreenElement elt, int timeout = defaultTimeout)
         {
             Rectangle area = WaitFor(elt, timeout);
             Click(area.Center());
         }
 
-        private Rectangle WaitFor<TTarget>(IRecognitionEngine<TTarget> engine, TTarget target,  int timeout)
+
+        private Rectangle WaitFor<TTarget>(IRecognitionEngine<TTarget> engine, TTarget target, int timeout)
         {
             if (target == null)
             {
@@ -156,7 +161,7 @@ namespace VisionTest.Core.Services
         /// </summary>
         /// <param name="target"></param>
         /// <param name="timeout">in milliseconds</param>
-        public Rectangle WaitFor(string target, int timeout = 5000)
+        public Rectangle WaitFor(string target, int timeout = defaultTimeout)
         {
             return WaitFor(ocrEngine, target, timeout);
         }
@@ -168,7 +173,7 @@ namespace VisionTest.Core.Services
         /// <param name="timeout"></param>
         /// <returns></returns>
         /// <exception cref="TimeoutException"></exception>
-        public Rectangle WaitFor(Bitmap image, int timeout = 5000, float threshold = 0.9f) //TODO When you wait for an image, you should not use the path directly and not the bitmap or maybe just a database id
+        public Rectangle WaitFor(Bitmap image, int timeout = defaultTimeout, float threshold = 0.9f) //TODO When you wait for an image, you should not use the path directly and not the bitmap or maybe just a database id
         {
             ((ImgEngine)imgEngine).Threshold = threshold;
             return WaitFor(imgEngine, image, timeout);
@@ -181,7 +186,7 @@ namespace VisionTest.Core.Services
         /// <param name="imagePath">The path of the png image</param>
         /// <param name="timeout"></param>
         /// <returns></returns>
-        public Rectangle WaitFor(string text, string imagePath, int timeout = 5000) 
+        public Rectangle WaitFor(string text, string imagePath, int timeout = defaultTimeout)
         {
             var screenElement = new ScreenElement();
             screenElement.Texts.Add(text);
@@ -198,7 +203,7 @@ namespace VisionTest.Core.Services
         /// <param name="timeout">The maximum time to wait for</param>
         /// <returns></returns>
         /// <exception cref="TimeoutException"></exception>
-        public Rectangle WaitFor(ScreenElement elt, int timeout = 5000) //TODO : Do the search in parallel asynchronously
+        public Rectangle WaitFor(ScreenElement elt, int timeout = defaultTimeout) //TODO : Do the search in parallel asynchronously
         {
             DateTime start = DateTime.Now;
             const int interval = 100; // Check every 100 milliseconds
@@ -296,7 +301,7 @@ namespace VisionTest.Core.Services
         /// <param name="timeout"></param>
         /// <returns></returns>
         /// <exception cref="TimeoutException"></exception>
-        public Rectangle WaitFor(ScreenElement[] elts, int timeout = 5000) //TODO erase if not useful or implement sth to return witch element appeared
+        public Rectangle WaitFor(ScreenElement[] elts, int timeout = defaultTimeout) //TODO erase if not useful or implement sth to return witch element appeared
         {
             var start = DateTime.Now;
             while (DateTime.Now.Subtract(start).TotalMilliseconds >= timeout)
@@ -334,11 +339,165 @@ namespace VisionTest.Core.Services
             var processes = Process.GetProcessesByName(ProcessName);
             foreach (var process in processes)
             {
-                if(!process.CloseMainWindow()) // Close the main window of the process
+                if (!process.CloseMainWindow()) // Close the main window of the process
                     process.Kill();
-               
+
                 process.WaitForExit();
             }
+        }
+
+
+        private bool TryWaitFor<TTarget>(IRecognitionEngine<TTarget> engine, TTarget target, out Rectangle area, int timeout, Rectangle? box = null)
+        {
+            if (target == null)
+            {
+                throw new ArgumentNullException(nameof(target), "Target cannot be null.");
+            }
+
+            const int interval = 100; // Check every 100 milliseconds
+            DateTime start = DateTime.Now;
+
+            var image = _screen.CaptureScreen();
+            if (box.HasValue)
+            {
+                image = image.Clone(box.Value, image.PixelFormat); // Crop the image to the specified box if provided
+            }
+
+            // Wait for the text to appear on the screen
+            IEnumerable<Rectangle> recognitionResult;
+            while (!(recognitionResult = engine.Find(image, target)).Any())
+            {
+                if (DateTime.Now.Subtract(start).TotalMilliseconds >= timeout)
+                {
+                    area = Rectangle.Empty;
+                    return false;
+                }
+
+                Wait(interval);
+            }
+
+            // TODO: Warning if more than one result is found
+            area = recognitionResult.First();
+            return true;
+        }
+
+        /// <summary>
+        /// Tries to wait for a specific text to appear on the screen.
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="area"></param>
+        /// <param name="timeout"></param>
+        /// <returns>True if it found the element, false if the timeout is reached</returns>
+        public bool TryWaitFor(string target, out Rectangle area, int timeout = defaultTimeout)
+        {
+            return TryWaitFor(ocrEngine, target, out area, timeout);
+        }
+
+        /// <summary>
+        /// Tries to wait for a specific image to appear on the screen.
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="area"></param>
+        /// <param name="timeout"></param>
+        /// <param name="threshold"></param>
+        /// <returns>True if it found the element, false if the timeout is reached</returns>
+        public bool TryWaitFor(Bitmap image, out Rectangle area, int timeout = defaultTimeout, float threshold = defaultThreshold) //TODO When you wait for an image, you should not use the path directly and not the bitmap or maybe just a database id
+        {
+            ((ImgEngine)imgEngine).Threshold = threshold;
+            return TryWaitFor(imgEngine, image, out area, timeout);
+        }
+
+        /// <summary>
+        /// Tries to wait for a specific text and image to appear on the screen.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="imagePath"></param>
+        /// <param name="area"></param>
+        /// <param name="timeout"></param>
+        /// <param name="threshold"></param>
+        /// <returns>True if it found the element, false if the timeout is reached</returns>
+        public bool TryWaitFor(string text, string imagePath, out Rectangle area, int timeout = defaultTimeout, float threshold = defaultThreshold)
+        {
+            var ocrTask = Task.Run(() =>
+            {
+                Rectangle ocrArea;
+                return (TryWaitFor(text, out ocrArea, timeout), ocrArea);
+            });
+
+            var imgTask = Task.Run(() =>
+            {
+                Rectangle imgArea;
+                return (TryWaitFor(new Bitmap(imagePath), out imgArea, timeout, threshold), imgArea);
+            });
+
+            int taskFinishedIndex = Task.WaitAny(ocrTask, imgTask);
+
+            bool result;
+            if (taskFinishedIndex == 0) // OCR task finished first
+            {
+                (result, area) = ocrTask.Result; // Ensure the OCR task is completed
+            }
+            else // Image task finished first
+            {
+                (result, area) = ocrTask.Result;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Tries to wait for a specific screen element to appear on the screen.
+        /// </summary>
+        /// <param name="screenElement"></param>
+        /// <param name="area"></param>
+        /// <param name="timeout"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException">True if it found the element, false if the timeout is reached</exception>
+        public bool TryWaitFor(ScreenElement screenElement, out Rectangle area, int timeout = defaultTimeout)
+        {
+            if (screenElement == null)
+            {
+                throw new ArgumentNullException(nameof(screenElement), "ScreenElement cannot be null.");
+            }
+            if (screenElement.Images.Count + screenElement.Texts.Count == 0)
+            {
+                throw new ArgumentException("ScreenElement must contain at least one image or text to search for.", nameof(screenElement));
+            }
+            if (screenElement.Boxes.Any() && !(screenElement.Texts.Count == screenElement.Boxes.Count || screenElement.Images.Count == screenElement.Boxes.Count))
+            {
+                throw new ArgumentException("The number of boxes must match the number of images or texts in the ScreenElement.", nameof(screenElement));
+            }
+
+            
+            bool findInBoxes = screenElement.Boxes.Any();
+
+            Task<(bool, Rectangle)>[] tasks = new Task<(bool,Rectangle)>[screenElement.Images.Count + screenElement.Texts.Count];
+
+            for (int i = 0; i < screenElement.Texts.Count; i++)
+            {
+                var text = screenElement.Texts[i];
+                tasks[i] = Task.Run(() =>
+                {
+                    Rectangle textArea;
+                    return (TryWaitFor(ocrEngine, text, out textArea, timeout, findInBoxes ? screenElement.Boxes[i] : null), textArea);
+                });
+            }
+
+            for (int i = 0; i < screenElement.Texts.Count; i++)
+            {
+                var img = screenElement.Images[i];
+                tasks[i] = Task.Run(() =>
+                {
+                    Rectangle imgArea;
+                    return (TryWaitFor(imgEngine,img, out imgArea, timeout, findInBoxes ? screenElement.Boxes[i] : null), imgArea);
+                });
+            }
+
+            int taskFinishedIndex = Task.WaitAny(tasks);
+
+            area = tasks[taskFinishedIndex].Result.Item2; // Get the area from the completed task
+            return tasks[taskFinishedIndex].Result.Item1; // Return whether the element was found
         }
     }
 }
