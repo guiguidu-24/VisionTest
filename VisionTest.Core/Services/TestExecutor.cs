@@ -20,6 +20,8 @@ namespace VisionTest.Core.Services
         private string? appPath;
 
         public string ProcessName { get; private set; } = string.Empty;
+        public float DefaultThreshold { private get; set; } = 0.9f;
+        public TimeSpan DefaultTimeout { private get; set; } = TimeSpan.FromMilliseconds(5000); // Default timeout for waiting for elements
 
         public string AppPath
         {
@@ -55,6 +57,7 @@ namespace VisionTest.Core.Services
         {
             ocrEngine = new OCREngine("eng");
             imgEngine = new ImgEngine();
+            ((ImgEngine)imgEngine).Threshold = defaultThreshold; // Set the default threshold for image recognition
         }
 
         /// <summary>
@@ -347,7 +350,7 @@ namespace VisionTest.Core.Services
         }
 
 
-        private bool TryWaitFor<TTarget>(IRecognitionEngine<TTarget> engine, TTarget target, out Rectangle area, int timeout, Rectangle? box = null, CancellationToken? token = null) //TODO : use the token to manage the timeout
+        private async Task<Rectangle?> WaitForAsync<TTarget>(IRecognitionEngine<TTarget> engine, TTarget target, Rectangle? box, CancellationToken cancellationToken) //TODO : use the token to manage the timeout
         {
             if (target == null)
             {
@@ -355,87 +358,52 @@ namespace VisionTest.Core.Services
             }
 
             const int interval = 100; // Check every 100 milliseconds
-            DateTime start = DateTime.Now;
 
-            var image = _screen.CaptureScreen();
-            if (box.HasValue)
-            {
-                image = image.Clone(box.Value, image.PixelFormat); // Crop the image to the specified box if provided
-            }
+            Bitmap image;
 
             // Wait for the text to appear on the screen
             IEnumerable<Rectangle> recognitionResult;
-            while (!(recognitionResult = engine.Find(image, target)).Any())
+            do
             {
-                if (DateTime.Now.Subtract(start).TotalMilliseconds >= timeout)
+                image = _screen.CaptureScreen();
+                if (box.HasValue)
                 {
-                    area = Rectangle.Empty;
-                    return false;
+                    image = image.Clone(box.Value, image.PixelFormat); // Crop the image to the specified box if provided
                 }
 
-                Wait(interval);
-                token?.ThrowIfCancellationRequested(); // Check for cancellation
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return null; // Return null if cancellation is requested
+                }
+                await Task.Delay(interval, cancellationToken);
             }
+            while (!(recognitionResult = engine.Find(image, target)).Any());
+
 
             // TODO: Warning if more than one result is found
-            area = recognitionResult.First();
-            return true;
+            return recognitionResult.First();
+            //return (true, area);
         }
 
         /// <summary>
-        /// Tries to wait for a specific text to appear on the screen.
+        /// Waits for a specific screen element to appear on the screen asynchronously.
         /// </summary>
         /// <param name="target"></param>
-        /// <param name="area"></param>
-        /// <param name="timeout"></param>
-        /// <returns>True if it found the element, false if the timeout is reached</returns>
-        public bool TryWaitFor(string target, out Rectangle area, int timeout = defaultTimeout)
-        {
-            return TryWaitFor(ocrEngine, target, out area, timeout);
-        }
-
-        /// <summary>
-        /// Tries to wait for a specific image to appear on the screen.
-        /// </summary>
-        /// <param name="image"></param>
-        /// <param name="area"></param>
-        /// <param name="timeout"></param>
-        /// <param name="threshold"></param>
-        /// <returns>True if it found the element, false if the timeout is reached</returns>
-        public bool TryWaitFor(Bitmap image, out Rectangle area, int timeout = defaultTimeout, float threshold = defaultThreshold) //TODO When you wait for an image, you should not use the path directly and not the bitmap or maybe just a database id
-        {
-            ((ImgEngine)imgEngine).Threshold = threshold;
-            return TryWaitFor(imgEngine, image, out area, timeout);
-        }
-
-        /// <summary>
-        /// Tries to wait for a specific text and image to appear on the screen.
-        /// </summary>
-        /// <param name="text"></param>
-        /// <param name="imagePath"></param>
-        /// <param name="area"></param>
-        /// <param name="timeout"></param>
-        /// <param name="threshold"></param>
-        /// <returns>True if it found the element, false if the timeout is reached</returns>
-        public bool TryWaitFor(string text, string imagePath, out Rectangle area, int timeout = defaultTimeout, float threshold = defaultThreshold)
-        {
-            ((ImgEngine)imgEngine).Threshold = threshold;
-            var screenElement = new ScreenElement();
-            screenElement.Texts.Add(text);
-            screenElement.Images.Add(new Bitmap(imagePath));
-            return TryWaitFor(screenElement, out area, timeout);
-        }
-
-        /// <summary>
-        /// Tries to wait for a specific screen element to appear on the screen.
-        /// </summary>
-        /// <param name="target"></param>
-        /// <param name="area"></param>
-        /// <param name="timeout"></param>
         /// <returns></returns>
+        public async Task<Rectangle?> WaitforAsync(ScreenElement target)
+        {
+            return await WaitForAsync(target, DefaultTimeout);
+        }
+
+        /// <summary>
+        /// Waits for a specific screen element to appear on the screen asynchronously.
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="timeout">After the timeout, the Task completes</param>
+        /// <returns>The area around the target if found, null if not found</returns>
         /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ArgumentException">True if it found the element, false if the timeout is reached</exception>
-        public async Task<(bool,Rectangle)> TryWaitForAsync(ScreenElement target, int timeout = defaultTimeout)
+        /// <exception cref="ArgumentException"></exception>
+        public async Task<Rectangle?> WaitForAsync(ScreenElement target, TimeSpan timeout)
         {
             if (target == null)
             {
@@ -450,28 +418,26 @@ namespace VisionTest.Core.Services
                 throw new ArgumentException("The number of boxes must match the number of images or texts in the ScreenElement.", nameof(target));
             }
 
-            
+
             bool findInBoxes = target.Boxes.Count != 0;
-            var cts = new CancellationTokenSource();
-            Task<(bool, Rectangle)>[] tasks = new Task<(bool,Rectangle)>[target.Images.Count + target.Texts.Count];
+            var cts = new CancellationTokenSource(timeout);
+            var tasks = new Task<Rectangle?>[target.Images.Count + target.Texts.Count];
 
             for (int i = 0; i < target.Texts.Count; i++)
             {
                 var text = target.Texts[i];
-                tasks[i] = Task.Run(() =>
+                tasks[i] = Task.Run(async () =>
                 {
-                    Rectangle textArea;
-                    return (TryWaitFor(ocrEngine, text, out textArea, timeout, findInBoxes ? target.Boxes[i] : null, cts.Token), textArea);
+                    return await WaitForAsync(ocrEngine, text, findInBoxes ? target.Boxes[i] : null, cts.Token);
                 }, cts.Token);
             }
 
-            for (int i = 0; i < target.Texts.Count; i++)
+            for (int i = 0; i < target.Images.Count; i++)
             {
                 var img = target.Images[i];
-                tasks[i] = Task.Run(() =>
+                tasks[i + target.Texts.Count] = Task.Run(async () =>
                 {
-                    Rectangle imgArea;
-                    return (TryWaitFor(imgEngine,img, out imgArea, timeout, findInBoxes ? target.Boxes[i] : null, cts.Token), imgArea);
+                    return await WaitForAsync(imgEngine, img, findInBoxes ? target.Boxes[i] : null, cts.Token);
                 }, cts.Token);
             }
 
@@ -482,16 +448,100 @@ namespace VisionTest.Core.Services
         }
 
         /// <summary>
-        /// Tries to wait for a specific screen element to appear on the screen.
+        /// Tries to wait for a specific target to appear on the screen.
         /// </summary>
         /// <param name="target"></param>
-        /// <param name="area"></param>
-        /// <param name="timeout"></param>
-        /// <returns></returns>
-        public bool TryWaitFor(ScreenElement target, out Rectangle area, int timeout = defaultTimeout)
+        /// <param name="area">The area is null if not found</param>
+        /// <returns>true if found, false otherwise</returns>
+        public bool TryWaitFor(string target, out Rectangle? area)
         {
-            (var result, area) = TryWaitForAsync(target, timeout).Result;
-            return result;
+            return TryWaitFor(target, out area, DefaultTimeout);
+        }
+
+        /// <summary>
+        /// Tries to wait for a specific target to appear on the screen.
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="area">The area is null if not found</param>
+        /// <returns>true if found, false otherwise</returns>
+        public bool TryWaitFor(string target, out Rectangle? area, TimeSpan timeout)
+        {
+            var cst = new CancellationTokenSource(timeout);
+            area = WaitForAsync(ocrEngine, target, null, cst.Token).Result;
+            return area.HasValue;
+        }
+
+        /// <summary>
+        /// Tries to wait for a specific target to appear on the screen.
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="area">The area is null if not found</param>
+        /// <returns>true if found, false otherwise</returns>
+        public bool TryWaitFor(Bitmap target, out Rectangle? area)
+        {
+            return TryWaitFor(target, out area, DefaultTimeout);
+        }
+
+        /// <summary>
+        /// Tries to wait for a specific target to appear on the screen.
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="area">The area is null if not found</param>
+        /// <returns>true if found, false otherwise</returns>
+        public bool TryWaitFor(Bitmap target, out Rectangle? area, TimeSpan timeout)
+        {
+            return TryWaitFor(target, out area, timeout, DefaultThreshold);
+        }
+
+        /// <summary>
+        /// Tries to wait for a specific target to appear on the screen.
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="area">The area is null if not found</param>
+        /// <returns>true if found, false otherwise</returns>
+        public bool TryWaitFor(Bitmap target, out Rectangle? area, float threshold)
+        {
+            return TryWaitFor(target, out area, DefaultTimeout, threshold);
+        }
+
+        /// <summary>
+        /// Tries to wait for a specific target to appear on the screen.
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="area">The area is null if not found</param>
+        /// <returns>true if found, false otherwise</returns>
+        public bool TryWaitFor(Bitmap target, out Rectangle? area, TimeSpan timeout, float threshold)
+        {
+            ((ImgEngine)imgEngine).Threshold = threshold;
+            var cts = new CancellationTokenSource(timeout);
+            area = WaitForAsync(imgEngine, target, null, cts.Token).Result;
+            return area.HasValue;
+        }
+
+        /// <summary>
+        /// Tries to wait for specific targets to appear on the screen.
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="area">The area is null if not found</param>
+        /// <returns>true if found, false otherwise</returns>
+        public bool TryWaitFor(string text, string imagePath, out Rectangle? area)
+        {
+            var screenElement = new ScreenElement();
+            screenElement.Texts.Add(text);
+            screenElement.Images.Add(new Bitmap(imagePath));
+            return TryWaitFor(screenElement, out area);
+        }
+
+        /// <summary>
+        /// Tries to wait for a specific target to appear on the screen.
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="area">The area is null if not found</param>
+        /// <returns>true if found, false otherwise</returns>
+        public bool TryWaitFor(ScreenElement target, out Rectangle? area)
+        {
+            area = WaitforAsync(target).Result;
+            return area.HasValue;
         }
     }
 }

@@ -161,7 +161,15 @@ namespace VisionTest.Tests.TestExecutorTests
                 Assert.Fail($"The image was not found within the timeout period. Exception: {ex.Message}");
             }
         }
-        
+
+        [Test]
+        public async Task WaitForAsync_ScreenElement_ReturnsCorrectPosition()
+        {
+            await WaitFor_Generic_ImageAppearsWithinTimeout_ReturnsCorrectPosition(
+                image => executor.WaitforAsync(new ScreenElement { Images = { image } }).Result ?? Rectangle.Empty,
+                new Bitmap(smallImagePath));
+        }
+
         [TearDown]
         public void TearDown()
         {

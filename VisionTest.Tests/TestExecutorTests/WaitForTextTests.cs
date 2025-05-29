@@ -25,6 +25,7 @@ namespace VisionTest.Tests.TestExecutorTests
             appli = null!;
         }
 
+        [Test]
         public async Task Write_ShouldTypeCorrectCharacters()
         {
             var expectedText = "HelloWorld";
@@ -61,7 +62,7 @@ namespace VisionTest.Tests.TestExecutorTests
             Assert.That(actualText, Is.EqualTo(expectedText));
         }
 
-
+        [Test]
         public async Task Waitfor_ShouldReturnCenterOfTextOnScreen()
         {
             var targetText = "TargetLabelText";
@@ -254,6 +255,39 @@ namespace VisionTest.Tests.TestExecutorTests
 
             await Waitfor_Method_Path_ShouldReturnCenterOfTextOnScreen(s => appli.WaitFor(s, "C:\\Users\\guill\\Programmation\\dotNET_doc\\VisionTest\\VisionTest.Tests\\images\\cottonLike.png"));
         }
+
+        [Test]
+        public void TryWaitfor_ScreenElement_True()
+        {
+            var result = appli.TryWaitFor(new ScreenElement() { Texts = { "File", Guid.NewGuid().ToString() }, Images = {new Bitmap("C:\\Users\\guill\\Programmation\\dotNET_doc\\VisionTest\\VisionTest.Tests\\images\\cottonLike2.png") } }, out _);
+            Assert.That(result, Is.True, "Expected TryWaitFor to return true for existing text.");
+        }
+
+        [Test]
+        public void TryWaitfor_ScreenElement_False()
+        {
+            Rectangle? rect;
+            var result = appli.TryWaitFor(new ScreenElement() { Texts = { Guid.NewGuid().ToString(), Guid.NewGuid().ToString() } }, out rect);
+            Assert.That(result, Is.False, "Expected TryWaitFor to return False for existing text.");
+            Assert.That(rect, Is.Null, "Expected rectangle to be null when text is not found.");
+        }
+
+        [Test]
+        public void TryWaitfor_Text_True()
+        {
+            var result = appli.TryWaitFor("File", out _);
+            Assert.That(result, Is.True, "Expected TryWaitFor to return true for existing text.");
+        }
+
+        [Test]
+        public void TryWaitfor_Text_False()
+        {
+            Rectangle? rect;
+            var result = appli.TryWaitFor(Guid.NewGuid().ToString(), out rect);
+            Assert.That(result, Is.False, "Expected TryWaitFor to return False for existing text.");
+            Assert.That(rect, Is.Null, "Expected rectangle to be null when text is not found.");
+        }
+
 
         private async Task Waitfor_Method_Path_ShouldReturnCenterOfTextOnScreen(Func<string, Rectangle> methodUnderTest)
         {
