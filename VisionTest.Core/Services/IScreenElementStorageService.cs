@@ -22,7 +22,7 @@ namespace VisionTest.Core.Services
         /// <summary>
         /// Retrieves all saved screen elements.
         /// </summary>
-        Task<IEnumerable<ScreenElement>> GetAllAsync();
+        Task<IEnumerable<string>> GetAllNamesAsync();
 
         /// <summary>
         /// Checks whether a screen element with the given ID exists.

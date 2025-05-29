@@ -6,7 +6,10 @@ namespace VisionTest.Core.Services
 {
     public class ScreenElementStorageService : IScreenElementStorageService
     {
+        private const string storageDirectoryName = "TestScriptData";
         private readonly string _storageDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestScriptData");
+
+
 
         /// <summary>
         /// Deletes a screen element by its unique identifier.
@@ -32,15 +35,9 @@ namespace VisionTest.Core.Services
         /// Retrieves all saved screen elements from the storage directory.
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<ScreenElement>> GetAllAsync()
+        public async Task<IEnumerable<string>> GetAllNamesAsync()
         {
-
-            return await Task.Run(() => Directory.GetFiles(_storageDirectory, "*.png").Select(path =>
-            {
-                var element = new ScreenElement() { Id = Path.GetFileNameWithoutExtension(path) };
-                element.Images.Add(new Bitmap(path));
-                return element;
-            }));
+            return await Task.Run(() => Directory.GetFiles(_storageDirectory, "*.png").Select(s => Path.GetFileNameWithoutExtension(s)).Where(s => s != string.Empty & s != null));
         }
 
         /// <summary>
@@ -65,14 +62,16 @@ namespace VisionTest.Core.Services
         /// </summary>
         /// <param name="element"></param>
         /// <returns></returns>
-        public async Task SaveAsync(ScreenElement element)
+        public async Task SaveAsync(ScreenElement element, string projectDirectory)
         {
             await Task.Run(() =>
             {
-                Directory.CreateDirectory(_storageDirectory);
-                string filePath = Path.Combine(_storageDirectory, $"{element.Id}.png");
+                var storageDirectory = Path.Combine(projectDirectory, storageDirectoryName);
+                Directory.CreateDirectory(storageDirectory);
+                string filePath = Path.Combine(storageDirectory, $"{element.Id}.png");
                 File.Create(filePath).Dispose(); // Ensure the file is created
             });
         }
+        
     }
 }
