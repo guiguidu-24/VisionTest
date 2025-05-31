@@ -1,27 +1,26 @@
 ﻿using System.Drawing;
+using VisionTest.Core.Models;
 using VisionTest.Core.Recognition;
+using VisionTest.Core.Services;
 
 namespace VisionTest.ConsoleInterop
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            // Check if arguments are provided
-            if (args.Length < 2)
-            {
-                Console.WriteLine("Usage: runner.exe ocr <imagePath>");
-                return;
-            }
 
             // Parse the command and arguments
             string command = args[0].ToLower();
-            string imagePath = args[1];
 
             switch (command)
             {
                 case "ocr":
-                    ProcessOCRCommand(imagePath);
+                    string imagePath = args[1];
+                    ProcessOCRCommand(args);
+                    break;
+                case "add":
+                    await AddNewElement(args);
                     break;
 
                 default:
@@ -31,8 +30,16 @@ namespace VisionTest.ConsoleInterop
             }
         }
 
-        private static void ProcessOCRCommand(string imagePath)
+        private static void ProcessOCRCommand(string[] args)
         {
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Usage: runner.exe ocr <imagePath>");
+                return;
+            }
+
+            string imagePath = args[1];
+
             // Validate the image path
             if (!File.Exists(imagePath))
             {
@@ -54,6 +61,35 @@ namespace VisionTest.ConsoleInterop
                 // Output the extracted text
                 Console.WriteLine("Extracted Text:");
                 Console.WriteLine(extractedText);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+        }
+
+        private static async Task AddNewElement(string[] args)
+        {
+            if (args.Length < 4)
+            {
+                Console.WriteLine("Usage: runner.exe add <projectDirectory> <id> <imagePath>");
+                return;
+            }
+
+            string projectDirectory = args[1];
+            string id = args[2];
+            string imagePath = args[3];
+
+            try
+            {
+                var repositoryManager = new RepositoryManager(projectDirectory);
+                var screenElement = new ScreenElement
+                {
+                    Id = id,
+                    Images = { new Bitmap(imagePath) }
+                };
+
+                await repositoryManager.AddAsync(screenElement, projectDirectory);
             }
             catch (Exception ex)
             {

@@ -4,11 +4,15 @@ using VisionTest.Core.Models;
 
 namespace VisionTest.Core.Services
 {
-    public class ScreenElementStorageService : IScreenElementStorageService
+    public class ScreenElementStorageService
     {
         private const string storageDirectoryName = "TestScriptData";
-        private readonly string _storageDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestScriptData");
+        private readonly string _storageDirectory;// = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestScriptData");
 
+        public ScreenElementStorageService(string projectDirectory)
+        {
+            _storageDirectory = Path.Combine(projectDirectory, storageDirectoryName);
+        }
 
 
         /// <summary>
@@ -62,13 +66,12 @@ namespace VisionTest.Core.Services
         /// </summary>
         /// <param name="element"></param>
         /// <returns></returns>
-        public async Task SaveAsync(ScreenElement element, string projectDirectory)
+        public async Task SaveAsync(ScreenElement element)
         {
             await Task.Run(() =>
             {
-                var storageDirectory = Path.Combine(projectDirectory, storageDirectoryName);
-                Directory.CreateDirectory(storageDirectory);
-                string filePath = Path.Combine(storageDirectory, $"{element.Id}.png");
+                Directory.CreateDirectory(_storageDirectory);
+                string filePath = Path.Combine(_storageDirectory, $"{element.Id}.png");
                 File.Create(filePath).Dispose(); // Ensure the file is created
             });
         }

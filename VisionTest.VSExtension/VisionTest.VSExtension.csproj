@@ -96,7 +96,6 @@
     <Content Include="InteropTools\tessdata\pdf.ttf">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <None Include="ClassDiagram1.cd" />
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
       <Generator>VsixManifestGenerator</Generator>
