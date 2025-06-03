@@ -2,7 +2,7 @@
 using VisionTest.Core.Models;
 
 
-namespace VisionTest.Core.Services
+namespace VisionTest.Core.Services.Storage
 {
     public class ScreenElementStorageService
     {
