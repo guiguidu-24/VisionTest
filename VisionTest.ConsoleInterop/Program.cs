@@ -2,6 +2,7 @@
 using VisionTest.Core.Models;
 using VisionTest.Core.Recognition;
 using VisionTest.Core.Services;
+using VisionTest.Core.Services.Storage;
 
 namespace VisionTest.ConsoleInterop
 {
@@ -22,7 +23,9 @@ namespace VisionTest.ConsoleInterop
                 case "add":
                     await AddNewElement(args);
                     break;
-
+                case "update":
+                    await Update(args);
+                    break;
                 default:
                     Console.WriteLine($"Unknown command: {command}");
                     Console.WriteLine("Usage: runner.exe ocr <imagePath>");
@@ -65,6 +68,7 @@ namespace VisionTest.ConsoleInterop
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
+                throw;
             }
         }
 
@@ -94,7 +98,33 @@ namespace VisionTest.ConsoleInterop
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
+                throw;
             }
+        }
+        
+        private static async Task Update(string[] args)
+        {
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Usage: runner.exe update <projectDirectory>");
+                return;
+            }
+
+            var projectDirectory = args[1];
+
+            try
+            {
+                var repositoryManager = new RepositoryManager(projectDirectory);
+
+                await repositoryManager.UpdateEnumAsync(projectDirectory);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                throw;
+            }
+
+
         }
     }
 }

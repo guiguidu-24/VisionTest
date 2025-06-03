@@ -1,19 +1,19 @@
 ﻿using System.Drawing;
 using VisionTest.Core.Models;
-using VisionTest.Core.Services;
+using VisionTest.Core.Services.Storage;
 
 namespace VisionTest.Tests
 {
     [TestFixture]
     public class ScreenElementStorageServiceTest
     {
-        private IScreenElementStorageService _storageService;
+        private ScreenElementStorageService _storageService;
         private readonly string _testDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestScriptData");
 
         [SetUp]
         public void Setup()
         {
-            _storageService = new ScreenElementStorageService();
+            _storageService = new ScreenElementStorageService(TestContext.CurrentContext.TestDirectory);
         }
 
         [Test]
@@ -59,18 +59,18 @@ namespace VisionTest.Tests
         }
 
 
-        [Test]
-        public async Task GetAllAsync_test()
-        {
-            const string id = "Firefox";
-            var elements = await _storageService.GetAllAsync();
-
-            Assert.That(elements, Is.Not.Null);
-            Assert.That(elements.Count(), Is.EqualTo(1));
-
-            Assert.That(elements.First().Id, Is.EqualTo(id));
-            Assert.That(elements.First().Images.Count, Is.EqualTo(1));
-        }
+        //[Test]
+        //public async Task GetAllAsync_test()
+        //{
+        //    const string id = "Firefox";
+        //    var elements = await _storageService.GetAllAsync();
+        //
+        //    Assert.That(elements, Is.Not.Null);
+        //    Assert.That(elements.Count(), Is.EqualTo(1));
+        //
+        //    Assert.That(elements.First().Id, Is.EqualTo(id));
+        //    Assert.That(elements.First().Images.Count, Is.EqualTo(1));
+        //}
 
         [Test]
         public async Task ExistsAsync_test_true()

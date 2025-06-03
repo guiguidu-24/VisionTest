@@ -36,12 +36,12 @@ namespace VisionTest.Core.Services.Storage
         }
 
         /// <summary>
-        /// Retrieves all saved screen elements from the storage directory.
+        /// Retrieves all the ids of the saved screen elements from the storage directory.
         /// </summary>
         /// <returns></returns>
         public async Task<IEnumerable<string>> GetAllNamesAsync()
         {
-            return await Task.Run(() => Directory.GetFiles(_storageDirectory, "*.png").Select(s => Path.GetFileNameWithoutExtension(s)).Where(s => s != string.Empty & s != null));
+            return await Task.Run(() => Directory.GetFiles(_storageDirectory, "*.png").Select(s => Path.GetFileNameWithoutExtension(s)).Where(s => s != string.Empty && s != null));
         }
 
         /// <summary>
@@ -75,6 +75,6 @@ namespace VisionTest.Core.Services.Storage
                 File.Create(filePath).Dispose(); // Ensure the file is created
             });
         }
-        
+
     }
 }

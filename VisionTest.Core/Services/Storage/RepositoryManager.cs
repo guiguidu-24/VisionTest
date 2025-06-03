@@ -30,25 +30,7 @@ namespace VisionTest.Core.Services.Storage
                 throw new ArgumentException($"Screen element with ID '{screenElement.Id}' already exists.");
             }
 
-            var addToEnumTask = Task.Run (async () =>
-            {
-                if (!File.Exists(_enumFilePath))
-                {
-                    using FileStream fileStream = File.Create(_enumFilePath);
-                    using StreamWriter fileWriter = new StreamWriter(fileStream);
-                    await fileWriter.WriteLineAsync($"namespace {Path.GetFileName(projectDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))};");
-                    await fileWriter.WriteAsync("public static class ScreenElements \n{ \n}");
-                }
-
-                using var writer = new StreamWriter(_enumFilePath, append: false);
-                string enumContent = await File.ReadAllTextAsync(_enumFilePath);
-                
-                enumContent = enumContent.Insert(enumContent.LastIndexOf("}") - 1, $"\t{screenElement.Id},\n");
-                enumContent = enumContent.Remove(enumContent.LastIndexOf("}"));
-
-                enumContent += $"public const string {screenElement.Id} = \"{screenElement.Id}\";\n}}";
-                await writer.WriteAsync(enumContent);
-            });
+            var addToEnumTask = AddElementToEnum(screenElement, projectDirectory);
 
             await Task.WhenAll(saveTask, addToEnumTask);
         }
@@ -81,6 +63,52 @@ namespace VisionTest.Core.Services.Storage
                 lines.RemoveAll(line => line.Contains("public const " + id + " "));
                
                 await File.WriteAllLinesAsync(_enumFilePath, lines);
+            }
+            else
+            {
+                throw new FileNotFoundException($"Enum file '{_enumFilePath}' does not exist.");
+            }
+        }
+
+        private async Task AddElementToEnum(ScreenElement screenElement, string projectDirectory) //TODO Delete the project directory parameter
+        {
+            await Task.Run(async () =>
+            {
+                if (!File.Exists(_enumFilePath))
+                {
+                    using FileStream fileStream = File.Create(_enumFilePath);
+                    using StreamWriter fileWriter = new StreamWriter(fileStream);
+                    await fileWriter.WriteLineAsync($"namespace {Path.GetFileName(projectDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))};");
+                    await fileWriter.WriteAsync("public static class ScreenElements \n{ \n}");
+                }
+
+                using var writer = new StreamWriter(_enumFilePath, append: false);
+                string enumContent = await File.ReadAllTextAsync(_enumFilePath);
+
+                enumContent = enumContent.Insert(enumContent.LastIndexOf("}") - 1, $"\t{screenElement.Id},\n");
+                enumContent = enumContent.Remove(enumContent.LastIndexOf("}"));
+
+                enumContent += $"public const string {screenElement.Id} = \"{screenElement.Id}\";\n}}";
+                await writer.WriteAsync(enumContent);
+            });
+        }
+
+        public async Task UpdateEnumAsync(string projectDirectory)
+        {
+            IEnumerable<string> screenElementNames = await _screenElementStorageService.GetAllNamesAsync();
+            
+            if (File.Exists(_enumFilePath))
+            {
+                File.Delete(_enumFilePath);
+            }
+
+            foreach (var name in screenElementNames)
+            {
+                var screenElement = await _screenElementStorageService.GetByIdAsync(name);
+                if (screenElement != null)
+                {
+                    await AddElementToEnum(screenElement, projectDirectory);
+                }
             }
         }
     }
