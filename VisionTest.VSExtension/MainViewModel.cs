@@ -18,10 +18,9 @@ namespace VisionTest.VSExtension
         private bool showCaptureTool = false;
         private BitmapImage currentScreenshot = null;
         private string textFound = string.Empty;
-        private readonly PreviewApiService previewApiService = new PreviewApiService();
+        private readonly InteropService interop = new InteropService();
         private string currentElementName = string.Empty;
         private readonly DTE2 _dte;
-        private ImageSaver imageSaver;
 
         
         public string CurrentElementName
@@ -57,7 +56,7 @@ namespace VisionTest.VSExtension
 
                 if (currentScreenshot != null)
                 {
-                    TextFound = previewApiService.GetText(currentScreenshot);
+                    TextFound = interop.GetText(currentScreenshot);
                 }
             }
         }
@@ -118,10 +117,7 @@ namespace VisionTest.VSExtension
 
         public MainViewModel(DTE2 dte)
         {
-            _dte = dte;
-            imageSaver = new ImageSaver(dte);
-
-            captureDelay = 0;
+            ProjectService.Dte = dte;
 
             ClickAddCommand = new RelayCommand(() =>
             {
@@ -145,19 +141,14 @@ namespace VisionTest.VSExtension
             {
                 try
                 {
-                    imageSaver.SaveImageToProjectDirectory(currentScreenshot, $"TestScriptData\\{currentElementName}.png");
+                    interop.Add(currentScreenshot, currentElementName);
                     ShowCaptureUI = false;
                     ShowCaptureTool = false;
                     CurrentScreenShot = null;
                 }
-                catch (InvalidOperationException ex)
+                catch (Exception ex)
                 {
                     System.Windows.MessageBox.Show(ex.Message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
-                    return;
-                }
-                catch (ArgumentException ex)
-                {
-                    System.Windows.MessageBox.Show(ex.Message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
                     return;
                 }
             });

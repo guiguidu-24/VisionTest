@@ -48,11 +48,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Services\ExtensionPackage.cs" />
-    <Compile Include="Services\ImageSaver.cs" />
+    <Compile Include="Services\ProjectService.cs" />
     <Compile Include="Services\InteropProcess.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Services\PreviewApiService.cs" />
+    <Compile Include="Services\InteropService.cs" />
     <Compile Include="Model\Screen.cs" />
     <Compile Include="Model\ScreenElement.cs" />
     <Compile Include="ToolWindows\CaptureUI.xaml.cs">

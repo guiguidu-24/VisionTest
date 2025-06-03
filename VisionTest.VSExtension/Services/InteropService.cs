@@ -7,8 +7,19 @@ using VisionTest.VSExtension.Services;
 
 namespace VisionTest.VSExtension
 {
-    public class PreviewApiService //TODO: IPreviewApiService TODO Rename
+    public class InteropService //TODO: IPreviewApiService TODO Rename
     {
+        InteropProcess _interopProcess;
+
+        public string Add(BitmapImage image, string id)
+        {
+            throw new NotImplementedException("This method is not implemented yet.");
+        }
+
+        public void UpdateEnum()
+        {
+            throw new NotImplementedException("This method is not implemented yet.");
+        }
 
 
         public string GetText(BitmapImage bitmapImage)
@@ -76,5 +87,8 @@ namespace VisionTest.VSExtension
                 throw new IOException($"Failed to create the temporary file at {filePath}");
             }
         }
+        
+
+
     }
 }
