@@ -1,10 +1,9 @@
-﻿using System;
-using System.Drawing;
-using System.Windows.Shapes;
+﻿using System.Drawing;
 using VisionTest.Core.Models;
 using VisionTest.Core.Recognition;
-using VisionTest.Core.Services;
 using VisionTest.Core.Services.Storage;
+
+//add C:\Users\guill\Programmation\dotNET_doc\VisionTest\VisionTest.TestsImplementation buttonlik2 C:\Users\guill\Programmation\dotNET_doc\VisionTest\VisionTest.Tests\images\cottonLike2.png
 
 namespace VisionTest.ConsoleInterop
 {
@@ -36,6 +35,10 @@ namespace VisionTest.ConsoleInterop
             }
         }
 
+        /// <summary>
+        /// Reads an image file and performs OCR to extract text from it
+        /// </summary>
+        /// <param name="args"></param>
         private static void ProcessOCRCommand(string[] args)
         {
             if (args.Length < 2)
@@ -67,6 +70,7 @@ namespace VisionTest.ConsoleInterop
                 // Output the extracted text
                 Console.WriteLine("Extracted Text:");
                 Console.WriteLine(extractedText);
+
             }
             catch (Exception ex)
             {
@@ -82,7 +86,6 @@ namespace VisionTest.ConsoleInterop
                 Console.WriteLine("Usage: add <projectDirectory> <id> <imagePath>");
                 return;
             }
-
             string projectDirectory = args[1];
             string id = args[2];
             string imagePath = args[3];

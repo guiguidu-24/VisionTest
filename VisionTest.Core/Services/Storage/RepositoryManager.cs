@@ -22,8 +22,6 @@ namespace VisionTest.Core.Services.Storage
         /// <returns></returns>
         public async Task AddAsync(ScreenElement screenElement)
         {
-            Task saveTask = _screenElementStorageService.SaveAsync(screenElement);
-
             var names = await _screenElementStorageService.GetAllNamesAsync();
 
             if (names.Contains(screenElement.Id))
@@ -31,6 +29,8 @@ namespace VisionTest.Core.Services.Storage
                 throw new ArgumentException($"Screen element with ID '{screenElement.Id}' already exists.");
             }
 
+            var saveTask = _screenElementStorageService.SaveAsync(screenElement);
+            
             var addToEnumTask = AddElementToEnum(screenElement);
 
             await Task.WhenAll(saveTask, addToEnumTask);
@@ -80,16 +80,14 @@ namespace VisionTest.Core.Services.Storage
                     using FileStream fileStream = File.Create(_enumFilePath);
                     using StreamWriter fileWriter = new StreamWriter(fileStream);
                     await fileWriter.WriteLineAsync($"namespace {Path.GetFileName(_projectDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))};");
-                    await fileWriter.WriteAsync("public static class ScreenElements \n{ \n}");
+                    await fileWriter.WriteAsync("public static class ScreenElements \n{\n}");
                 }
 
-                using var writer = new StreamWriter(_enumFilePath, append: false);
                 string enumContent = await File.ReadAllTextAsync(_enumFilePath);
 
-                enumContent = enumContent.Insert(enumContent.LastIndexOf("}") - 1, $"\t{screenElement.Id},\n");
-                enumContent = enumContent.Remove(enumContent.LastIndexOf("}"));
+                enumContent = enumContent.Insert(enumContent.LastIndexOf("}"), $"\tpublic const string {screenElement.Id} = \"{screenElement.Id}\";\n");
 
-                enumContent += $"public const string {screenElement.Id} = \"{screenElement.Id}\";\n}}";
+                using var writer = new StreamWriter(_enumFilePath, append: false);
                 await writer.WriteAsync(enumContent);
             });
         }
