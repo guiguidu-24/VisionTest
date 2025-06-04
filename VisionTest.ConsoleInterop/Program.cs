@@ -79,7 +79,7 @@ namespace VisionTest.ConsoleInterop
         {
             if (args.Length < 4)
             {
-                Console.WriteLine("Usage: runner.exe add <projectDirectory> <id> <imagePath>");
+                Console.WriteLine("Usage: add <projectDirectory> <id> <imagePath>");
                 return;
             }
 
@@ -109,7 +109,7 @@ namespace VisionTest.ConsoleInterop
         {
             if (args.Length < 2)
             {
-                Console.WriteLine("Usage: runner.exe update <projectDirectory>");
+                Console.WriteLine("Usage: update <projectDirectory>");
                 return;
             }
 

@@ -20,7 +20,6 @@ namespace VisionTest.VSExtension
         private string textFound = string.Empty;
         private readonly InteropService interop = new InteropService();
         private string currentElementName = string.Empty;
-        private readonly DTE2 _dte;
 
         
         public string CurrentElementName

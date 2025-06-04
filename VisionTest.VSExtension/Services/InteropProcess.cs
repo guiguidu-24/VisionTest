@@ -9,12 +9,11 @@ namespace VisionTest.VSExtension.Services
     {
         private static readonly string fileName = GetFileName();
 
-        public InteropProcess(string arguments) : base()
+        public InteropProcess() : base()
         {
             StartInfo = new ProcessStartInfo
             {
                 FileName = fileName,
-                Arguments = arguments,
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,

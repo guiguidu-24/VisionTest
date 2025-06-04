@@ -9,16 +9,23 @@ namespace VisionTest.VSExtension
 {
     public class InteropService //TODO: IPreviewApiService
     {
-        InteropProcess _interopProcess;
+        private readonly InteropProcess _interopProcess;
 
-        public string Add(BitmapImage image, string id)
+        public InteropService()
         {
-            throw new NotImplementedException("This method is not implemented yet.");
+            _interopProcess = new InteropProcess();
+            _interopProcess.Start();
+        }
+
+        public void Add(BitmapImage image, string id)
+        {
+            var tempImagePath = SaveBitmapImageToTemp(image);
+            _interopProcess.StandardInput.WriteLine($"add {ProjectService.GetActiveProjectDirectory()} {id} {SaveBitmapImageToTemp(image)}");
         }
 
         public void UpdateEnum()
         {
-            throw new NotImplementedException("This method is not implemented yet.");
+            _interopProcess.StandardInput.WriteLine($"update {ProjectService.GetActiveProjectDirectory()}");
         }
 
 
@@ -30,16 +37,13 @@ namespace VisionTest.VSExtension
             }
 
             // Save the BitmapImage to a temporary file
-            string tempFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.png");
-
-            SaveBitmapImageToFile(bitmapImage, tempFilePath);
+            string tempFilePath = SaveBitmapImageToTemp(bitmapImage);
 
             // Send the "ocr" command to the running process
-            using var process = new InteropProcess($"ocr {tempFilePath}");
-            process.Start();
-
+           
+            _interopProcess.StandardInput.WriteLine($"ocr {tempFilePath}");
             // Read the response from the process
-            string header = process.StandardOutput.ReadLine();
+            string header = _interopProcess.StandardOutput.ReadLine();
 
             // Return the response
             if (header.Trim() != "Extracted Text:")
@@ -47,9 +51,7 @@ namespace VisionTest.VSExtension
                 throw new InvalidOperationException($"Unexpected response from OCR process: {header}");
             }
 
-            var output = process.StandardOutput.ReadLine().Trim();
-
-            process.WaitForExit();
+            var output = _interopProcess.StandardOutput.ReadLine().Trim();
 
 
             try
@@ -65,16 +67,18 @@ namespace VisionTest.VSExtension
             return output;
         }
 
-        private void SaveBitmapImageToFile(BitmapImage bitmapImage, string filePath)
+        private string SaveBitmapImageToTemp(BitmapImage bitmapImage)
         {
+            string tempFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.png");
+
             // Ensure the directory exists
-            string directoryPath = Path.GetDirectoryName(filePath);
+            string directoryPath = Path.GetDirectoryName(tempFilePath);
             if (!Directory.Exists(directoryPath))
             {
                 Directory.CreateDirectory(directoryPath);
             }
 
-            using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
+            using (var fileStream = new FileStream(tempFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
             {
                 BitmapEncoder encoder = new PngBitmapEncoder();
                 encoder.Frames.Add(BitmapFrame.Create(bitmapImage));
@@ -82,10 +86,12 @@ namespace VisionTest.VSExtension
             }
 
             // Verify the file exists
-            if (!File.Exists(filePath))
+            if (!File.Exists(tempFilePath))
             {
-                throw new IOException($"Failed to create the temporary file at {filePath}");
+                throw new IOException($"Failed to create the temporary file at {tempFilePath}");
             }
+
+            return tempFilePath;
         }
         
 
