@@ -6,9 +6,11 @@ namespace VisionTest.Core.Services.Storage
     {
         private readonly ScreenElementStorageService _screenElementStorageService;
         private readonly string _enumFilePath;
+        private readonly string _projectDirectory;
 
         public RepositoryManager(string projectDirectory)
         {
+            _projectDirectory = projectDirectory;
             _enumFilePath = Path.Combine(projectDirectory, "ScreenElements.cs");
             _screenElementStorageService = new ScreenElementStorageService(projectDirectory);
         }
@@ -17,9 +19,8 @@ namespace VisionTest.Core.Services.Storage
         /// Adds a new screen element to the storage and updates the ScreenElementsEnum.cs file.
         /// </summary>
         /// <param name="screenElement"></param>
-        /// <param name="projectDirectory"></param>
         /// <returns></returns>
-        public async Task AddAsync(ScreenElement screenElement, string projectDirectory)
+        public async Task AddAsync(ScreenElement screenElement)
         {
             Task saveTask = _screenElementStorageService.SaveAsync(screenElement);
 
@@ -30,7 +31,7 @@ namespace VisionTest.Core.Services.Storage
                 throw new ArgumentException($"Screen element with ID '{screenElement.Id}' already exists.");
             }
 
-            var addToEnumTask = AddElementToEnum(screenElement, projectDirectory);
+            var addToEnumTask = AddElementToEnum(screenElement);
 
             await Task.WhenAll(saveTask, addToEnumTask);
         }
@@ -70,7 +71,7 @@ namespace VisionTest.Core.Services.Storage
             }
         }
 
-        private async Task AddElementToEnum(ScreenElement screenElement, string projectDirectory) //TODO Delete the project directory parameter
+        private async Task AddElementToEnum(ScreenElement screenElement)
         {
             await Task.Run(async () =>
             {
@@ -78,7 +79,7 @@ namespace VisionTest.Core.Services.Storage
                 {
                     using FileStream fileStream = File.Create(_enumFilePath);
                     using StreamWriter fileWriter = new StreamWriter(fileStream);
-                    await fileWriter.WriteLineAsync($"namespace {Path.GetFileName(projectDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))};");
+                    await fileWriter.WriteLineAsync($"namespace {Path.GetFileName(_projectDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))};");
                     await fileWriter.WriteAsync("public static class ScreenElements \n{ \n}");
                 }
 

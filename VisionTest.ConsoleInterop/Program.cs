@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
+using System.Windows.Shapes;
 using VisionTest.Core.Models;
 using VisionTest.Core.Recognition;
 using VisionTest.Core.Services;
@@ -8,28 +10,29 @@ namespace VisionTest.ConsoleInterop
 {
     class Program
     {
-        static async Task Main(string[] args)
+        static async Task Main()
         {
-
-            // Parse the command and arguments
-            string command = args[0].ToLower();
-
-            switch (command)
+            
+            while(true)
             {
-                case "ocr":
-                    string imagePath = args[1];
-                    ProcessOCRCommand(args);
-                    break;
-                case "add":
-                    await AddNewElement(args);
-                    break;
-                case "update":
-                    await Update(args);
-                    break;
-                default:
-                    Console.WriteLine($"Unknown command: {command}");
-                    Console.WriteLine("Usage: runner.exe ocr <imagePath>");
-                    break;
+                string[] commandLine  = Console.ReadLine()?.Split() ?? []; // Wait for user input to continue
+
+                switch (commandLine[0])
+                {
+                    case "ocr":
+                        string imagePath = commandLine[1];
+                        ProcessOCRCommand(commandLine);
+                        break;
+                    case "add":
+                        await AddNewElement(commandLine);
+                        break;
+                    case "update":
+                        await Update(commandLine); //TODO: Fire and forget
+                        break;
+                    default:
+                        Console.WriteLine($"Unknown command: {commandLine[0]}");
+                        break;
+                }
             }
         }
 
@@ -93,7 +96,7 @@ namespace VisionTest.ConsoleInterop
                     Images = { new Bitmap(imagePath) }
                 };
 
-                await repositoryManager.AddAsync(screenElement, projectDirectory);
+                await repositoryManager.AddAsync(screenElement);
             }
             catch (Exception ex)
             {

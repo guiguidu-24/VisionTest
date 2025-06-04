@@ -7,7 +7,7 @@ using VisionTest.VSExtension.Services;
 
 namespace VisionTest.VSExtension
 {
-    public class InteropService //TODO: IPreviewApiService TODO Rename
+    public class InteropService //TODO: IPreviewApiService
     {
         InteropProcess _interopProcess;
 
