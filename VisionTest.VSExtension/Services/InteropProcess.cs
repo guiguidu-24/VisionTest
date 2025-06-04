@@ -33,8 +33,13 @@ namespace VisionTest.VSExtension.Services
             // Path to where the files are deployed by the VSIX engine
             string interopFolder = Path.Combine(extensionDirectory, "InteropTools");
 
+            var path = Path.Combine(interopFolder, "VisionTest.ConsoleInterop.exe");
+
+            if (!File.Exists(path))
+                throw new FileNotFoundException("The interop console executable was not found.", path);
+
             // Full path to the console EXE
-            return Path.Combine(interopFolder, "ConsoleInterop.exe");
+            return path;
         }
     }
 }

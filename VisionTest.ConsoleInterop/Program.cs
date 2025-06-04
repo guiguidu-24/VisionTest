@@ -40,7 +40,7 @@ namespace VisionTest.ConsoleInterop
         {
             if (args.Length < 2)
             {
-                Console.WriteLine("Usage: runner.exe ocr <imagePath>");
+                Console.WriteLine("Usage:ocr <imagePath>");
                 return;
             }
 

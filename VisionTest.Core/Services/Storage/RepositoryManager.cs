@@ -108,7 +108,7 @@ namespace VisionTest.Core.Services.Storage
                 var screenElement = await _screenElementStorageService.GetByIdAsync(name);
                 if (screenElement != null)
                 {
-                    await AddElementToEnum(screenElement, projectDirectory);
+                    await AddElementToEnum(screenElement);
                 }
             }
         }
