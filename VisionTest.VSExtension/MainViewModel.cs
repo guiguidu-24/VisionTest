@@ -108,7 +108,7 @@ namespace VisionTest.VSExtension
         }
 
 
-        public ICommand ClickAddCommand { get; }
+        public ICommand ClickAddCommand { get; } //TODO do not initialize in the constructor
         public ICommand ClickNewCommand { get; }
         public ICommand ValidateCommand { get; }
         public ICommand SaveCommand { get; }

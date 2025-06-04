@@ -58,7 +58,7 @@ namespace VisionTest.VSExtension
             {
                 File.Delete(tempFilePath);
             }
-            catch (Exception ex)
+            catch (IOException ex)
             {
                 Debug.WriteLine($"Failed to delete temporary file: {ex.Message}");
                 throw;
@@ -93,7 +93,7 @@ namespace VisionTest.VSExtension
 
             return tempFilePath;
         }
-        
+
 
 
     }
