@@ -4,6 +4,9 @@ using VisionTest.Core.Recognition;
 using VisionTest.Core.Services.Storage;
 
 //add C:\Users\guill\Programmation\dotNET_doc\VisionTest\VisionTest.TestsImplementation buttonlik2 C:\Users\guill\Programmation\dotNET_doc\VisionTest\VisionTest.Tests\images\cottonLike2.png
+//add C:\Users\guill\Programmation\dotNET_doc\VisionTest\VisionTest.TestsImplementation buttonlik C:\Users\guill\Programmation\dotNET_doc\VisionTest\VisionTest.Tests\images\cottonLike.png
+//ocr C:\Users\guill\Programmation\dotNET_doc\VisionTest\VisionTest.Tests\images\cottonLike.png
+//update C:\Users\guill\Programmation\dotNET_doc\VisionTest\VisionTest.TestsImplementation
 
 namespace VisionTest.ConsoleInterop
 {
@@ -14,7 +17,8 @@ namespace VisionTest.ConsoleInterop
             
             while(true)
             {
-                string[] commandLine  = Console.ReadLine()?.Split() ?? []; // Wait for user input to continue
+                var stringLine = Console.ReadLine();
+                string[] commandLine  = stringLine?.Split() ?? []; // Wait for user input to continue
 
                 switch (commandLine[0])
                 {
@@ -65,7 +69,7 @@ namespace VisionTest.ConsoleInterop
                 OCREngine ocrEngine = new OCREngine("eng");
 
                 // Perform OCR to extract text
-                string extractedText = ocrEngine.GetText(image);
+                string extractedText = ocrEngine.GetText(image).TrimEnd('\n');
 
                 // Output the extracted text
                 Console.WriteLine("Extracted Text:");
@@ -129,8 +133,6 @@ namespace VisionTest.ConsoleInterop
                 Console.WriteLine($"An error occurred: {ex.Message}");
                 throw;
             }
-
-
         }
     }
 }
