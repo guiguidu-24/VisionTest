@@ -22,13 +22,6 @@ namespace VisionTest.Core.Services.Storage
         /// <returns></returns>
         public async Task AddAsync(ScreenElement screenElement)
         {
-            var names = await _screenElementStorageService.GetAllNamesAsync();
-
-            if (names.Contains(screenElement.Id))
-            {
-                throw new ArgumentException($"Screen element with ID '{screenElement.Id}' already exists.");
-            }
-
             var saveTask = _screenElementStorageService.SaveAsync(screenElement);
             
             var addToEnumTask = AddElementToEnum(screenElement);
@@ -109,6 +102,11 @@ namespace VisionTest.Core.Services.Storage
                     await AddElementToEnum(screenElement);
                 }
             }
+        }
+
+        public async Task<IEnumerable<string>> GetAllScreenElementNamesAsync()
+        {
+            return await _screenElementStorageService.GetAllNamesAsync();
         }
     }
 }

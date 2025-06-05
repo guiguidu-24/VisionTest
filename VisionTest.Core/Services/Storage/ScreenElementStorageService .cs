@@ -71,8 +71,16 @@ namespace VisionTest.Core.Services.Storage
             await Task.Run(() =>
             {
                 Directory.CreateDirectory(_storageDirectory);
-                string filePath = Path.Combine(_storageDirectory, $"{element.Id}.png");
-                File.Create(filePath).Dispose(); // Ensure the file is created
+                if(element.Images.Count == 1)
+                {
+                    string filePath = Path.Combine(_storageDirectory, $"{element.Id}.png");
+                    element.Images[0].Save(filePath, System.Drawing.Imaging.ImageFormat.Png);
+                }
+                else
+                {
+                    throw new NotImplementedException("Saving multiple images for a single screen element is not implemented yet.");
+                }
+
             });
         }
 

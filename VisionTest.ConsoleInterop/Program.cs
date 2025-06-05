@@ -32,6 +32,9 @@ namespace VisionTest.ConsoleInterop
                     case "update":
                         await Update(commandLine); //TODO: Fire and forget
                         break;
+                    case "remove":
+                        await Remove(commandLine);
+                        break;
                     default:
                         Console.WriteLine($"Unknown command: {commandLine[0]}");
                         break;
@@ -103,6 +106,9 @@ namespace VisionTest.ConsoleInterop
                     Images = { new Bitmap(imagePath) }
                 };
 
+                if((await repositoryManager.GetAllScreenElementNamesAsync()).Contains(id))
+                    Console.WriteLine($"Screen element with ID '{id}' already exists. Please choose a different ID.");
+                
                 await repositoryManager.AddAsync(screenElement);
             }
             catch (Exception ex)
@@ -127,6 +133,27 @@ namespace VisionTest.ConsoleInterop
                 var repositoryManager = new RepositoryManager(projectDirectory);
 
                 await repositoryManager.UpdateEnumAsync(projectDirectory);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                throw;
+            }
+        }
+        
+        private static async Task Remove(string[] args)
+        {
+            if (args.Length < 3)
+            {
+                Console.WriteLine("Usage: remove <projectDirectory> <id>");
+                return;
+            }
+            string projectDirectory = args[1];
+            string id = args[2];
+            try
+            {
+                var repositoryManager = new RepositoryManager(projectDirectory);
+                await repositoryManager.RemoveElement(id);
             }
             catch (Exception ex)
             {
