@@ -26,8 +26,8 @@ namespace VisionTest.Tests
             // Verify screen dimensions
             Assert.Multiple(() =>
             {
-                Assert.That(new Screen().ScreenSize.Width, Is.EqualTo(expectedWidth), "The screen width does not match the expected value.");
-                Assert.That(new Screen().ScreenSize.Height, Is.EqualTo(expectedHeight), "The screen height does not match the expected value.");
+                Assert.That(Screen.ScreenSize.Width, Is.EqualTo(expectedWidth), "The screen width does not match the expected value.");
+                Assert.That(Screen.ScreenSize.Height, Is.EqualTo(expectedHeight), "The screen height does not match the expected value.");
             });
         }
 

@@ -14,8 +14,8 @@ namespace VisionTest.Core.Services
 
         private readonly IMouse _mouse = new Mouse();
         private readonly IScreen _screen = new Input.Screen();
-        private readonly IRecognitionEngine<string> ocrEngine;
-        private readonly IRecognitionEngine<Bitmap> imgEngine;
+        private readonly IRecognitionEngine<Bitmap,string> ocrEngine;
+        private readonly IRecognitionEngine<Bitmap,Bitmap> imgEngine;
         private ProcessStartInfo? processStartInfo;
         private string? appPath;
 
@@ -132,7 +132,7 @@ namespace VisionTest.Core.Services
         }
 
 
-        private Rectangle WaitFor<TTarget>(IRecognitionEngine<TTarget> engine, TTarget target, int timeout)
+        private Rectangle WaitFor<TTarget>(IRecognitionEngine<Bitmap,TTarget> engine, TTarget target, int timeout)
         {
             if (target == null)
             {
@@ -350,7 +350,7 @@ namespace VisionTest.Core.Services
         }
 
 
-        private async Task<Rectangle?> WaitForAsync<TTarget>(IRecognitionEngine<TTarget> engine, TTarget target, Rectangle? box, CancellationToken cancellationToken) //TODO : use the token to manage the timeout
+        private async Task<Rectangle?> WaitForAsync<TTarget>(IRecognitionEngine<Bitmap, TTarget> engine, TTarget target, Rectangle? box, CancellationToken cancellationToken) //TODO : use the token to manage the timeout
         {
             if (target == null)
             {
