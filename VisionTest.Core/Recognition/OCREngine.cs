@@ -13,16 +13,8 @@ namespace VisionTest.Core.Recognition
         public OCREngine(string language)
         {
             this.language = language;
-
-            // Retrieving the Tesseract data path from App.config
-            //this.datapath = ConfigurationManager.AppSettings["TesseractDataPath"]
-            //                ?? throw new ConfigurationErrorsException("La clé 'TesseractDataPath' est manquante dans App.config.");
-
             string assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new NullReferenceException("The assembly path is null");
             datapath = Path.Combine(assemblyDir, "tessdata");
-
-            
-
         }
 
         public OCREngine(string language, string datapath)
@@ -38,7 +30,7 @@ namespace VisionTest.Core.Recognition
         /// <param name="text"></param>
         /// <param name="area"></param>
         /// <returns></returns>
-        public bool Find(Bitmap image, string text, out Rectangle area) //TODO do it async
+        public bool Find(Bitmap image, string text, out Rectangle area)
         {
             area = Rectangle.Empty;
             if (text == string.Empty)
@@ -117,6 +109,13 @@ namespace VisionTest.Core.Recognition
             return Find(image.Clone(boxToSearchIn, image.PixelFormat), text, out area);
         }
 
+        /// <summary>
+        /// Finds all occurrences of the target text in the image and returns their bounding rectangles.
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public IEnumerable<Rectangle> Find(Bitmap image, string target)
         {
             var result = new List<Rectangle>();
