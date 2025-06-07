@@ -6,7 +6,7 @@ using System.Windows.Media;
 
 namespace VisionTest.Core.Recognition
 {
-    public class ImgEngine : IRecognitionEngine<Bitmap>
+    public class ImgEngine : IRecognitionEngine<Bitmap,Bitmap>
     {
         /// <summary>
         /// The threshold for template matching.
