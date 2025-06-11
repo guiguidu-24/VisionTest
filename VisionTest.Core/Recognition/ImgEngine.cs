@@ -1,6 +1,7 @@
 ﻿using OpenCvSharp;
 using OpenCvSharp.Extensions;
-using VisionTest.Core.Utils;
+using System.Drawing;
+using System.Windows.Media;
 
 
 namespace VisionTest.Core.Recognition
@@ -25,8 +26,8 @@ namespace VisionTest.Core.Recognition
             area = Rectangle.Empty;
 
             // Load images
-            using Mat bigImage = color ? image.ToMat().ConvertToBGRA() : image.ToMat().ConvertToGray();
-            using Mat smallImage = color ? target.ToMat().ConvertToBGRA() : target.ToMat().ConvertToGray();
+            using Mat bigImage = color ? ConvertToBGRA(image.ToMat()) : ConvertToGray(image.ToMat());
+            using Mat smallImage = color ? ConvertToBGRA(target.ToMat()) : ConvertToGray(target.ToMat());
 
 
             // Result image to store match confidence
@@ -78,8 +79,8 @@ namespace VisionTest.Core.Recognition
             if (target is null) throw new ArgumentNullException(nameof(target));
 
 
-            using var sourceMat = ColorMatch ? image.ToMat().ConvertToBGRA() : image.ToMat().ConvertToGray();
-            using var templateMat = ColorMatch ? target.ToMat().ConvertToBGRA() : target.ToMat().ConvertToGray();
+            using var sourceMat = ColorMatch ? ConvertToBGRA(image.ToMat()) : ConvertToGray(image.ToMat());
+            using var templateMat = ColorMatch ? ConvertToBGRA(target.ToMat()) : ConvertToGray(target.ToMat());
             using var result = new Mat();
 
             // MatchTemplate method: CV_TM_CCOEFF_NORMED gives good normalized results
@@ -103,7 +104,57 @@ namespace VisionTest.Core.Recognition
             }
 
             return matches;
-        }       
+        }
+
+        #region helper preprocessing methods
+        /// <summary>
+        /// Convertit une image Bitmap en Mat OpenCV au format BGRA.
+        /// </summary>
+        /// <param name="src"></param>
+        /// <returns></returns>
+        /// <exception cref="NotSupportedException"></exception>
+        private static Mat ConvertToBGRA(Mat src)
+        {
+            return src.Channels() switch
+            {
+                3 => ConvertTo(src, ColorConversionCodes.BGR2BGRA),
+                1 => ConvertTo(src, ColorConversionCodes.GRAY2BGRA),
+                4 => src.Clone(), // déjà en BGRA
+                _ => throw new NotSupportedException($"Nombre de canaux non supporté : {src.Channels()}")
+            };
+        }
+
+        /// <summary>
+        /// Converts an image Mat OpenCV to grayscale.
+        /// </summary>
+        /// <param name="src"></param>
+        /// <returns></returns>
+        /// <exception cref="NotSupportedException"></exception>
+        private static Mat ConvertToGray(Mat src)
+        {
+            return src.Channels() switch
+            {
+                3 => ConvertTo(src, ColorConversionCodes.BGR2GRAY),
+                1 => src.Clone(), // déjà en gris
+                4 => ConvertTo(src, ColorConversionCodes.BGRA2GRAY),
+                _ => throw new NotSupportedException($"Nombre de canaux non supporté : {src.Channels()}")
+            };
+        }
+
+        /// <summary>
+        /// Convertit une image Mat OpenCV en une autre couleur.
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="code"></param>
+        /// <returns></returns>
+        private static Mat ConvertTo(Mat src, ColorConversionCodes code)
+        {
+            Mat dst = new();
+            Cv2.CvtColor(src, dst, code);
+            return dst;
+        }
+
+        #endregion
     }
 
 }

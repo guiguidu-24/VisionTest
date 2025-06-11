@@ -6,18 +6,10 @@ using VisionTest.Core.Utils;
 
 namespace VisionTest.Core.Recognition
 {
-    /// <summary>
-    /// Represents a web-based recognition engine that can search for elements in a web page using Selenium WebDriver.
-    /// </summary>
     public class WebEngine : IRecognitionEngine<Rectangle, By>, IDisposable
     {
         private readonly IWebDriver _webDriver;
 
-        /// <summary>
-        /// Initializes the WebEngine with a specific browser type and lauched the browser.
-        /// </summary>
-        /// <param name="browser"></param>
-        /// <exception cref="ArgumentException"></exception>
         public WebEngine(Browser browser)
         {
             switch (browser)
@@ -42,22 +34,11 @@ namespace VisionTest.Core.Recognition
             }
         }
 
-        /// <summary>
-        /// Initializes the WebEngine with a specific browser launches the browser and navigates to the given URL.
-        /// </summary>
-        /// <param name="browser"></param>
-        /// <param name="url"></param>
         public WebEngine(Browser browser, string url) : this(browser)
         {
             _webDriver.Navigate().GoToUrl(url);
         }
 
-        /// <summary>
-        /// Finds all elements in the specified domain that match the target selector and returns their rectangles in pixel screen coordinates.
-        /// </summary>
-        /// <param name="domain"></param>
-        /// <param name="target"></param>
-        /// <returns></returns>
         public IEnumerable<Rectangle> Find(Rectangle domain, By target)
         {
             foreach (var webElement in _webDriver.FindElements(target))

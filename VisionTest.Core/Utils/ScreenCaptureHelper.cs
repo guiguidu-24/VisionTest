@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace VisionTest.Core.Utils
 {
-    public static class ImageUtils
+    
+    public static class ScreenCaptureHelper
     {
-
+        
     }
 }
