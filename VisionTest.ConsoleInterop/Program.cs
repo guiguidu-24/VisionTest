@@ -14,31 +14,38 @@ namespace VisionTest.ConsoleInterop
     {
         static async Task Main()
         {
-            
-            while(true)
+            try
             {
-                var stringLine = Console.ReadLine();
-                string[] commandLine  = stringLine?.Split() ?? []; // Wait for user input to continue
-
-                switch (commandLine[0])
+                while (true)
                 {
-                    case "ocr":
-                        string imagePath = commandLine[1];
-                        ProcessOCRCommand(commandLine);
-                        break;
-                    case "add":
-                        await AddNewElement(commandLine);
-                        break;
-                    case "update":
-                        await Update(commandLine); //TODO: Fire and forget
-                        break;
-                    case "remove":
-                        await Remove(commandLine);
-                        break;
-                    default:
-                        Console.WriteLine($"Unknown command: {commandLine[0]}");
-                        break;
+                    var stringLine = Console.ReadLine();
+                    string[] commandLine = stringLine?.Split() ?? []; // Wait for user input to continue
+
+                    switch (commandLine[0])
+                    {
+                        case "ocr":
+                            string imagePath = commandLine[1];
+                            ProcessOCRCommand(commandLine);
+                            break;
+                        case "add":
+                            await AddNewElement(commandLine);
+                            break;
+                        case "update":
+                            await Update(commandLine); //TODO: Fire and forget
+                            break;
+                        case "remove":
+                            await Remove(commandLine);
+                            break;
+                        default:
+                            Console.WriteLine($"Unknown command: {commandLine[0]}");
+                            break;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                throw;
             }
         }
 
@@ -63,28 +70,21 @@ namespace VisionTest.ConsoleInterop
                 return;
             }
 
-            try
-            {
-                string extractedText;
-                // Load the image
-                using (Bitmap image = new Bitmap(imagePath))
-                {
-                    // Initialize the OCR engine
-                    OCREngine ocrEngine = new OCREngine("eng");
 
-                    // Perform OCR to extract text
-                    extractedText = ocrEngine.GetText(image).TrimEnd('\n');
-                }
-                // Output the extracted text
-                Console.WriteLine("Extracted Text:");
-                Console.WriteLine(extractedText);
-
-            }
-            catch (Exception ex)
+            string extractedText;
+            // Load the image
+            using (Bitmap image = new Bitmap(imagePath))
             {
-                Console.WriteLine($"An error occurred: {ex.Message}");
-                throw;
+                // Initialize the OCR engine
+                OCREngine ocrEngine = new OCREngine("eng");
+
+                // Perform OCR to extract text
+                extractedText = ocrEngine.GetText(image).TrimEnd('\n');
             }
+            // Output the extracted text
+            Console.WriteLine("Extracted Text:");
+            Console.WriteLine(extractedText);
+
         }
 
         private static async Task AddNewElement(string[] args)
@@ -98,27 +98,20 @@ namespace VisionTest.ConsoleInterop
             string id = args[2];
             string imagePath = args[3];
 
-            try
-            {
-                var repositoryManager = new RepositoryManager(projectDirectory);
-                var screenElement = new ScreenElement
-                {
-                    Id = id,
-                    Images = { new Bitmap(imagePath) }
-                };
 
-                if((await repositoryManager.GetAllScreenElementNamesAsync()).Contains(id))
-                    Console.WriteLine($"Screen element with ID '{id}' already exists. Please choose a different ID.");
-                
-                await repositoryManager.AddAsync(screenElement);
-            }
-            catch (Exception ex)
+            var repositoryManager = new RepositoryManager(projectDirectory);
+            var screenElement = new ScreenElement
             {
-                Console.WriteLine($"An error occurred: {ex.Message}");
-                throw;
-            }
+                Id = id,
+                Images = { new Bitmap(imagePath) }
+            };
+
+            if ((await repositoryManager.GetAllScreenElementNamesAsync()).Contains(id))
+                Console.WriteLine($"Screen element with ID '{id}' already exists. Please choose a different ID.");
+
+            await repositoryManager.AddAsync(screenElement);
         }
-        
+
         private static async Task Update(string[] args)
         {
             if (args.Length < 2)
@@ -129,19 +122,12 @@ namespace VisionTest.ConsoleInterop
 
             var projectDirectory = args[1];
 
-            try
-            {
-                var repositoryManager = new RepositoryManager(projectDirectory);
 
-                await repositoryManager.UpdateEnumAsync(projectDirectory);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An error occurred: {ex.Message}");
-                throw;
-            }
+            var repositoryManager = new RepositoryManager(projectDirectory);
+
+            await repositoryManager.UpdateEnumAsync(projectDirectory);
         }
-        
+
         private static async Task Remove(string[] args)
         {
             if (args.Length < 3)
@@ -151,16 +137,9 @@ namespace VisionTest.ConsoleInterop
             }
             string projectDirectory = args[1];
             string id = args[2];
-            try
-            {
-                var repositoryManager = new RepositoryManager(projectDirectory);
-                await repositoryManager.RemoveElement(id);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An error occurred: {ex.Message}");
-                throw;
-            }
+
+            var repositoryManager = new RepositoryManager(projectDirectory);
+            await repositoryManager.RemoveElement(id);
         }
     }
 }
