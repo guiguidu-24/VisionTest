@@ -112,6 +112,7 @@ namespace VisionTest.VSExtension
         public ICommand ClickNewCommand { get; }
         public ICommand ValidateCommand { get; }
         public ICommand SaveCommand { get; }
+        public ICommand RefreshCommand { get; }
 
 
         public MainViewModel(DTE2 dte)
@@ -134,6 +135,11 @@ namespace VisionTest.VSExtension
             {
                 ShowCaptureUI = false;
                 ShowCaptureTool = false;
+            });
+
+            RefreshCommand = new RelayCommand(() =>
+            {
+                interop.UpdateEnum();
             });
 
             SaveCommand = new RelayCommand(() =>
