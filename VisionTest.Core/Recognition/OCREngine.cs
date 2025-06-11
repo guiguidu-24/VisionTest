@@ -5,7 +5,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace VisionTest.Core.Recognition
 {
-    public class OCREngine : IRecognitionEngine<Bitmap,string>
+    public class OCREngine : IRecognitionEngine<string>
     {
         private string language;
         private string datapath; // vaut ./tessdata
