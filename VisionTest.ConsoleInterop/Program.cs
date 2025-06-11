@@ -65,15 +65,16 @@ namespace VisionTest.ConsoleInterop
 
             try
             {
+                string extractedText;
                 // Load the image
-                using Bitmap image = new Bitmap(imagePath);
+                using (Bitmap image = new Bitmap(imagePath))
+                {
+                    // Initialize the OCR engine
+                    OCREngine ocrEngine = new OCREngine("eng");
 
-                // Initialize the OCR engine
-                OCREngine ocrEngine = new OCREngine("eng");
-
-                // Perform OCR to extract text
-                string extractedText = ocrEngine.GetText(image).TrimEnd('\n');
-
+                    // Perform OCR to extract text
+                    extractedText = ocrEngine.GetText(image).TrimEnd('\n');
+                }
                 // Output the extracted text
                 Console.WriteLine("Extracted Text:");
                 Console.WriteLine(extractedText);
