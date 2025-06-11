@@ -6,7 +6,7 @@ using VisionTest.Core.Utils;
 
 namespace VisionTest.Core.Recognition
 {
-    public class WebEngine : IRecognitionEngine<Rectangle, By>, IDisposable
+    public class WebEngine : IRecognitionEngine<Rectangle, By>
     {
         private readonly IWebDriver _webDriver;
 
@@ -41,20 +41,7 @@ namespace VisionTest.Core.Recognition
 
         public IEnumerable<Rectangle> Find(Rectangle domain, By target)
         {
-            foreach (var webElement in _webDriver.FindElements(target))
-            {
-                var rect = webElement.ToRectangle(_webDriver);
-                if (rect.Inside(domain))
-                {
-                    yield return rect;
-                }
-            }
-        }
-
-        public void Dispose()
-        {
-            _webDriver.Quit();
-            _webDriver.Dispose();
+            return (IEnumerable<Rectangle>)_webDriver.FindElements(target).Where(elt => elt.Inside(domain));
         }
     }
 }

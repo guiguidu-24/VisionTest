@@ -5,9 +5,9 @@ namespace VisionTest.Core.Input
 {
     public class Screen : IScreen       
     {
-        public static Size ScreenSize => new Size(width, height);
+        public Size ScreenSize => new Size(width, height);
 
-        public static float ScaleFactor => GetScaleFactor();
+        public float ScaleFactor => GetScaleFactor();
 
         [Obsolete("⚠️ Not tested — use with caution.", false)]
         public Bitmap CaptureRegion(Rectangle region)
@@ -29,8 +29,8 @@ namespace VisionTest.Core.Input
             return bitmap;
         }
 
-        private static int width = (int)((System.Windows.Forms.Screen.PrimaryScreen?.Bounds.Width ?? 0) * GetScaleFactor());
-        private static int height = (int)((System.Windows.Forms.Screen.PrimaryScreen?.Bounds.Height ?? 0) * GetScaleFactor());
+        private int width = (int)((System.Windows.Forms.Screen.PrimaryScreen?.Bounds.Width ?? 0) * GetScaleFactor());
+        private int height = (int)((System.Windows.Forms.Screen.PrimaryScreen?.Bounds.Height ?? 0) * GetScaleFactor());
 
         [DllImport("Shcore.dll")]
         private static extern int GetScaleFactorForMonitor(IntPtr hMonitor, out DEVICE_SCALE_FACTOR scale);

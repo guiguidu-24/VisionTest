@@ -6,6 +6,9 @@ namespace VisionTest.Core.Input
 
     public class Mouse : IMouse
     {
+        private readonly IScreen _screen = new Screen();
+
+        
         public void DoubleClick()
         {
             Simulate.Events().DoubleClick(ButtonCode.Left).Invoke().Wait();
@@ -65,7 +68,7 @@ namespace VisionTest.Core.Input
 
         private int CoordinateCorrection(int coordinate)
         {
-            return (int)(coordinate / Screen.ScaleFactor);
+            return (int)(coordinate / _screen.ScaleFactor);
         }
     }
 }
