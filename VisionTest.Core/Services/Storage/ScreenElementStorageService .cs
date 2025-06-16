@@ -70,17 +70,24 @@ namespace VisionTest.Core.Services.Storage
         {
             await Task.Run(() =>
             {
-                Directory.CreateDirectory(_storageDirectory);
-                if(element.Images.Count == 1)
+                // Replace any directory separators in the id with the system's directory separator
+                var relativePath = element.Id.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
+                string filePath = Path.Combine(_storageDirectory, $"{relativePath}.png");
+                string? dir = Path.GetDirectoryName(filePath);
+
+                if (!string.IsNullOrEmpty(dir))
                 {
-                    string filePath = Path.Combine(_storageDirectory, $"{element.Id}.png");
+                    Directory.CreateDirectory(dir);
+                }
+
+                if (element.Images.Count == 1)
+                {
                     element.Images[0].Save(filePath, System.Drawing.Imaging.ImageFormat.Png);
                 }
                 else
                 {
                     throw new NotImplementedException("Saving multiple images for a single screen element is not implemented yet.");
                 }
-
             });
         }
 

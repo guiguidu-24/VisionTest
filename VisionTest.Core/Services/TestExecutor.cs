@@ -8,7 +8,7 @@ using VisionTest.Core.Utils;
 namespace VisionTest.Core.Services
 {
     public class TestExecutor //TODO : for an image, directly use the name of the image instead of the path
-    {
+    {                           //TODO separate the application management from the test execution
         private readonly IMouse _mouse = new Mouse();
         private readonly IScreen _screen = new Input.Screen();
         private readonly IRecognitionEngine<string> ocrEngine;

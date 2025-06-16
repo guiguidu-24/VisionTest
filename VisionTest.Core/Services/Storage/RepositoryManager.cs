@@ -64,7 +64,7 @@ namespace VisionTest.Core.Services.Storage
             }
         }
 
-        private async Task AddElementToEnum(ScreenElement screenElement)
+        private async Task AddElementToEnum(ScreenElement screenElement) //TODO create a class to represent directories if needed
         {
             await Task.Run(async () =>
             {

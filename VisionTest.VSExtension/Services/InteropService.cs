@@ -20,7 +20,7 @@ namespace VisionTest.VSExtension
         public void Add(BitmapImage image, string id)
         {
             var tempImagePath = SaveBitmapImageToTemp(image);
-            _interopProcess.StandardInput.WriteLine($"add {ProjectService.GetActiveProjectDirectory()} {id} {SaveBitmapImageToTemp(image)}");
+            _interopProcess.StandardInput.WriteLine($"add {ProjectService.GetActiveProjectDirectory()} {id} {tempImagePath} -delete");
         }
 
         public void UpdateEnum()

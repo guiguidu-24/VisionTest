@@ -103,13 +103,22 @@ namespace VisionTest.ConsoleInterop
             var screenElement = new ScreenElement
             {
                 Id = id,
-                Images = { new Bitmap(imagePath) }
+                Images = { LoadSafelyImage(imagePath) }
             };
 
             if ((await repositoryManager.GetAllScreenElementNamesAsync()).Contains(id))
+            {
                 Console.WriteLine($"Screen element with ID '{id}' already exists. Please choose a different ID.");
+            }
+            else
+            {
+                await repositoryManager.AddAsync(screenElement);
+            }
 
-            await repositoryManager.AddAsync(screenElement);
+            if (args.Length == 5 && args[4] == "-delete")
+            {
+                File.Delete(imagePath);
+            }
         }
 
         private static async Task Update(string[] args)
@@ -140,6 +149,16 @@ namespace VisionTest.ConsoleInterop
 
             var repositoryManager = new RepositoryManager(projectDirectory);
             await repositoryManager.RemoveElement(id);
+        }
+        
+        private static Bitmap LoadSafelyImage(string imagePath)
+        {
+            Bitmap bmp;
+            using (var stream = new FileStream(imagePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                bmp = new Bitmap(stream);
+            }
+            return bmp;
         }
     }
 }
