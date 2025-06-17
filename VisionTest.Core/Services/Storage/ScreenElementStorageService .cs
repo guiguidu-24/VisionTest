@@ -4,12 +4,12 @@ using VisionTest.Core.Models;
 
 namespace VisionTest.Core.Services.Storage
 {
-    public class ScreenElementStorageService
+    internal class ScreenElementStorageService
     {
         private const string storageDirectoryName = "TestScriptData";
         private readonly string _storageDirectory;// = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestScriptData");
 
-        public ScreenElementStorageService(string projectDirectory)
+        internal ScreenElementStorageService(string projectDirectory)
         {
             _storageDirectory = Path.Combine(projectDirectory, storageDirectoryName);
         }
@@ -20,7 +20,7 @@ namespace VisionTest.Core.Services.Storage
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task DeleteAsync(string id)
+        internal async Task DeleteAsync(string id)
         {
             await Task.Run(() => File.Delete(Path.Combine(_storageDirectory, $"{id}.png")));
         }
@@ -30,7 +30,7 @@ namespace VisionTest.Core.Services.Storage
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<bool> ExistsAsync(string id)
+        internal async Task<bool> ExistsAsync(string id)
         {
             return await Task.Run(() => File.Exists(Path.Combine(_storageDirectory, $"{id}.png")));
         }
@@ -39,7 +39,7 @@ namespace VisionTest.Core.Services.Storage
         /// Retrieves all the ids of the saved screen elements from the storage directory.
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<string>> GetAllNamesAsync()
+        internal async Task<IEnumerable<string>> GetAllNamesAsync()
         {
             return await Task.Run(() => Directory.GetFiles(_storageDirectory, "*.png").Select(s => Path.GetFileNameWithoutExtension(s)).Where(s => s != string.Empty && s != null));
         }
@@ -49,7 +49,7 @@ namespace VisionTest.Core.Services.Storage
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<ScreenElement?> GetByIdAsync(string id)
+        internal async Task<ScreenElement?> GetByIdAsync(string id)
         {
             var element = new ScreenElement() { Id = id };
 
@@ -66,7 +66,7 @@ namespace VisionTest.Core.Services.Storage
         /// </summary>
         /// <param name="element"></param>
         /// <returns></returns>
-        public async Task SaveAsync(ScreenElement element)
+        internal async Task SaveAsync(ScreenElement element)
         {
             await Task.Run(() =>
             {

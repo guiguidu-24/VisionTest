@@ -134,7 +134,7 @@ namespace VisionTest.ConsoleInterop
 
             var repositoryManager = new RepositoryManager(projectDirectory);
 
-            await repositoryManager.UpdateEnumAsync(projectDirectory);
+            await repositoryManager.UpdateIndexAsync(projectDirectory);
         }
 
         private static async Task Remove(string[] args)
@@ -148,7 +148,7 @@ namespace VisionTest.ConsoleInterop
             string id = args[2];
 
             var repositoryManager = new RepositoryManager(projectDirectory);
-            await repositoryManager.RemoveElement(id);
+            await repositoryManager.RemoveElementAsync(id);
         }
         
         private static Bitmap LoadSafelyImage(string imagePath)

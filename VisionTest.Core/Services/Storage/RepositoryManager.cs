@@ -6,13 +6,13 @@ namespace VisionTest.Core.Services.Storage
     {
         private readonly ScreenElementStorageService _screenElementStorageService;
         private readonly string _enumFilePath;
-        private readonly string _projectDirectory;
+        private readonly IndexationService _indexationService;
 
         public RepositoryManager(string projectDirectory)
         {
-            _projectDirectory = projectDirectory;
             _enumFilePath = Path.Combine(projectDirectory, "ScreenElements.cs");
             _screenElementStorageService = new ScreenElementStorageService(projectDirectory);
+            _indexationService = new IndexationService(_enumFilePath, projectDirectory);
         }
 
         /// <summary>
@@ -24,22 +24,33 @@ namespace VisionTest.Core.Services.Storage
         {
             var saveTask = _screenElementStorageService.SaveAsync(screenElement);
             
-            var addToEnumTask = AddElementToEnum(screenElement);
+            var addToEnumTask = _indexationService.AddElementToIndexAsync(screenElement);
 
             await Task.WhenAll(saveTask, addToEnumTask);
         }
-    
+
+        /// <summary>
+        /// Retrieves a screen element by its unique identifier.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<ScreenElement?> GetByIdAsync(string id)
         {
             return await _screenElementStorageService.GetByIdAsync(id);
         }
 
-        public async Task RemoveElement(string id)
+        /// <summary>
+        /// Removes a screen element by its unique identifier and updates the ScreenElementsEnum.cs file.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public async Task RemoveElementAsync(string id)
         {
             if (await _screenElementStorageService.ExistsAsync(id))
             {
                 var deleteElementTask =  _screenElementStorageService.DeleteAsync(id);
-                var removeEltFromEnumTask =  RemoveElementFromEnum(id);
+                var removeEltFromEnumTask =  _indexationService.RemoveElementFromIndexAsync(id);
 
                 await Task.WhenAll(deleteElementTask, removeEltFromEnumTask);
             }
@@ -49,43 +60,11 @@ namespace VisionTest.Core.Services.Storage
             }
         }
 
-        private async Task RemoveElementFromEnum(string id)
-        {
-            if (File.Exists(_enumFilePath))
-            {
-                var lines = (await File.ReadAllLinesAsync(_enumFilePath)).ToList();
-                lines.RemoveAll(line => line.Contains("public const " + id + " "));
-               
-                await File.WriteAllLinesAsync(_enumFilePath, lines);
-            }
-            else
-            {
-                throw new FileNotFoundException($"Enum file '{_enumFilePath}' does not exist.");
-            }
-        }
-
-        private async Task AddElementToEnum(ScreenElement screenElement) //TODO create a class to represent directories if needed
-        {
-            await Task.Run(async () =>
-            {
-                if (!File.Exists(_enumFilePath))
-                {
-                    using FileStream fileStream = File.Create(_enumFilePath);
-                    using StreamWriter fileWriter = new StreamWriter(fileStream);
-                    await fileWriter.WriteLineAsync($"namespace {Path.GetFileName(_projectDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))};");
-                    await fileWriter.WriteAsync("public static class ScreenElements \n{\n}");
-                }
-
-                string enumContent = await File.ReadAllTextAsync(_enumFilePath);
-
-                enumContent = enumContent.Insert(enumContent.LastIndexOf("}"), $"\tpublic const string {screenElement.Id} = \"{screenElement.Id}\";\n");
-
-                using var writer = new StreamWriter(_enumFilePath, append: false);
-                await writer.WriteAsync(enumContent);
-            });
-        }
-
-        public async Task UpdateEnumAsync(string projectDirectory)
+        /// <summary>
+        /// Updates the ScreenElement.cs file with all existing screen elements.
+        /// </summary>
+        /// <returns></returns>
+        public async Task UpdateIndexAsync()
         {
             IEnumerable<string> screenElementNames = await _screenElementStorageService.GetAllNamesAsync();
             
@@ -99,11 +78,15 @@ namespace VisionTest.Core.Services.Storage
                 var screenElement = await _screenElementStorageService.GetByIdAsync(name);
                 if (screenElement != null)
                 {
-                    await AddElementToEnum(screenElement);
+                    await _indexationService.AddElementToIndexAsync(screenElement);
                 }
             }
         }
 
+        /// <summary>
+        /// Retrieves all the names of the saved screen elements from the storage directory.
+        /// </summary>
+        /// <returns></returns>
         public async Task<IEnumerable<string>> GetAllScreenElementNamesAsync()
         {
             return await _screenElementStorageService.GetAllNamesAsync();
