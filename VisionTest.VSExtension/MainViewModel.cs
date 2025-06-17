@@ -150,6 +150,8 @@ namespace VisionTest.VSExtension
                     ShowCaptureUI = false;
                     ShowCaptureTool = false;
                     CurrentScreenShot = null;
+                    CurrentElementName = string.Empty;
+                    TextFound = string.Empty;
                 }
                 catch (Exception ex)
                 {
