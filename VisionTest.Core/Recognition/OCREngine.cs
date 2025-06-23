@@ -9,6 +9,7 @@ namespace VisionTest.Core.Recognition
     {
         private string language;
         private string datapath; // vaut ./tessdata
+        private int fuzzyTolerance = 1;
 
         public OCREngine(string language)
         {
@@ -32,155 +33,106 @@ namespace VisionTest.Core.Recognition
         }
 
         /// <summary>
-        /// Finds the text in the image and returns the area of the text.
+        /// Searches for the given target in the image and returns all matching regions.
         /// </summary>
         /// <param name="image"></param>
-        /// <param name="text"></param>
-        /// <param name="area"></param>
+        /// <param name="target"></param>
         /// <returns></returns>
-        public bool Find(Bitmap image, string text, out Rectangle area) //TODO do it async
-        {
-            area = Rectangle.Empty;
-            if (text == string.Empty)
-            {
-                throw new ArgumentException("Text cannot be empty.", nameof(text));
-            }
-
-            List<string> words = text.Split(' ').ToList();
-            using var engine = new TesseractEngine(datapath, language, EngineMode.Default);
-
-            using Page page = engine.Process(image);
-            var iterator = page.GetIterator();
-            iterator.Begin();
-
-            do
-            {
-                string lineText = iterator.GetText(PageIteratorLevel.TextLine);
-
-                // Check if the line contains the text we're looking for
-                if (!string.IsNullOrEmpty(lineText) && lineText.Contains(text, StringComparison.OrdinalIgnoreCase))
-                {
-                    var boxes = new List<Rectangle>();
-
-                    // Iterate through the words in the line
-                    do
-                    {
-                        foreach (string word in words)
-                        {
-                            string wordText = iterator.GetText(PageIteratorLevel.Word);
-
-                            if (wordText.Equals(word, StringComparison.OrdinalIgnoreCase))
-                            {
-                                // Get the bounding box of the word
-                                if (iterator.TryGetBoundingBox(PageIteratorLevel.Word, out var rect))
-                                {
-                                    boxes.Add(new Rectangle(rect.X1, rect.Y1, rect.Width, rect.Height));
-                                }
-                                if (!iterator.Next(PageIteratorLevel.Word))
-                                    break;
-                            }
-                            else
-                            {
-                                // If the word is not found, break out of the loop
-                                boxes = new List<Rectangle>();
-                                break;
-                            }
-                        }
-                        if (boxes.Count == words.Count)
-                        {
-                            // Get the bounding box of the group of Words
-                            var xArea = boxes.Select(box => box.X).Min();
-                            var yArea = boxes.Select(box => box.Y).Min();
-                            var wArea = boxes.Select(box => box.Right).Max() - xArea;
-                            var hArea = boxes.Select(box => box.Bottom).Max() - yArea;
-
-                            area = new Rectangle(xArea, yArea, wArea, hArea);
-                            return true;
-                        }
-                    } while (iterator.Next(PageIteratorLevel.Word));
-                }
-            } while (iterator.Next(PageIteratorLevel.TextLine));
-
-            return false;
-        } 
-
-        /// <summary>
-        /// Finds the text in the image and returns the area of the text in the searching area.
-        /// </summary>
-        /// <param name="image"></param>
-        /// <param name="text"></param>
-        /// <param name="boxToSearchIn">the area in the screen it is allowed to find the text</param>
-        /// <param name="area">The box around the text if the text is found</param>
-        /// <returns></returns>
-        public bool Find(Bitmap image, string text, Rectangle boxToSearchIn, out Rectangle area)
-        {
-            return Find(image.Clone(boxToSearchIn, image.PixelFormat), text, out area);
-        }
-
+        /// <exception cref="ArgumentException"></exception>
         public IEnumerable<Rectangle> Find(Bitmap image, string target)
         {
             var result = new List<Rectangle>();
-            if (target == string.Empty)
-            {
+            if (string.IsNullOrWhiteSpace(target))
                 throw new ArgumentException("Text cannot be empty.", nameof(target));
-            }
 
-            List<string> words = target.Split(' ').ToList();
-            using var engine = new TesseractEngine(datapath, language, EngineMode.Default);
+            List<string> targetWords = target.Split(' ').ToList();
 
+            // Charger le dico user_words si présent dans tessdata
+            var configFiles = new[] { "user_words" };
+            using var engine = new TesseractEngine(datapath, language, EngineMode.Default, configFiles);
             using Page page = engine.Process(image);
-            var iterator = page.GetIterator();
+            using var iterator = page.GetIterator();
+
             iterator.Begin();
 
+            // Parcours de chaque ligne
             do
             {
-                string lineText = iterator.GetText(PageIteratorLevel.TextLine);
+                int matchedWords = 0;
+                var lineBoxes = new List<Rectangle>();
 
-                // Check if the line contains the text we're looking for
-                if (!string.IsNullOrEmpty(lineText) && lineText.Contains(target, StringComparison.OrdinalIgnoreCase))
+                // On positionne l’iterator sur le premier mot de la ligne
+                bool inLine = true;
+                do
                 {
-                    var boxes = new List<Rectangle>();
+                    string ocrWord = iterator.GetText(PageIteratorLevel.Word);
 
-                    // Iterate through the words in the line
-                    do
+                    if (IsFuzzyMatch(ocrWord, targetWords[matchedWords], fuzzyTolerance))
                     {
-                        foreach (string word in words)
+                        if (iterator.TryGetBoundingBox(PageIteratorLevel.Word, out var rect))
                         {
-                            string wordText = iterator.GetText(PageIteratorLevel.Word);
-
-                            if (wordText.Equals(word, StringComparison.OrdinalIgnoreCase))
-                            {
-                                // Get the bounding box of the word
-                                if (iterator.TryGetBoundingBox(PageIteratorLevel.Word, out var rect))
-                                {
-                                    boxes.Add(new Rectangle(rect.X1, rect.Y1, rect.Width, rect.Height));
-                                }
-                                if (!iterator.Next(PageIteratorLevel.Word))
-                                    break;
-                            }
-                            else
-                            {
-                                // If the word is not found, break out of the loop
-                                boxes = new List<Rectangle>();
-                                break;
-                            }
+                            lineBoxes.Add(new Rectangle(rect.X1, rect.Y1, rect.Width, rect.Height));
                         }
-                        if (boxes.Count == words.Count)
+                        matchedWords++;
+                        if (matchedWords == targetWords.Count)
                         {
-                            // Get the bounding box of the group of Words
-                            var xArea = boxes.Select(box => box.X).Min();
-                            var yArea = boxes.Select(box => box.Y).Min();
-                            var wArea = boxes.Select(box => box.Right).Max() - xArea;
-                            var hArea = boxes.Select(box => box.Bottom).Max() - yArea;
-
-                            result.Add(new Rectangle(xArea, yArea, wArea, hArea));
+                            // Tous les mots trouvés consécutivement
+                            int x = lineBoxes.Min(b => b.X);
+                            int y = lineBoxes.Min(b => b.Y);
+                            int w = lineBoxes.Max(b => b.Right) - x;
+                            int h = lineBoxes.Max(b => b.Bottom) - y;
+                            result.Add(new Rectangle(x, y, w, h));
+                            break;
                         }
-                    } while (iterator.Next(PageIteratorLevel.Word));
-                }
+                    }
+                    else
+                    {
+                        // Redémarrer la recherche de la séquence
+                        lineBoxes.Clear();
+                        matchedWords = 0;
+                    }
+                    // Avance au mot suivant, mais ne sort pas de la ligne
+                    inLine = iterator.Next(PageIteratorLevel.Word)
+                             && !iterator.IsAtBeginningOf(PageIteratorLevel.TextLine);
+
+                } while (inLine);
+
             } while (iterator.Next(PageIteratorLevel.TextLine));
 
             return result;
         }
+
+        // FuzzyMatch et Levenshtein comme précédemment :
+        private bool IsFuzzyMatch(string word1, string word2, int tolerance)
+        {
+            if (string.IsNullOrEmpty(word1) || string.IsNullOrEmpty(word2)) return false;
+            if (word1.Equals(word2, StringComparison.OrdinalIgnoreCase)) return true;
+            return LevenshteinDistance(word1, word2) <= tolerance;
+        }
+
+        private int LevenshteinDistance(string s, string t)
+        {
+            if (string.IsNullOrEmpty(s)) return t?.Length ?? 0;
+            if (string.IsNullOrEmpty(t)) return s.Length;
+
+            var d = new int[s.Length + 1, t.Length + 1];
+            for (int i = 0; i <= s.Length; i++) d[i, 0] = i;
+            for (int j = 0; j <= t.Length; j++) d[0, j] = j;
+
+            for (int i = 1; i <= s.Length; i++)
+            {
+                for (int j = 1; j <= t.Length; j++)
+                {
+                    int cost = (s[i - 1] == t[j - 1]) ? 0 : 1;
+                    d[i, j] = Math.Min(
+                        Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1),
+                        d[i - 1, j - 1] + cost);
+                }
+            }
+            return d[s.Length, t.Length];
+        }
+
+
 
         public string GetText(Bitmap image)
         {
