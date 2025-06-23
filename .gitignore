@@ -367,3 +367,4 @@ FodyWeavers.xsd
 
 /VSCaptureExtension/PreviewAPI/*
 /VisionTest.VSExtension/InteropTools/**/*
+/VisionTest.TestsImplementation/ScreenElements.cs
