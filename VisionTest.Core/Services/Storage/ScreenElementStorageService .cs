@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using VisionTest.Core.Models;
+using VisionTest.Core.Utils;
 
 
 namespace VisionTest.Core.Services.Storage
@@ -52,10 +53,14 @@ namespace VisionTest.Core.Services.Storage
         internal async Task<ScreenElement?> GetByIdAsync(string id)
         {
             var element = new ScreenElement() { Id = id };
+            var filePath = Path.Combine(_storageDirectory, $"{id}.png");
+
+            if (!File.Exists(filePath))
+                return null;
 
             await Task.Run(() =>
             {
-                element.Images.Add(new Bitmap(Path.Combine(_storageDirectory, $"{id}.png")));
+                element.Images.Add(BitmapExtensions.LoadSafelyImage(filePath));
             });
 
             return element;
