@@ -1,7 +1,8 @@
 ﻿using Tesseract;
-using System.Configuration;
 using System.Reflection;
-using static System.Net.Mime.MediaTypeNames;
+using OpenCvSharp;
+using OpenCvSharp.Extensions;
+using VisionTest.Core.Utils;
 
 namespace VisionTest.Core.Recognition
 {
@@ -32,75 +33,110 @@ namespace VisionTest.Core.Recognition
             this.datapath = datapath;
         }
 
+        public bool LstmOnly {private get; set; } = true; // true for best accuracy on trained models, false for legacy Tesseract mode
+        public string CharWhiteList { private get; set; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz "; 
+        public IEnumerable<string> WordWhiteList {get; set; } = []; // e.g. ["MYTARGETWORD", "ANOTHERWORD"]
+        public bool UseThresholdFilter { private get; set; } = false; // false by default to maintain existing behavior
+        public bool ImproveDpi { private get; set; } = false; // false by default, set to true to improve DPI of input images
+
+
+
         /// <summary>
         /// Searches for the given target in the image and returns all matching regions.
         /// </summary>
         /// <param name="image"></param>
         /// <param name="target"></param>
+        /// <param name="LstmOnly"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         public IEnumerable<Rectangle> Find(Bitmap image, string target)
         {
-            var result = new List<Rectangle>();
             if (string.IsNullOrWhiteSpace(target))
-                throw new ArgumentException("Text cannot be empty.", nameof(target));
+                throw new ArgumentException("Target cannot be null or empty.", nameof(target));
 
-            List<string> targetWords = target.Split(' ').ToList();
+            var result = new List<Rectangle>();
+            var targetWords = target.Trim()
+                                    .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
-            // Charger le dico user_words si présent dans tessdata
-            var configFiles = new[] { "user_words" };
-            using var engine = new TesseractEngine(datapath, language, EngineMode.Default, configFiles);
-            using Page page = engine.Process(image);
-            using var iterator = page.GetIterator();
+            // 1. Init engine
+            using var engine = new TesseractEngine(@"./tessdata", "eng",
+                                   LstmOnly ? EngineMode.LstmOnly : EngineMode.TesseractAndLstm);
 
-            iterator.Begin();
+            // 2. Optionally restrict charset
+            if (!string.IsNullOrEmpty(CharWhiteList))
+                engine.SetVariable("tessedit_char_whitelist", CharWhiteList);
 
-            // Parcours de chaque ligne
+            // 3. User-words (to bias toward your phrase)
+            string cfgDir = Path.Combine(datapath, "configs");
+            Directory.CreateDirectory(cfgDir);
+            string userWordsFile = Path.Combine(cfgDir, "user-words.txt");
+            File.WriteAllLines(userWordsFile, WordWhiteList.Append(target));
+            engine.SetVariable("user_words_file", "user-words");
+
+            // Apply threshold filter if enabled
+            using var processedImage = UseThresholdFilter ? ThresholdFilter(image) : image;
+
+            using var processedImageDpi = ImproveDpi ? processedImage.ImproveDpi(600f) : processedImage;
+
+            processedImageDpi.Save("C:\\Users\\guill\\Programmation\\dotNET_doc\\VisionTest\\VisionTest.Tests\\screenshot.png");
+
+            // 4. Always use SparseText for precise word boxes
+            using var page = engine.Process(processedImageDpi, PageSegMode.SparseText);
+
+            // 5. Pull out every single word + its box
+            var words = new List<(string Text, Tesseract.Rect Box)>();
+            using var iter = page.GetIterator();
+            iter.Begin();
             do
             {
-                int matchedWords = 0;
-                var lineBoxes = new List<Rectangle>();
-
-                // On positionne l’iterator sur le premier mot de la ligne
-                bool inLine = true;
-                do
+                if (iter.IsAtBeginningOf(PageIteratorLevel.Word) &&
+                    iter.TryGetBoundingBox(PageIteratorLevel.Word, out var r))
                 {
-                    string ocrWord = iterator.GetText(PageIteratorLevel.Word);
+                    string w = iter.GetText(PageIteratorLevel.Word).Trim();
+                    if (!string.IsNullOrEmpty(w))
+                        words.Add((w, r));
+                }
+            } while (iter.Next(PageIteratorLevel.Word));
 
-                    if (IsFuzzyMatch(ocrWord, targetWords[matchedWords], fuzzyTolerance))
+            // 6. Slide a window of length N over the words list
+            int N = targetWords.Length;
+            for (int i = 0; i + N <= words.Count; i++)
+            {
+                bool match = true;
+                for (int j = 0; j < N; j++)
+                {
+                    if (!string.Equals(words[i + j].Text,
+                                       targetWords[j],
+                                       StringComparison.OrdinalIgnoreCase))
                     {
-                        if (iterator.TryGetBoundingBox(PageIteratorLevel.Word, out var rect))
-                        {
-                            lineBoxes.Add(new Rectangle(rect.X1, rect.Y1, rect.Width, rect.Height));
-                        }
-                        matchedWords++;
-                        if (matchedWords == targetWords.Count)
-                        {
-                            // Tous les mots trouvés consécutivement
-                            int x = lineBoxes.Min(b => b.X);
-                            int y = lineBoxes.Min(b => b.Y);
-                            int w = lineBoxes.Max(b => b.Right) - x;
-                            int h = lineBoxes.Max(b => b.Bottom) - y;
-                            result.Add(new Rectangle(x, y, w, h));
-                            break;
-                        }
+                        match = false;
+                        break;
                     }
-                    else
-                    {
-                        // Redémarrer la recherche de la séquence
-                        lineBoxes.Clear();
-                        matchedWords = 0;
-                    }
-                    // Avance au mot suivant, mais ne sort pas de la ligne
-                    inLine = iterator.Next(PageIteratorLevel.Word)
-                             && !iterator.IsAtBeginningOf(PageIteratorLevel.TextLine);
+                }
+                if (!match)
+                    continue;
 
-                } while (inLine);
+                // 7. Compute union bbox of words[i..i+N-1]
+                int x1 = words[i].Box.X1;
+                int y1 = words[i].Box.Y1;
+                int x2 = words[i].Box.X1 + words[i].Box.Width;
+                int y2 = words[i].Box.Y1 + words[i].Box.Height;
 
-            } while (iterator.Next(PageIteratorLevel.TextLine));
+                for (int j = 1; j < N; j++)
+                {
+                    var b = words[i + j].Box;
+                    x1 = Math.Min(x1, b.X1);
+                    y1 = Math.Min(y1, b.Y1);
+                    x2 = Math.Max(x2, b.X1 + b.Width);
+                    y2 = Math.Max(y2, b.Y1 + b.Height);
+                }
+
+                result.Add(MapRectangleToOriginal(new Rectangle(x1, y1, x2 - x1, y2 - y1), image, processedImageDpi));
+            }
 
             return result;
         }
+
 
         // FuzzyMatch et Levenshtein comme précédemment :
         private bool IsFuzzyMatch(string word1, string word2, int tolerance)
@@ -132,6 +168,42 @@ namespace VisionTest.Core.Recognition
             return d[s.Length, t.Length];
         }
 
+        private Bitmap ThresholdFilter(Bitmap src)
+        {
+            Mat gray = src.ToMat().ConvertToGray();
+            // Convert to grayscale 
+            Mat bw = new Mat();
+            Cv2.AdaptiveThreshold(gray, bw, 255,
+                AdaptiveThresholdTypes.GaussianC,
+                ThresholdTypes.BinaryInv, 11, 2);
+
+            return bw.ToBitmap();
+        }
+
+        /// <summary>
+        /// Maps a rectangle from the processed (e.g. upscaled) image back to the coordinate space of the original image.
+        /// </summary>
+        /// <param name="rectInProcessed">The rectangle in the processed image’s pixel coordinates.</param>
+        /// <param name="original">The original bitmap.</param>
+        /// <param name="processed">The processed (resampled) bitmap.</param>
+        /// <returns>A Rectangle in the original image’s pixel coordinates.</returns>
+        private static Rectangle MapRectangleToOriginal(Rectangle rectInProcessed, Bitmap original, Bitmap processed)
+        {
+            if (original == null) throw new ArgumentNullException(nameof(original));
+            if (processed == null) throw new ArgumentNullException(nameof(processed));
+
+            // Compute the scale factors between the two images
+            double scaleX = (double)original.Width / processed.Width;
+            double scaleY = (double)original.Height / processed.Height;
+
+            // Map each component back
+            int origX = (int)Math.Round(rectInProcessed.X * scaleX);
+            int origY = (int)Math.Round(rectInProcessed.Y * scaleY);
+            int origWidth = (int)Math.Round(rectInProcessed.Width * scaleX);
+            int origHeight = (int)Math.Round(rectInProcessed.Height * scaleY);
+
+            return new Rectangle(origX, origY, origWidth, origHeight);
+        }
 
 
         public string GetText(Bitmap image)

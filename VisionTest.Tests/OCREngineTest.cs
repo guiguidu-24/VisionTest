@@ -12,6 +12,7 @@ namespace VisionTest.Tests
         {
             // Initialiser OCREngine avec le chemin extrait
             ocrEngine = new OCREngine("eng");
+            ocrEngine.ImproveDpi = true; // Activer le filtre de seuil pour les tests
         }
 
         [Test]
