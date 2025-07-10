@@ -63,8 +63,9 @@ namespace VisionTest.Core.Recognition
                                    LstmOnly ? EngineMode.LstmOnly : EngineMode.TesseractAndLstm);
 
             // 2. Optionally restrict charset
-            if (!string.IsNullOrEmpty(CharWhiteList))
-                engine.SetVariable("tessedit_char_whitelist", CharWhiteList);
+            var charWhiteList = AddCharacters(target);
+            if (!string.IsNullOrEmpty(charWhiteList))
+                engine.SetVariable("tessedit_char_whitelist", charWhiteList);
 
             // 3. User-words (to bias toward your phrase)
             string cfgDir = Path.Combine(datapath, "configs");
@@ -77,8 +78,6 @@ namespace VisionTest.Core.Recognition
             using var processedImage = UseThresholdFilter ? ThresholdFilter(image) : image;
 
             using var processedImageDpi = ImproveDpi ? processedImage.ImproveDpi(600f) : processedImage;
-
-            processedImageDpi.Save("C:\\Users\\guill\\Programmation\\dotNET_doc\\VisionTest\\VisionTest.Tests\\screenshot.png");
 
             // 4. Always use SparseText for precise word boxes
             using var page = engine.Process(processedImageDpi, PageSegMode.SparseText);
@@ -137,6 +136,26 @@ namespace VisionTest.Core.Recognition
             return result;
         }
 
+
+        private string AddCharacters(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return CharWhiteList;
+
+            // Convert current whitelist to HashSet for efficient lookups
+            var existingChars = new HashSet<char>(CharWhiteList);
+            
+            // Add new unique characters from the text
+            foreach (char c in text)
+            {
+                if (!existingChars.Contains(c))
+                    existingChars.Add(c);
+            }
+
+            // Convert back to string and update CharWhiteList
+            CharWhiteList = new string(existingChars.ToArray());
+            return CharWhiteList;
+        }
 
         // FuzzyMatch et Levenshtein comme précédemment :
         private bool IsFuzzyMatch(string word1, string word2, int tolerance)

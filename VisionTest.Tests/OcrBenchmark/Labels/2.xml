@@ -1,0 +1,37 @@
+<annotation>
+	<folder>my-project-name</folder>
+	<filename>2.jpg</filename>
+	<path>/my-project-name/2.jpg</path>
+	<source>
+		<database>Unspecified</database>
+	</source>
+	<size>
+		<width>1280</width>
+		<height>700</height>
+		<depth>3</depth>
+	</size>
+	<object>
+		<name>implemented electronics and hardware</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>331</xmin>
+			<ymin>645</ymin>
+			<xmax>578</xmax>
+			<ymax>668</ymax>
+		</bndbox>
+	</object>
+	<object>
+		<name>California</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>409</xmin>
+			<ymin>625</ymin>
+			<xmax>473</xmax>
+			<ymax>642</ymax>
+		</bndbox>
+	</object>
+</annotation>
