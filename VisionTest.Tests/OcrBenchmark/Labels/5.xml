@@ -1,0 +1,25 @@
+<annotation>
+	<folder>my-project-name</folder>
+	<filename>5.webp</filename>
+	<path>/my-project-name/5.webp</path>
+	<source>
+		<database>Unspecified</database>
+	</source>
+	<size>
+		<width>2880</width>
+		<height>2048</height>
+		<depth>3</depth>
+	</size>
+	<object>
+		<name>thanks for asking!</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>1293</xmin>
+			<ymin>1492</ymin>
+			<xmax>1500</xmax>
+			<ymax>1516</ymax>
+		</bndbox>
+	</object>
+</annotation>
