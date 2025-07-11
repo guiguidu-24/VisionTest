@@ -17,7 +17,7 @@ namespace VisionTest.Tests.OcrBenchmark
         [TestCase("6")]
         [TestCase("7")]
         [TestCase("8")]
-        [TestCase("9")]
+        [TestCase("9", true, true)]
         [TestCase("10")]
         public void RunOCROnAnImageAndCheckThePositionOfTheRectangle(string imageUnderTestNameWithoutExtension, bool improveDPI = false, bool useThresholdFilter = false)
         {
@@ -46,7 +46,7 @@ namespace VisionTest.Tests.OcrBenchmark
                 var ymax = int.Parse(bndbox.Element("ymax")?.Value ?? "0");
                 Rectangle targetRect = new Rectangle(xmin, ymin, xmax - xmin, ymax - ymin);
 
-                OCREngine ocrEngine = new OCREngine(new OCREngineOptions {ImproveDPI = improveDPI });
+                OCREngine ocrEngine = new OCREngine(new OCREngineOptions {ImproveDPI = improveDPI, UseThresholdFilter = useThresholdFilter});
                 
 
                 using var targetImage = new Bitmap(imagePath);
@@ -88,7 +88,7 @@ namespace VisionTest.Tests.OcrBenchmark
                     Assert.That(anyMatch, Is.True,
                         $"No rectangle matched for the target '{name}' in image '{imageUnderTestNameWithoutExtension}'. " +
                         $"Expected center: {expectedCenter}, width: {targetRect.Width}, height: {targetRect.Height}. " +
-                        $"Found: [{string.Join(", ", foundRects.Select(r => r.ToString()))}]"
+                        $"Found: [{string.Join(", ", foundRects.Select(r => $"center: ({r.X + r.Width / 2}, {r.Y + r.Height / 2}), width: {r.Width}, height: {r.Height}"))}]"
                     );
                 });
             }
