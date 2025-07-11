@@ -11,8 +11,10 @@ namespace VisionTest.Tests
         public void Setup()
         {
             // Initialiser OCREngine avec le chemin extrait
-            ocrEngine = new OCREngine("eng");
-            ocrEngine.ImproveDpi = true; // Activer le filtre de seuil pour les tests
+            ocrEngine = new OCREngine(new OCREngineOptions()
+            {
+                ImproveDPI = true,
+            });
         }
 
         [Test]

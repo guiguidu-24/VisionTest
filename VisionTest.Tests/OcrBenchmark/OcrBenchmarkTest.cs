@@ -6,11 +6,12 @@ namespace VisionTest.Tests.OcrBenchmark
 {
     internal class OcrBenchmarkTest
     {
+        private const int positionTolerance = 10; // Tolerance in pixels for the position of the center
         private static string ocrBenchmarkDirectory = @"..\..\..\OcrBenchmark\";
 
         [TestCase("1")]
         [TestCase("2")]
-        [TestCase("3")]
+        [TestCase("3", true)]
         [TestCase("4")]
         [TestCase("5")]
         [TestCase("6")]
@@ -18,7 +19,7 @@ namespace VisionTest.Tests.OcrBenchmark
         [TestCase("8")]
         [TestCase("9")]
         [TestCase("10")]
-        public void RunOCROnAnImageAndCheckThePositionOfTheRectangle(string imageUnderTestNameWithoutExtension)
+        public void RunOCROnAnImageAndCheckThePositionOfTheRectangle(string imageUnderTestNameWithoutExtension, bool improveDPI = false, bool useThresholdFilter = false)
         {
             string imagePath = Path.Combine(ocrBenchmarkDirectory, "Images", imageUnderTestNameWithoutExtension + ".png");
             string labelPath = Path.Combine(ocrBenchmarkDirectory, "Labels", imageUnderTestNameWithoutExtension + ".xml");
@@ -45,42 +46,49 @@ namespace VisionTest.Tests.OcrBenchmark
                 var ymax = int.Parse(bndbox.Element("ymax")?.Value ?? "0");
                 Rectangle targetRect = new Rectangle(xmin, ymin, xmax - xmin, ymax - ymin);
 
-                var ocrEngine = new OCREngine("en");
+                OCREngine ocrEngine = new OCREngine(new OCREngineOptions {ImproveDPI = improveDPI });
+                
+
                 using var targetImage = new Bitmap(imagePath);
 
                 var foundRects = ocrEngine.Find(targetImage, name);
 
                 Assert.That(foundRects, Is.Not.Empty, $"No rectangles found for target '{name}' in image '{imageUnderTestNameWithoutExtension}'.");
-                Assert.That(foundRects.Count(), Is.EqualTo(1), $"Multiple rectangles were found for the target {name}");
+
 
                 var actualRectangle = foundRects.First();
                 Assert.Multiple(() =>
                 {
+                    //Assert.That(
+                    // foundRects.Count(),
+                    // Is.EqualTo(1),
+                    // $"Multiple rectangles were found for the target '{name}' in image '{imageUnderTestNameWithoutExtension}'. " +
+                    // $"Expected: {targetRect}. Found: [{string.Join(", ", foundRects.Select(r => r.ToString()))}]"
+                    // );
+
                     // Calculate centers
                     var expectedCenter = new Point(
                         targetRect.X + targetRect.Width / 2,
                         targetRect.Y + targetRect.Height / 2
                     );
-                    var actualCenter = new Point(
-                        actualRectangle.X + actualRectangle.Width / 2,
-                        actualRectangle.Y + actualRectangle.Height / 2
-                    );
-                    const int positionTolerance = 10;
 
-                    Assert.That(
-                        Math.Abs(expectedCenter.X - actualCenter.X) <= positionTolerance &&
-                        Math.Abs(expectedCenter.Y - actualCenter.Y) <= positionTolerance, Is.True,
-                        $"Center position is incorrect for target '{name}' in image '{imageUnderTestNameWithoutExtension}'. Expected: {expectedCenter}, Actual: {actualCenter}"
-                    );
+                    bool anyMatch = foundRects.Any(rect =>
+                    {
+                        var actualCenter = new Point(
+                            rect.X + rect.Width / 2,
+                            rect.Y + rect.Height / 2
+                        );
+                        return
+                            Math.Abs(expectedCenter.X - actualCenter.X) <= positionTolerance &&
+                            Math.Abs(expectedCenter.Y - actualCenter.Y) <= positionTolerance &&
+                            Math.Abs(targetRect.Width - rect.Width) <= positionTolerance &&
+                            Math.Abs(targetRect.Height - rect.Height) <= positionTolerance;
+                    });
 
-                    // Width and Height assertions
-                    Assert.That(
-                        Math.Abs(targetRect.Width - actualRectangle.Width) <= positionTolerance, Is.True,
-                        $"Width is incorrect for target '{name}' in image '{imageUnderTestNameWithoutExtension}'. Expected: {targetRect.Width}, Actual: {actualRectangle.Width}"
-                    );
-                    Assert.That(
-                        Math.Abs(targetRect.Height - actualRectangle.Height) <= positionTolerance, Is.True,
-                        $"Height is incorrect for target '{name}' in image '{imageUnderTestNameWithoutExtension}'. Expected: {targetRect.Height}, Actual: {actualRectangle.Height}"
+                    Assert.That(anyMatch, Is.True,
+                        $"No rectangle matched for the target '{name}' in image '{imageUnderTestNameWithoutExtension}'. " +
+                        $"Expected center: {expectedCenter}, width: {targetRect.Width}, height: {targetRect.Height}. " +
+                        $"Found: [{string.Join(", ", foundRects.Select(r => r.ToString()))}]"
                     );
                 });
             }

@@ -33,6 +33,17 @@ namespace VisionTest.Core.Recognition
             this.datapath = datapath;
         }
 
+        public OCREngine(OCREngineOptions options)
+        {
+            this.language = options.Lang.ToCode();
+            this.datapath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata");
+            this.CharWhiteList = options.WhiteListChar;
+            this.WordWhiteList = options.WordWhiteList ?? [];
+            this.LstmOnly = options.LTSMOnly;
+            this.UseThresholdFilter = options.UseThresholdFilter;
+            this.ImproveDpi = options.ImproveDPI;
+        }
+
         public bool LstmOnly {private get; set; } = true; // true for best accuracy on trained models, false for legacy Tesseract mode
         public string CharWhiteList { private get; set; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz "; 
         public IEnumerable<string> WordWhiteList {get; set; } = []; // e.g. ["MYTARGETWORD", "ANOTHERWORD"]
