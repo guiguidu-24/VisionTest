@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\VisionTest.ConsoleInterop\VisionTest.ConsoleInterop.csproj" />
     <ProjectReference Include="..\VisionTest.Core\VisionTest.Core.csproj" />
   </ItemGroup>
 

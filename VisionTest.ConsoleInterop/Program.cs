@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Text.Json;
 using VisionTest.Core.Models;
 using VisionTest.Core.Recognition;
 using VisionTest.Core.Services.Storage;
@@ -8,157 +9,192 @@ using VisionTest.Core.Services.Storage;
 //ocr C:\Users\guill\Programmation\dotNET_doc\VisionTest\VisionTest.Tests\images\cottonLike.png
 //update C:\Users\guill\Programmation\dotNET_doc\VisionTest\VisionTest.TestsImplementation
 
-namespace VisionTest.ConsoleInterop
-{
-    class Program
-    {
-        static async Task Main()
-        {
-            try
-            {
-                while (true)
-                {
-                    var stringLine = Console.ReadLine();
-                    string[] commandLine = stringLine?.Split() ?? []; // Wait for user input to continue
+namespace VisionTest.ConsoleInterop;
 
-                    switch (commandLine[0])
-                    {
-                        case "ocr":
-                            string imagePath = commandLine[1];
-                            ProcessOCRCommand(commandLine);
-                            break;
-                        case "add":
-                            await AddNewElement(commandLine);
-                            break;
-                        case "update":
-                            await Update(commandLine); //TODO: Fire and forget
-                            break;
-                        case "remove":
-                            await Remove(commandLine);
-                            break;
-                        default:
-                            Console.WriteLine($"Unknown command: {commandLine[0]}");
-                            break;
-                    }
+public class Program
+{
+    static async Task Main()
+    {
+        try
+        {
+            while (true)
+            {
+                var stringLine = Console.ReadLine();
+                string[] commandLine = stringLine?.Split() ?? []; // Wait for user input to continue
+
+                switch (commandLine[0])
+                {
+                    case "ocr":
+                        string imagePath = commandLine[1];
+                        ProcessOCRCommand(commandLine);
+                        break;
+                    case "add":
+                        await AddNewElement(commandLine);
+                        break;
+                    case "update":
+                        await Update(commandLine); //TODO: Fire and forget
+                        break;
+                    case "remove":
+                        await Remove(commandLine);
+                        break;
+                    default:
+                        Console.WriteLine($"Unknown command: {commandLine[0]}");
+                        break;
                 }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An error occurred: {ex.Message}");
-                throw;
-            }
         }
-
-        /// <summary>
-        /// Reads an image file and performs OCR to extract text from it
-        /// </summary>
-        /// <param name="args"></param>
-        private static void ProcessOCRCommand(string[] args)
+        catch (Exception ex)
         {
-            if (args.Length < 2)
-            {
-                Console.WriteLine("Usage:ocr <imagePath>");
-                return;
-            }
-
-            string imagePath = args[1];
-
-            // Validate the image path
-            if (!File.Exists(imagePath))
-            {
-                Console.WriteLine($"Error: The file '{imagePath}' does not exist.");
-                return;
-            }
-
-
-            string extractedText;
-            // Load the image
-            using (Bitmap image = new Bitmap(imagePath))
-            {
-                // Initialize the OCR engine
-                OCREngine ocrEngine = new OCREngine("eng");
-
-                // Perform OCR to extract text
-                extractedText = ocrEngine.GetText(image).TrimEnd('\n');
-            }
-            // Output the extracted text
-            Console.WriteLine("Extracted Text:");
-            Console.WriteLine(extractedText);
-
+            Console.WriteLine($"An error occurred: {ex.Message}");
+            throw;
         }
+    }
 
-        private static async Task AddNewElement(string[] args)
+    /// <summary>
+    /// Reads an image file and performs OCR to extract text from it and prints a JSON response
+    /// </summary>
+    /// <param name="args"></param>
+    public static void ProcessOCRCommand(string[] args)
+    {
+        // Error: Not enough arguments
+        if (args.Length != 2)
         {
-            if (args.Length < 4)
+            var errorResponse = new
             {
-                Console.WriteLine("Usage: add <projectDirectory> <id> <imagePath>");
-                return;
-            }
-            string projectDirectory = args[1];
-            string id = args[2];
-            string imagePath = args[3];
-
-
-            var repositoryManager = new RepositoryManager(projectDirectory);
-            var screenElement = new ScreenElement
-            {
-                Id = id,
-                Images = { LoadSafelyImage(imagePath) }
+                response = new
+                {
+                    status = "error",
+                    message = $"{args.Length} arguments found, expected:2",
+                    data = new
+                    {
+                        textFound = ""
+                    }
+                }
             };
-
-            if ((await repositoryManager.GetAllScreenElementNamesAsync()).Contains(id))
-            {
-                Console.WriteLine($"Screen element with ID '{id}' already exists. Please choose a different ID.");
-            }
-            else
-            {
-                await repositoryManager.AddAsync(screenElement);
-            }
-
-            if (args.Length == 5 && args[4] == "-delete")
-            {
-                File.Delete(imagePath);
-            }
+            string errorJson = JsonSerializer.Serialize(errorResponse);
+            Console.WriteLine(errorJson);
+            return;
         }
 
-        private static async Task Update(string[] args)
+        string imagePath = args[1];
+
+        // Error: File does not exist
+        if (!File.Exists(imagePath))
         {
-            if (args.Length < 2)
+            var errorResponse = new
             {
-                Console.WriteLine("Usage: update <projectDirectory>");
-                return;
-            }
-
-            var projectDirectory = args[1];
-
-
-            var repositoryManager = new RepositoryManager(projectDirectory);
-
-            await repositoryManager.UpdateIndexAsync(projectDirectory);
+                response = new
+                {
+                    status = "error",
+                    message = $"The file '{imagePath}' does not exist.",
+                    data = new
+                    {
+                        textFound = ""
+                    }
+                }
+            };
+            string errorJson = JsonSerializer.Serialize(errorResponse);
+            Console.WriteLine(errorJson);
+            return;
         }
 
-        private static async Task Remove(string[] args)
+        string extractedText;
+        // Load the image and perform OCR
+        using (Bitmap image = new Bitmap(imagePath))
         {
-            if (args.Length < 3)
-            {
-                Console.WriteLine("Usage: remove <projectDirectory> <id>");
-                return;
-            }
-            string projectDirectory = args[1];
-            string id = args[2];
+            OCREngine ocrEngine = new OCREngine("eng");
+            extractedText = ocrEngine.GetText(image).TrimEnd('\n');
+        }
 
-            var repositoryManager = new RepositoryManager(projectDirectory);
-            await repositoryManager.RemoveElementAsync(id);
-        }
-        
-        private static Bitmap LoadSafelyImage(string imagePath)
+        // Success JSON response
+        var response = new
         {
-            Bitmap bmp;
-            using (var stream = new FileStream(imagePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            response = new
             {
-                bmp = new Bitmap(stream);
+                status = "success",
+                message = "All text read",
+                data = new
+                {
+                    textFound = extractedText
+                }
             }
-            return bmp;
+        };
+
+        string json = JsonSerializer.Serialize(response);
+        Console.WriteLine(json);
+    }
+
+    public static async Task AddNewElement(string[] args)
+    {
+        if (args.Length < 4)
+        {
+            Console.WriteLine("Usage: add <projectDirectory> <id> <imagePath>");
+            return;
         }
+        string projectDirectory = args[1];
+        string id = args[2];
+        string imagePath = args[3];
+
+
+        var repositoryManager = new RepositoryManager(projectDirectory);
+        var screenElement = new ScreenElement
+        {
+            Id = id,
+            Images = { LoadSafelyImage(imagePath) }
+        };
+
+        if ((await repositoryManager.GetAllScreenElementNamesAsync()).Contains(id))
+        {
+            Console.WriteLine($"Screen element with ID '{id}' already exists. Please choose a different ID.");
+        }
+        else
+        {
+            await repositoryManager.AddAsync(screenElement);
+        }
+
+        if (args.Length == 5 && args[4] == "-delete")
+        {
+            File.Delete(imagePath);
+        }
+    }
+
+    public static async Task Update(string[] args)
+    {
+        if (args.Length < 2)
+        {
+            Console.WriteLine("Usage: update <projectDirectory>");
+            return;
+        }
+
+        var projectDirectory = args[1];
+
+
+        var repositoryManager = new RepositoryManager(projectDirectory);
+
+        await repositoryManager.UpdateIndexAsync();
+    }
+
+    public static async Task Remove(string[] args)
+    {
+        if (args.Length < 3)
+        {
+            Console.WriteLine("Usage: remove <projectDirectory> <id>");
+            return;
+        }
+        string projectDirectory = args[1];
+        string id = args[2];
+
+        var repositoryManager = new RepositoryManager(projectDirectory);
+        await repositoryManager.RemoveElementAsync(id);
+    }
+
+    public static Bitmap LoadSafelyImage(string imagePath)
+    {
+        Bitmap bmp;
+        using (var stream = new FileStream(imagePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+        {
+            bmp = new Bitmap(stream);
+        }
+        return bmp;
     }
 }

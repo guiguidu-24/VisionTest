@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.Shell.Interop;
+using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -40,19 +41,10 @@ namespace VisionTest.VSExtension
             string tempFilePath = SaveBitmapImageToTemp(bitmapImage);
 
             // Send the "ocr" command to the running process
-           
             _interopProcess.StandardInput.WriteLine($"ocr {tempFilePath}");
-            // Read the response from the process
-            string header = _interopProcess.StandardOutput.ReadLine();
 
-            // Return the response
-            if (header.Trim() != "Extracted Text:")
-            {
-                throw new InvalidOperationException($"Unexpected response from OCR process: {header}");
-            }
-
-            var output = _interopProcess.StandardOutput.ReadLine().Trim();
-
+            // Read the JSON response from the process
+            string jsonResponse = _interopProcess.StandardOutput.ReadLine();
 
             try
             {
@@ -64,7 +56,29 @@ namespace VisionTest.VSExtension
                 throw;
             }
 
-            return output;
+            // Parse the JSON and extract the textFound field
+            if (string.IsNullOrWhiteSpace(jsonResponse))
+                throw new InvalidOperationException("No response received from OCR process.");
+
+            try
+            {
+                var root = JObject.Parse(jsonResponse);
+                var response = root["response"];
+                if (response == null)
+                    throw new InvalidOperationException("Invalid OCR response format: missing 'response' property.");
+                var data = response["data"];
+                if (data == null)
+                    throw new InvalidOperationException("Invalid OCR response format: missing 'data' property.");
+                var textFound = data["textFound"];
+                if (textFound == null)
+                    throw new InvalidOperationException("Invalid OCR response format: missing 'textFound' property.");
+
+                return textFound.Value<string>() ?? string.Empty;
+            }
+            catch (Newtonsoft.Json.JsonException ex)
+            {
+                throw new InvalidOperationException("Failed to parse OCR JSON response.", ex);
+            }
         }
 
         private string SaveBitmapImageToTemp(BitmapImage bitmapImage)
