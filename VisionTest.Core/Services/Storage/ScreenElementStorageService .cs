@@ -37,12 +37,22 @@ namespace VisionTest.Core.Services.Storage
         }
 
         /// <summary>
-        /// Retrieves all the ids of the saved screen elements from the storage directory.
+        /// Retrieves all the ids of the saved screen elements from the storage directory and its subdirectories.
+        /// Returns the relative path (from _storageDirectory) without extension for each file.
         /// </summary>
         /// <returns></returns>
         internal async Task<IEnumerable<string>> GetAllNamesAsync()
         {
-            return await Task.Run(() => Directory.GetFiles(_storageDirectory, "*.png").Select(s => Path.GetFileNameWithoutExtension(s)).Where(s => s != string.Empty && s != null));
+            return await Task.Run(() =>
+                Directory
+                    .GetFiles(_storageDirectory, "*.png", SearchOption.AllDirectories)
+                    .Select(s =>
+                    {
+                        var relativePath = Path.GetRelativePath(_storageDirectory, s);
+                        return Path.ChangeExtension(relativePath, null);
+                    })
+                    .Where(s => !string.IsNullOrEmpty(s))
+            );
         }
 
         /// <summary>

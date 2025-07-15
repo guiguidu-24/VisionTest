@@ -1,4 +1,5 @@
-﻿using VisionTest.Core.Models;
+﻿using System.Globalization;
+using VisionTest.Core.Models;
 
 namespace VisionTest.Core.Services.Storage
 {
@@ -28,19 +29,60 @@ namespace VisionTest.Core.Services.Storage
             {
                 if (!File.Exists(_enumFilePath))
                 {
-                    using FileStream fileStream = File.Create(_enumFilePath);
-                    using StreamWriter fileWriter = new(fileStream);
-                    await fileWriter.WriteLineAsync($"namespace {Path.GetFileName(_projectDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))};");
-                    await fileWriter.WriteAsync("public static class ScreenElements \n{\n}");
+                    using var fileStream = File.Create(_enumFilePath);
+                    using var fileWriter = new StreamWriter(fileStream);
+                    await fileWriter.WriteLineAsync(
+                        $"namespace {Path.GetFileName(_projectDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))};");
+                    await fileWriter.WriteLineAsync("public static class ScreenElements");
+                    await fileWriter.WriteLineAsync("{");
+                    await fileWriter.WriteLineAsync("}");
                 }
 
-                string enumContent = await File.ReadAllTextAsync(_enumFilePath);
+                var enumContent = await File.ReadAllTextAsync(_enumFilePath);
 
-                enumContent = enumContent.Insert(enumContent.LastIndexOf('}'), $"\tpublic const string {screenElement.Id} = \"{screenElement.Id}\";\n");
+                // Split Id into path segments (e.g. "tem/debug1" → ["tem","debug1"])
+                var parts = screenElement.Id.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
+                var className = parts.Length > 1 ? CultureInfo.CurrentCulture.TextInfo.ToTitleCase(parts[0]) : null;
+                var constantName = parts.Last();
 
-                using var writer = new StreamWriter(_enumFilePath, append: false);
-                await writer.WriteAsync(enumContent);
+                // Prepare constant line
+                var constLine = $"\t\tpublic const string {constantName} = \"{screenElement.Id}\";";
+
+                if (className is null)
+                {
+                    // Insert at root
+                    var insertPos = enumContent.LastIndexOf('}');
+                    enumContent = enumContent.Insert(insertPos, "\t" + constLine + "\n");
+                }
+                else
+                {
+                    // Ensure nested class exists
+                    var nestedClassPattern = $"public static class {className}";
+                    if (!enumContent.Contains(nestedClassPattern))
+                    {
+                        // Insert the nested class before the last '}' of ScreenElements
+                        var rootClose = enumContent.LastIndexOf('}');
+                        var nestedClassDef =
+                            $"\tpublic static class {className}\n" +
+                            "\t{\n" +
+                            "\t}\n\n";
+                        enumContent = enumContent.Insert(rootClose, nestedClassDef);
+                    }
+
+                    // Insert constant into the nested class
+                    // Find the closing brace of that nested class
+                    var classStart = enumContent.IndexOf(nestedClassPattern, StringComparison.Ordinal);
+                    var classBlockStart = enumContent.IndexOf('{', classStart) + 1;
+                    var classBlockEnd = enumContent.IndexOf('}', classBlockStart);
+
+                    enumContent = enumContent.Insert(classBlockEnd,
+                        "\t\t" + constLine + "\n");
+                }
+
+                // Write back
+                await File.WriteAllTextAsync(_enumFilePath, enumContent);
             });
         }
+
     }
 }

@@ -1,4 +1,6 @@
-﻿using VisionTest.Core.Models;
+﻿using System.Globalization;
+using System.Text;
+using VisionTest.Core.Models;
 
 namespace VisionTest.Core.Services.Storage
 {
@@ -7,9 +9,11 @@ namespace VisionTest.Core.Services.Storage
         private readonly ScreenElementStorageService _screenElementStorageService;
         private readonly string _enumFilePath;
         private readonly IndexationService _indexationService;
+        private readonly string _projectDirectory;
 
         public RepositoryManager(string projectDirectory)
         {
+            _projectDirectory = projectDirectory;
             _enumFilePath = Path.Combine(projectDirectory, "ScreenElements.cs");
             _screenElementStorageService = new ScreenElementStorageService(projectDirectory);
             _indexationService = new IndexationService(_enumFilePath, projectDirectory);
@@ -61,27 +65,65 @@ namespace VisionTest.Core.Services.Storage
         }
 
         /// <summary>
-        /// Updates the ScreenElement.cs file with all existing screen elements.
+        /// Updates the ScreenElements.cs file with all existing screen elements,
+        /// organizing them into nested static classes based on their directory segments.
         /// </summary>
-        /// <returns></returns>
         public async Task UpdateIndexAsync()
         {
-            IEnumerable<string> screenElementNames = await _screenElementStorageService.GetAllNamesAsync();
-            
-            if (File.Exists(_enumFilePath))
-            {
-                File.Delete(_enumFilePath);
-            }
+            // 1. Gather all element IDs (e.g. "foo", "tem/debug1", "Images/Icons/Home")
+            var allIds = await _screenElementStorageService.GetAllNamesAsync();
 
-            foreach (var name in screenElementNames)
+            // 2. Delete existing file so we start fresh
+            if (File.Exists(_enumFilePath))
+                File.Delete(_enumFilePath);
+
+            // 3. Build a structure: key = top-level dir or "" for root, value = list of full IDs
+            var groups = allIds
+                .Select(id => id.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries))
+                .GroupBy(segments => segments.Length > 1 ? segments[0] : string.Empty);
+
+            // 4. Compose the C# file in memory
+            var ns = Path.GetFileName(_projectDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+            var sb = new StringBuilder();
+            sb.AppendLine($"namespace {ns};");
+            sb.AppendLine();
+            sb.AppendLine("public static class ScreenElements");
+            sb.AppendLine("{");
+
+            foreach (var group in groups)
             {
-                var screenElement = await _screenElementStorageService.GetByIdAsync(name);
-                if (screenElement != null)
+                if (group.Key == string.Empty)
                 {
-                    await _indexationService.AddElementToIndexAsync(screenElement);
+                    // Root-level IDs
+                    foreach (var segs in group)
+                    {
+                        var constName = segs[0];
+                        sb.AppendLine($"\tpublic const string {constName} = \"{constName}\";");
+                    }
+                }
+                else
+                {
+                    // Nested directory
+                    var dirName = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(group.Key);
+                    sb.AppendLine($"\tpublic static class {dirName}");
+                    sb.AppendLine("\t{");
+                    foreach (var segs in group)
+                    {
+                        // segs[0] == group.Key, so take the remainder
+                        var constName = segs[1];
+                        var fullId = string.Join("/", segs);
+                        sb.AppendLine($"\t\tpublic const string {constName} = \"{fullId}\";");
+                    }
+                    sb.AppendLine("\t}");
                 }
             }
+
+            sb.AppendLine("}");
+
+            // 5. Write the file
+            await File.WriteAllTextAsync(_enumFilePath, sb.ToString());
         }
+
 
         /// <summary>
         /// Retrieves all the names of the saved screen elements from the storage directory.
