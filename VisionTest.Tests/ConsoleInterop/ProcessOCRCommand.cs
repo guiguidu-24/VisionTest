@@ -85,15 +85,13 @@ namespace VisionTest.Tests.ConsoleInterop
                 root.TryGetProperty("response", out var response);
                 response.TryGetProperty("status", out var status);
                 response.TryGetProperty("message", out var message);
-                response.TryGetProperty("data", out var data);
-                data.TryGetProperty("textFound", out var textFound);
 
                 // Assert
                 Assert.Multiple(() =>
                 {
                     Assert.That(status.GetString(), Is.EqualTo("error"), "Status should be 'error'");
                     Assert.That(message.GetString(), Is.EqualTo("1 arguments found, expected:2"), "Message should indicate argument count error");
-                    Assert.That(textFound.GetString(), Is.EqualTo(""), "textFound should be empty");
+                    Assert.That(response.TryGetProperty("data", out _), Is.False, "Error response should not contain 'data' property");
                 });
             }
             finally
@@ -127,15 +125,13 @@ namespace VisionTest.Tests.ConsoleInterop
                 root.TryGetProperty("response", out var response);
                 response.TryGetProperty("status", out var status);
                 response.TryGetProperty("message", out var message);
-                response.TryGetProperty("data", out var data);
-                data.TryGetProperty("textFound", out var textFound);
 
                 // Assert
                 Assert.Multiple(() =>
                 {
                     Assert.That(status.GetString(), Is.EqualTo("error"), "Status should be 'error'");
                     Assert.That(message.GetString(), Is.EqualTo($"The file '{imagePath}' does not exist."), "Message should indicate missing file");
-                    Assert.That(textFound.GetString(), Is.EqualTo(""), "textFound should be empty");
+                    Assert.That(response.TryGetProperty("data", out _), Is.False, "Error response should not contain 'data' property");
                 });
             }
             finally

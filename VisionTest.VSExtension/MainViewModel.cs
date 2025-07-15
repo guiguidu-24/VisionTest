@@ -139,26 +139,40 @@ namespace VisionTest.VSExtension
 
             RefreshCommand = new RelayCommand(() =>
             {
-                interop.UpdateEnum();
+                ThreadHelper.JoinableTaskFactory.Run(async () =>
+                {
+                    await interop.UpdateEnumAsync();
+                });
             });
 
             SaveCommand = new RelayCommand(() =>
             {
-                try
+                // This will run SaveAsync on the UI thread context,
+                // wait for it to finish, and propagate any exceptions.
+                ThreadHelper.JoinableTaskFactory.Run(async () =>
                 {
-                    interop.Add(currentScreenshot, currentElementName);
-                    ShowCaptureUI = false;
-                    ShowCaptureTool = false;
-                    CurrentScreenShot = null;
-                    CurrentElementName = string.Empty;
-                    TextFound = string.Empty;
-                }
-                catch (Exception ex)
-                {
-                    System.Windows.MessageBox.Show(ex.Message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
-                    return;
-                }
+                    await SaveAsync();
+                });
             });
+
+        }
+
+        public async Task SaveAsync()
+        {
+            try
+            {
+                await interop.AddAsync(currentScreenshot, currentElementName);
+                ShowCaptureUI = false;
+                ShowCaptureTool = false;
+                CurrentScreenShot = null;
+                CurrentElementName = string.Empty;
+                TextFound = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(ex.Message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                return;
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -8,7 +8,7 @@ using VisionTest.VSExtension.Services;
 
 namespace VisionTest.VSExtension
 {
-    public class InteropService //TODO: IPreviewApiService
+    public class InteropService
     {
         private readonly InteropProcess _interopProcess;
 
@@ -18,17 +18,90 @@ namespace VisionTest.VSExtension
             _interopProcess.Start();
         }
 
-        public void Add(BitmapImage image, string id)
+        public async Task AddAsync(BitmapImage image, string id)
         {
             var tempImagePath = SaveBitmapImageToTemp(image);
-            _interopProcess.StandardInput.WriteLine($"add {ProjectService.GetActiveProjectDirectory()} {id} {tempImagePath} -delete");
+            string command = $"add {ProjectService.GetActiveProjectDirectory()} {id} {tempImagePath} -d";
+            _interopProcess.StandardInput.WriteLine(command);
+
+            // Wait for the JSON response asynchronously
+            string jsonResponse = await _interopProcess.StandardOutput.ReadLineAsync();
+            // Clean up temp file if not already deleted
+            if (File.Exists(tempImagePath))
+            {
+                try
+                {
+                    File.Delete(tempImagePath);
+                }
+                catch (IOException ex)
+                {
+                    Debug.WriteLine($"Failed to delete temporary file: {ex.Message}");
+                    throw;
+                }
+            }
+
+            // Parse and handle the JSON response
+            if (string.IsNullOrWhiteSpace(jsonResponse))
+                throw new InvalidOperationException("No response received from Add command.");
+
+            try
+            {
+                var root = Newtonsoft.Json.Linq.JObject.Parse(jsonResponse);
+                var response = root["response"];
+                if (response == null)
+                    throw new InvalidOperationException("Invalid Add response format: missing 'response' property.");
+
+                var status = response["status"]?.Value<string>();
+                var message = response["message"]?.Value<string>();
+
+                if (status == "error")
+                    throw new InvalidOperationException($"Add command returned error: {message}");
+
+                if (status != "success")
+                    throw new InvalidOperationException($"Unexpected status in Add response: {status}");
+
+                // Success: nothing to return, but you could log message if needed
+            }
+            catch (Newtonsoft.Json.JsonException ex)
+            {
+                throw new InvalidOperationException("Failed to parse Add JSON response.", ex);
+            }
         }
 
-        public void UpdateEnum()
+        public async Task UpdateEnumAsync()
         {
             _interopProcess.StandardInput.WriteLine($"update {ProjectService.GetActiveProjectDirectory()}");
-        }
 
+            // Wait for the JSON response asynchronously
+            string jsonResponse = await _interopProcess.StandardOutput.ReadLineAsync();
+
+            // Parse and handle the JSON response
+            if (string.IsNullOrWhiteSpace(jsonResponse))
+                throw new InvalidOperationException("No response received from Update command.");
+
+            try
+            {
+                var root = Newtonsoft.Json.Linq.JObject.Parse(jsonResponse);
+                var response = root["response"];
+                if (response == null)
+                    throw new InvalidOperationException("Invalid Update response format: missing 'response' property.");
+
+                var status = response["status"]?.Value<string>();
+                var message = response["message"]?.Value<string>();
+
+                if (status == "error")
+                    throw new InvalidOperationException($"Update command returned error: {message}");
+
+                if (status != "success")
+                    throw new InvalidOperationException($"Unexpected status in Update response: {status}");
+
+                // Success: nothing to return, but you could log message if needed
+            }
+            catch (Newtonsoft.Json.JsonException ex)
+            {
+                throw new InvalidOperationException("Failed to parse Update JSON response.", ex);
+            }
+        }
 
         public string GetText(BitmapImage bitmapImage)
         {
@@ -66,6 +139,17 @@ namespace VisionTest.VSExtension
                 var response = root["response"];
                 if (response == null)
                     throw new InvalidOperationException("Invalid OCR response format: missing 'response' property.");
+
+                var status = response["status"];
+                if (status == null)
+                    throw new InvalidOperationException("Invalid OCR response format: missing 'status' property.");
+                var message = response["message"];
+                if (status == null)
+                    throw new InvalidOperationException("Invalid OCR response format: missing 'status' property.");
+
+                if (status.Value<string>() == "error")
+                    throw new InvalidOperationException($"OCR process returned error: {message}");
+
                 var data = response["data"];
                 if (data == null)
                     throw new InvalidOperationException("Invalid OCR response format: missing 'data' property.");
@@ -107,8 +191,5 @@ namespace VisionTest.VSExtension
 
             return tempFilePath;
         }
-
-
-
     }
 }
