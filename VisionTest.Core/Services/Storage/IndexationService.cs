@@ -46,7 +46,7 @@ namespace VisionTest.Core.Services.Storage
                 var constantName = parts.Last();
 
                 // Prepare constant line
-                var constLine = $"\t\tpublic const string {constantName} = \"{screenElement.Id}\";";
+                var constLine = $"\t\tpublic const string {constantName} = \"{screenElement.Id.Replace('\\', '/')}\";";
 
                 if (className is null)
                 {
