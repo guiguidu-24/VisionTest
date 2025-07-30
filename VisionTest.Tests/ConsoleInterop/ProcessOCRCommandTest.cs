@@ -4,14 +4,13 @@ using System.Text.Json;
 
 namespace VisionTest.Tests.ConsoleInterop
 {
-    internal class ProcessOCRCommand
+    internal class ProcessOCRCommandTest
     {
         [Test]
         public void ProcessOCRCommand_PrintsExpectedJson_ForCottonLikeImage()
         {
             // Arrange
             var imagePath = @"C:\Users\guill\Programmation\dotNET_doc\VisionTest\VisionTest.Tests\images\cottonLike.png";
-            var args = new[] { "ocr", imagePath };
 
             // Redirect console output
             var output = new StringBuilder();
@@ -22,7 +21,7 @@ namespace VisionTest.Tests.ConsoleInterop
             try
             {
                 // Act
-                VisionTest.ConsoleInterop.Program.ProcessOCRCommand(args);
+                VisionTest.ConsoleInterop.Program.ProcessOCRCommand(imagePath);
                 writer.Flush();
                 var jsonOutput = output.ToString().Trim();
 
@@ -65,8 +64,6 @@ namespace VisionTest.Tests.ConsoleInterop
         public void ProcessOCRCommand_PrintsErrorJson_WhenArgumentsAreMissing()
         {
             // Arrange
-            var args = new[] { "ocr" }; // Missing image path
-
             var output = new StringBuilder();
             using var writer = new StringWriter(output);
             var originalOut = Console.Out;
@@ -75,7 +72,7 @@ namespace VisionTest.Tests.ConsoleInterop
             try
             {
                 // Act
-                VisionTest.ConsoleInterop.Program.ProcessOCRCommand(args);
+                VisionTest.ConsoleInterop.Program.ProcessOCRCommand("");
                 writer.Flush();
                 var jsonOutput = output.ToString().Trim();
 
@@ -90,7 +87,7 @@ namespace VisionTest.Tests.ConsoleInterop
                 Assert.Multiple(() =>
                 {
                     Assert.That(status.GetString(), Is.EqualTo("error"), "Status should be 'error'");
-                    Assert.That(message.GetString(), Is.EqualTo("1 arguments found, expected:2"), "Message should indicate argument count error");
+                    Assert.That(message.GetString(), Is.EqualTo("Image path cannot be empty."), "Message should indicate argument count error");
                     Assert.That(response.TryGetProperty("data", out _), Is.False, "Error response should not contain 'data' property");
                 });
             }
@@ -105,7 +102,6 @@ namespace VisionTest.Tests.ConsoleInterop
         {
             // Arrange
             var imagePath = @"C:\nonexistent\file.png";
-            var args = new[] { "ocr", imagePath };
 
             var output = new StringBuilder();
             using var writer = new StringWriter(output);
@@ -115,7 +111,7 @@ namespace VisionTest.Tests.ConsoleInterop
             try
             {
                 // Act
-                VisionTest.ConsoleInterop.Program.ProcessOCRCommand(args);
+                VisionTest.ConsoleInterop.Program.ProcessOCRCommand(imagePath);
                 writer.Flush();
                 var jsonOutput = output.ToString().Trim();
 
