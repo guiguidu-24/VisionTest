@@ -10,28 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="TestScriptData\Firefox.png" />
-    <None Remove="TestScriptData\oo_googleResearch.png" />
-    <None Remove="TestScriptData\rechercher_ytb.png" />
-    <None Remove="TestScriptData\searchbar_google.png" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="TestScriptData\Firefox.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestScriptData\oo_googleResearch.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestScriptData\rechercher_ytb.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestScriptData\searchbar_google.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="NUnit" Version="3.14.0" />
@@ -60,6 +38,10 @@
       <LastGenOutput>LocalResources.Designer.cs</LastGenOutput>
       <Generator>ResXFileCodeGenerator</Generator>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="TestScriptData\" />
   </ItemGroup>
 
 </Project>
