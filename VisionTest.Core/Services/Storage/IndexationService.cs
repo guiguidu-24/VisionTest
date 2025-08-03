@@ -1,5 +1,11 @@
-﻿using System.Globalization;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Globalization;
+using System.Text;
 using VisionTest.Core.Models;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+
 
 namespace VisionTest.Core.Services.Storage
 {
@@ -23,65 +29,195 @@ namespace VisionTest.Core.Services.Storage
             }
         }
 
-        internal async Task AddElementToIndexAsync(ScreenElement screenElement)
+
+        internal async Task AddElementToIndexAsync(ScreenElement screenElement) //TODO : Why internal?
         {
-            await Task.Run(async () =>
+            var parts = screenElement.Id.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
+            var classNames = GetClassNames(parts);
+            var constField = BuildConstField(parts.Last(), screenElement.Id);
+
+            if (!File.Exists(_enumFilePath))
+                await WriteBootstrapFileAsync(classNames, constField);
+            else
+                await UpdateExistingFileAsync(classNames, constField);
+        }
+
+        private static List<string> GetClassNames(string[] parts) =>
+        parts.Length > 1
+            ? parts.Take(parts.Length - 1)
+                   .Select(p => CultureInfo.CurrentCulture.TextInfo.ToTitleCase(p))
+                   .ToList()
+            : new List<string>(); //TODO check for the best collection type
+
+        private static FieldDeclarationSyntax BuildConstField(string name, string value) =>
+        FieldDeclaration(
+            VariableDeclaration(PredefinedType(Token(SyntaxKind.StringKeyword)))
+            .AddVariables(
+                VariableDeclarator(name)
+                    .WithInitializer(
+                        EqualsValueClause(
+                            LiteralExpression(
+                                SyntaxKind.StringLiteralExpression,
+                                Literal(value.Replace('\\', '/')))))))
+        .AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.ConstKeyword))
+        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+
+        private async Task WriteBootstrapFileAsync(List<string> classNames, FieldDeclarationSyntax constField)
+        {
+            var screenElementsClass = BuildNestedClassChain("ScreenElements", classNames, constField);
+            var @namespace = NamespaceDeclaration(
+                                 IdentifierName(Path.GetFileName(
+                                     _projectDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))))
+                             .AddMembers(screenElementsClass);
+            var compilationUnit = CompilationUnit()
+                .AddMembers(@namespace)
+                .NormalizeWhitespace();
+            await File.WriteAllTextAsync(_enumFilePath, compilationUnit.ToFullString());
+        }
+
+        private async Task UpdateExistingFileAsync(List<string> classNames, FieldDeclarationSyntax constField)
+        {
+            var text = await File.ReadAllTextAsync(_enumFilePath);
+            var root = (CompilationUnitSyntax)CSharpSyntaxTree.ParseText(text).GetRoot();
+            var ns = root.Members.OfType<BaseNamespaceDeclarationSyntax>().First();
+            var old = ns.Members.OfType<ClassDeclarationSyntax>()
+                        .First(cd => cd.Identifier.ValueText == "ScreenElements");
+
+            var updated = AddMembersRecursively(old, classNames, constField);
+            var newNs = ns.ReplaceNode(old, updated);
+            var newRoot = root.ReplaceNode(ns, newNs).NormalizeWhitespace();
+
+            await File.WriteAllTextAsync(_enumFilePath, newRoot.ToFullString());
+        }
+
+        private static ClassDeclarationSyntax BuildNestedClassChain(string rootName,
+        List<string> nestedNames, FieldDeclarationSyntax constField)
+        {
+            // build bottom-up: innermost first
+            ClassDeclarationSyntax inner = ClassDeclaration(rootName)
+                .AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword))
+                .WithOpenBraceToken(Token(SyntaxKind.OpenBraceToken))
+                .WithCloseBraceToken(Token(SyntaxKind.CloseBraceToken));
+
+            if (!nestedNames.Any())
+                return inner.AddMembers(constField);
+
+            // innermost with const
+            inner = ClassDeclaration(nestedNames.Last())
+                .AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword))
+                .WithOpenBraceToken(Token(SyntaxKind.OpenBraceToken))
+                .WithCloseBraceToken(Token(SyntaxKind.CloseBraceToken))
+                .AddMembers(constField);
+
+            // wrap outer levels
+            foreach (var name in nestedNames.Take(nestedNames.Count - 1).Reverse())
             {
-                if (!File.Exists(_enumFilePath))
+                inner = ClassDeclaration(name)
+                    .AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword))
+                    .WithOpenBraceToken(Token(SyntaxKind.OpenBraceToken))
+                    .WithCloseBraceToken(Token(SyntaxKind.CloseBraceToken))
+                    .AddMembers(inner);
+            }
+
+            // attach chain under root
+            return ClassDeclaration(rootName)
+                .AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword))
+                .WithOpenBraceToken(Token(SyntaxKind.OpenBraceToken))
+                .WithCloseBraceToken(Token(SyntaxKind.CloseBraceToken))
+                .AddMembers(inner);
+        }
+
+        private static ClassDeclarationSyntax AddMembersRecursively(
+         ClassDeclarationSyntax rootClass,
+         List<string> nestedNames,
+         FieldDeclarationSyntax constField)
+        {
+            // No nesting → just add the const directly
+            if (!nestedNames.Any())
+                return rootClass.AddMembers(constField);
+
+            // Look at the first level
+            var level1 = nestedNames[0];
+            var existing = rootClass.Members
+                .OfType<ClassDeclarationSyntax>()
+                .FirstOrDefault(c => c.Identifier.ValueText == level1);
+
+            ClassDeclarationSyntax updatedNested;
+            if (existing != null)
+            {
+                // Recurse into the existing class
+                updatedNested = AddMembersRecursively(
+                    existing,
+                    nestedNames.Skip(1).ToList(),
+                    constField);
+            }
+            else
+            {
+                // Build a fresh chain for all remaining levels
+                updatedNested = BuildNestedClassChain(level1, nestedNames.Skip(1).ToList(), constField);
+            }
+
+            // Replace or add at this level
+            return existing != null
+                ? rootClass.ReplaceNode(existing, updatedNested)
+                : rootClass.AddMembers(updatedNested);
+        }
+
+        /// <summary>
+        /// Updates the ScreenElements.cs file with all existing screen elements,
+        /// organizing them into nested static classes based on their directory segments.
+        /// </summary>
+        public async Task RebuildIndexAsync(IEnumerable<string> allIds)
+        {
+            // 2. Delete existing file so we start fresh
+            if (File.Exists(_enumFilePath))
+                File.Delete(_enumFilePath);
+
+            // 3. Build a structure: key = top-level dir or "" for root, value = list of full IDs
+            var groups = allIds
+                .Select(id => id.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries))
+                .GroupBy(segments => segments.Length > 1 ? segments[0] : string.Empty);
+
+            // 4. Compose the C# file in memory
+            var ns = Path.GetFileName(_projectDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+            var sb = new StringBuilder();
+            sb.AppendLine($"namespace {ns};");
+            sb.AppendLine();
+            sb.AppendLine("public static class ScreenElements");
+            sb.AppendLine("{");
+
+            foreach (var group in groups)
+            {
+                if (group.Key == string.Empty)
                 {
-                    using var fileStream = File.Create(_enumFilePath);
-                    using var fileWriter = new StreamWriter(fileStream);
-                    await fileWriter.WriteLineAsync(
-                        $"namespace {Path.GetFileName(_projectDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))};");
-                    await fileWriter.WriteLineAsync("public static class ScreenElements");
-                    await fileWriter.WriteLineAsync("{");
-                    await fileWriter.WriteLineAsync("}");
-                }
-
-                var enumContent = await File.ReadAllTextAsync(_enumFilePath);
-
-                // Split Id into path segments (e.g. "tem/debug1" → ["tem","debug1"])
-                var parts = screenElement.Id.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
-                var className = parts.Length > 1 ? CultureInfo.CurrentCulture.TextInfo.ToTitleCase(parts[0]) : null;
-                var constantName = parts.Last();
-
-                // Prepare constant line
-                var constLine = $"\t\tpublic const string {constantName} = \"{screenElement.Id.Replace('\\', '/')}\";";
-
-                if (className is null)
-                {
-                    // Insert at root
-                    var insertPos = enumContent.LastIndexOf('}');
-                    enumContent = enumContent.Insert(insertPos, "\t" + constLine + "\n");
+                    // Root-level IDs
+                    foreach (var segs in group)
+                    {
+                        var constName = segs[0];
+                        sb.AppendLine($"\tpublic const string {constName} = \"{constName}\";");
+                    }
                 }
                 else
                 {
-                    // Ensure nested class exists
-                    var nestedClassPattern = $"public static class {className}";
-                    if (!enumContent.Contains(nestedClassPattern))
+                    // Nested directory
+                    var dirName = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(group.Key);
+                    sb.AppendLine($"\tpublic static class {dirName}");
+                    sb.AppendLine("\t{");
+                    foreach (var segs in group)
                     {
-                        // Insert the nested class before the last '}' of ScreenElements
-                        var rootClose = enumContent.LastIndexOf('}');
-                        var nestedClassDef =
-                            $"\tpublic static class {className}\n" +
-                            "\t{\n" +
-                            "\t}\n\n";
-                        enumContent = enumContent.Insert(rootClose, nestedClassDef);
+                        // segs[0] == group.Key, so take the remainder
+                        var constName = segs[1];
+                        var fullId = string.Join("/", segs);
+                        sb.AppendLine($"\t\tpublic const string {constName} = \"{fullId}\";");
                     }
-
-                    // Insert constant into the nested class
-                    // Find the closing brace of that nested class
-                    var classStart = enumContent.IndexOf(nestedClassPattern, StringComparison.Ordinal);
-                    var classBlockStart = enumContent.IndexOf('{', classStart) + 1;
-                    var classBlockEnd = enumContent.IndexOf('}', classBlockStart);
-
-                    enumContent = enumContent.Insert(classBlockEnd,
-                        "\t\t" + constLine + "\n");
+                    sb.AppendLine("\t}");
                 }
+            }
 
-                // Write back
-                await File.WriteAllTextAsync(_enumFilePath, enumContent);
-            });
+            sb.AppendLine("}");
+
+            // 5. Write the file
+            await File.WriteAllTextAsync(_enumFilePath, sb.ToString());
         }
 
     }

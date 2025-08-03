@@ -73,55 +73,7 @@ namespace VisionTest.Core.Services.Storage
             // 1. Gather all element IDs (e.g. "foo", "tem/debug1", "Images/Icons/Home")
             var allIds = await _screenElementStorageService.GetAllNamesAsync();
 
-            // 2. Delete existing file so we start fresh
-            if (File.Exists(_enumFilePath))
-                File.Delete(_enumFilePath);
-
-            // 3. Build a structure: key = top-level dir or "" for root, value = list of full IDs
-            var groups = allIds
-                .Select(id => id.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries))
-                .GroupBy(segments => segments.Length > 1 ? segments[0] : string.Empty);
-
-            // 4. Compose the C# file in memory
-            var ns = Path.GetFileName(_projectDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
-            var sb = new StringBuilder();
-            sb.AppendLine($"namespace {ns};");
-            sb.AppendLine();
-            sb.AppendLine("public static class ScreenElements");
-            sb.AppendLine("{");
-
-            foreach (var group in groups)
-            {
-                if (group.Key == string.Empty)
-                {
-                    // Root-level IDs
-                    foreach (var segs in group)
-                    {
-                        var constName = segs[0];
-                        sb.AppendLine($"\tpublic const string {constName} = \"{constName}\";");
-                    }
-                }
-                else
-                {
-                    // Nested directory
-                    var dirName = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(group.Key);
-                    sb.AppendLine($"\tpublic static class {dirName}");
-                    sb.AppendLine("\t{");
-                    foreach (var segs in group)
-                    {
-                        // segs[0] == group.Key, so take the remainder
-                        var constName = segs[1];
-                        var fullId = string.Join("/", segs);
-                        sb.AppendLine($"\t\tpublic const string {constName} = \"{fullId}\";");
-                    }
-                    sb.AppendLine("\t}");
-                }
-            }
-
-            sb.AppendLine("}");
-
-            // 5. Write the file
-            await File.WriteAllTextAsync(_enumFilePath, sb.ToString());
+            await _indexationService.RebuildIndexAsync(allIds);
         }
 
 
