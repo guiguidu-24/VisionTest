@@ -1,0 +1,86 @@
+﻿using VisionTest.Core.Models;
+
+namespace VisionTest.ConsoleInterop.Storage;
+
+public class RepositoryManager
+{
+    private readonly ScreenElementStorageService _screenElementStorageService;
+    private readonly string _enumFilePath;
+    private readonly IndexationService _indexationService;
+    private readonly string _projectDirectory;
+
+    public RepositoryManager(string projectDirectory)
+    {
+        _projectDirectory = projectDirectory;
+        _enumFilePath = Path.Combine(projectDirectory, "ScreenElements.cs");
+        _screenElementStorageService = new ScreenElementStorageService(projectDirectory);
+        _indexationService = new IndexationService(_enumFilePath, projectDirectory);
+    }
+
+    /// <summary>
+    /// Adds a new screen element to the storage and updates the ScreenElementsEnum.cs file.
+    /// </summary>
+    /// <param name="screenElement"></param>
+    /// <returns></returns>
+    public async Task AddAsync(ScreenElement screenElement)
+    {
+        var saveTask = _screenElementStorageService.SaveAsync(screenElement);
+
+        var addToEnumTask = _indexationService.AddElementToIndexAsync(screenElement);
+
+        await Task.WhenAll(saveTask, addToEnumTask);
+    }
+
+    /// <summary>
+    /// Retrieves a screen element by its unique identifier.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public async Task<ScreenElement?> GetByIdAsync(string id)
+    {
+        return await _screenElementStorageService.GetByIdAsync(id);
+    }
+
+    /// <summary>
+    /// Removes a screen element by its unique identifier and updates the ScreenElementsEnum.cs file.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    public async Task RemoveElementAsync(string id)
+    {
+        if (await _screenElementStorageService.ExistsAsync(id))
+        {
+            var deleteElementTask = _screenElementStorageService.DeleteAsync(id);
+            var removeEltFromEnumTask = _indexationService.RemoveElementFromIndexAsync(id);
+
+            await Task.WhenAll(deleteElementTask, removeEltFromEnumTask);
+        }
+        else
+        {
+            throw new ArgumentException($"Screen element with ID '{id}' does not exist.");
+        }
+    }
+
+    /// <summary>
+    /// Updates the ScreenElements.cs file with all existing screen elements,
+    /// organizing them into nested static classes based on their directory segments.
+    /// </summary>
+    public async Task UpdateIndexAsync()
+    {
+        // 1. Gather all element IDs (e.g. "foo", "tem/debug1", "Images/Icons/Home")
+        var allIds = _screenElementStorageService.GetAllImageIds();
+
+        await _indexationService.RebuildIndexAsync(allIds);
+    }
+
+
+    /// <summary>
+    /// Retrieves all the names of the saved screen elements from the storage directory.
+    /// </summary>
+    /// <returns></returns>
+    public HashSet<string> GetAllScreenElementNames()
+    {
+        return _screenElementStorageService.GetAllImageIds();
+    }
+}

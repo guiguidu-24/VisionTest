@@ -157,7 +157,7 @@ public class Program
 
         if (!File.Exists(imagePath))
         {
-            WriteJson(new { status = "error", message = $"The file '{imagePath}' does not exist." });
+            WriteJson(new { status = "error", message = $"The file {imagePath} does not exist." });
             return;
         }
 
@@ -203,9 +203,9 @@ public class Program
         }
 
         var repo = new RepositoryManager(projectDirectory);
-        if ((await repo.GetAllScreenElementNamesAsync()).Contains(id))
+        if ((repo.GetAllScreenElementNames()).Contains(id))
         {
-            WriteJson(new { status = "error", message = $"Screen element with ID '{id}' already exists." });
+            WriteJson(new { status = "error", message = $"Screen element with ID {id} already exists." });
         }
         else
         {
@@ -213,7 +213,7 @@ public class Program
             using var fs = new FileStream(imagePath, FileMode.Open, FileAccess.Read, FileShare.Read);
             element.Images.Add(new Bitmap(fs));
             await repo.AddAsync(element);
-            WriteJson(new { status = "success", message = $"Screen element '{id}' added successfully." });
+            WriteJson(new { status = "success", message = $"Screen element {id} added successfully." });
         }
 
         if (deleteImage)
@@ -230,7 +230,7 @@ public class Program
 
         var repo = new RepositoryManager(projectDirectory);
         await repo.UpdateIndexAsync();
-        WriteJson(new { status = "success", message = $"Index updated successfully for '{projectDirectory}'." });
+        WriteJson(new { status = "success", message = $"Index updated successfully for {projectDirectory.Replace('\\', '/')}." });
     }
 
     public static async Task Remove(string? projectDirectory, string? id)
@@ -248,15 +248,15 @@ public class Program
         }
 
         var repo = new RepositoryManager(projectDirectory);
-        var all = await repo.GetAllScreenElementNamesAsync();
+        var all = repo.GetAllScreenElementNames();
         if (!all.Contains(id))
         {
-            WriteJson(new { status = "error", message = $"Screen element with ID '{id}' does not exist." });
+            WriteJson(new { status = "error", message = $"Screen element with ID {id} does not exist." });
         }
         else
         {
             await repo.RemoveElementAsync(id);
-            WriteJson(new { status = "success", message = $"Screen element '{id}' removed successfully." });
+            WriteJson(new { status = "success", message = $"Screen element {id} removed successfully." });
         }
     }
 }
