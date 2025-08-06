@@ -20,9 +20,9 @@ public class ScreenElementStorageService
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public async Task DeleteAsync(string id)
+    public void Delete(string id)
     {
-        await Task.Run(() => File.Delete(Path.Combine(_storageDirectory, $"{id}.png")));
+        File.Delete(Path.Combine(_storageDirectory, $"{id}.png"));
     }
 
     /// <summary>

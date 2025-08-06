@@ -51,10 +51,8 @@ public class RepositoryManager
     {
         if (await _screenElementStorageService.ExistsAsync(id))
         {
-            var deleteElementTask = _screenElementStorageService.DeleteAsync(id);
-            var removeEltFromEnumTask = _indexationService.RemoveElementFromIndexAsync(id);
-
-            await Task.WhenAll(deleteElementTask, removeEltFromEnumTask);
+            _screenElementStorageService.Delete(id);
+            await UpdateIndexAsync();
         }
         else
         {

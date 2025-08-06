@@ -29,7 +29,7 @@ public class IndexationService(string enumFilePath, string projectDirectory)
     }
 
 
-    public async Task AddElementToIndexAsync(ScreenElement screenElement) //TODO : Why internal?
+    public async Task AddElementToIndexAsync(ScreenElement screenElement)
     {
         var parts = screenElement.Id.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
         var classNames = GetClassNames(parts);
