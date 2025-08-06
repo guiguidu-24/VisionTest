@@ -48,11 +48,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Services\ExtensionPackage.cs" />
-    <Compile Include="Services\ImageSaver.cs" />
+    <Compile Include="Services\ProjectService.cs" />
     <Compile Include="Services\InteropProcess.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Services\PreviewApiService.cs" />
+    <Compile Include="Services\InteropService.cs" />
     <Compile Include="Model\Screen.cs" />
     <Compile Include="Model\ScreenElement.cs" />
     <Compile Include="ToolWindows\CaptureUI.xaml.cs">
@@ -81,21 +81,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Timer.png" />
-    <Content Include="InteropTools\ConsoleInterop.deps.json">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="InteropTools\ConsoleInterop.runtimeconfig.json">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="InteropTools\tessdata\eng.traineddata">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="InteropTools\tessdata\fra.traineddata">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="InteropTools\tessdata\pdf.ttf">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
       <Generator>VsixManifestGenerator</Generator>
@@ -157,74 +142,6 @@
     <Resource Include="Resources\Checkmark.png" />
   </ItemGroup>
   <ItemGroup />
-  <ItemGroup>
-    <Content Include="InteropTools\ConsoleInterop.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="InteropTools\ConsoleInterop.exe">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="InteropTools\ConsoleInterop.pdb">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="InteropTools\Core.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="InteropTools\Core.pdb">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="InteropTools\Microsoft.Win32.SystemEvents.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="InteropTools\OpenCvSharp.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="InteropTools\OpenCvSharp.Extensions.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="InteropTools\runtimes\win-x64\native\OpenCvSharpExtern.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="InteropTools\runtimes\win-x64\native\opencv_videoio_ffmpeg4100_64.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="InteropTools\runtimes\win-x86\native\OpenCvSharpExtern.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="InteropTools\runtimes\win-x86\native\opencv_videoio_ffmpeg4100.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="InteropTools\runtimes\win\lib\net8.0\Microsoft.Win32.SystemEvents.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="InteropTools\System.Drawing.Common.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="InteropTools\System.Private.Windows.Core.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="InteropTools\Tesseract.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="InteropTools\Tesseract.Drawing.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="InteropTools\WindowsInput.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="InteropTools\x64\leptonica-1.82.0.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="InteropTools\x64\tesseract50.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="InteropTools\x86\leptonica-1.82.0.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="InteropTools\x86\tesseract50.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -234,4 +151,10 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Content Include="InteropTools\**\*.*">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Resource Include="Resources\Refresh.png" />
+  </ItemGroup>
 </Project>

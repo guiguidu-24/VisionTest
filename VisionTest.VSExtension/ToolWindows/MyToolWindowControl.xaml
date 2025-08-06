@@ -7,7 +7,7 @@
              xmlns:theming="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Imaging"
              xmlns:util="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Utilities"
              xmlns:catalog="clr-namespace:Microsoft.VisualStudio.Imaging;assembly=Microsoft.VisualStudio.ImageCatalog"
-             xmlns:toolkit="clr-namespace:Community.VisualStudio.Toolkit;assembly=Community.VisualStudio.Toolkit" xmlns:vsextension="clr-namespace:VisionTest.VSExtension" d:DataContext="{d:DesignInstance Type=vsextension::MainViewModel}"
+             xmlns:toolkit="clr-namespace:Community.VisualStudio.Toolkit;assembly=Community.VisualStudio.Toolkit" xmlns:vsextension="clr-namespace:VisionTest.VSExtension" d:DataContext="{d:DesignInstance Type=vsextension:MainViewModel}"
              toolkit:Themes.UseVsTheme="True"
              mc:Ignorable="d"
              d:DesignHeight="300"
@@ -25,15 +25,26 @@
             </Style>
         </StackPanel.Resources>
 
-        <!-- Top-left corner button with "+" icon -->
-        <Button x:Name="AddButton" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" Height="30" Padding="5" Command="{Binding ClickAddCommand}">
-            <Button.Content>
-                <StackPanel Orientation="Horizontal">
-                    <Image Source="/VSCaptureExtension;component/Resources/Add.png" Stretch="Fill" Width="auto" Height="auto" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <TextBlock Text="Add" VerticalAlignment="Center"/>
-                </StackPanel>
-            </Button.Content>
-        </Button>
+        <DockPanel>
+            <!-- Top-left corner button with "+" icon -->
+            <Button x:Name="AddButton" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" Height="30" Padding="5" Command="{Binding ClickAddCommand}">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/VSCaptureExtension;component/Resources/Add.png" Stretch="Fill" Width="auto" Height="auto" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBlock Text="Add" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+
+            <Button x:Name="RefreshButton" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10" Height="30" Padding="5" Command="{Binding RefreshCommand}">
+                <Button.Content>
+                        <Image Source="/VSCaptureExtension;component/Resources/Refresh.png" Width="auto" Height="auto" VerticalAlignment="Center"/>
+                </Button.Content>
+            </Button>
+        </DockPanel>
+        
+
+
 
         <Image Grid.Column="1" Style="{StaticResource PreviewImage}" Source="{Binding CurrentScreenShot}" Stretch="Uniform" HorizontalAlignment="Center" MaxHeight="100" MinHeight="40"/>
 

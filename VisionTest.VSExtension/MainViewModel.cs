@@ -18,10 +18,8 @@ namespace VisionTest.VSExtension
         private bool showCaptureTool = false;
         private BitmapImage currentScreenshot = null;
         private string textFound = string.Empty;
-        private readonly PreviewApiService previewApiService = new PreviewApiService();
+        private readonly InteropService interop = new InteropService();
         private string currentElementName = string.Empty;
-        private readonly DTE2 _dte;
-        private ImageSaver imageSaver;
 
         
         public string CurrentElementName
@@ -57,7 +55,7 @@ namespace VisionTest.VSExtension
 
                 if (currentScreenshot != null)
                 {
-                    TextFound = previewApiService.GetText(currentScreenshot);
+                    TextFound = interop.GetText(currentScreenshot);
                 }
             }
         }
@@ -110,18 +108,16 @@ namespace VisionTest.VSExtension
         }
 
 
-        public ICommand ClickAddCommand { get; }
+        public ICommand ClickAddCommand { get; } //TODO do not initialize in the constructor
         public ICommand ClickNewCommand { get; }
         public ICommand ValidateCommand { get; }
         public ICommand SaveCommand { get; }
+        public ICommand RefreshCommand { get; }
 
 
         public MainViewModel(DTE2 dte)
         {
-            _dte = dte;
-            imageSaver = new ImageSaver(dte);
-
-            captureDelay = 0;
+            ProjectService.Dte = dte;
 
             ClickAddCommand = new RelayCommand(() =>
             {
@@ -141,26 +137,42 @@ namespace VisionTest.VSExtension
                 ShowCaptureTool = false;
             });
 
+            RefreshCommand = new RelayCommand(() =>
+            {
+                ThreadHelper.JoinableTaskFactory.Run(async () =>
+                {
+                    await interop.UpdateEnumAsync();
+                });
+            });
+
             SaveCommand = new RelayCommand(() =>
             {
-                try
+                // This will run SaveAsync on the UI thread context,
+                // wait for it to finish, and propagate any exceptions.
+                ThreadHelper.JoinableTaskFactory.Run(async () =>
                 {
-                    imageSaver.SaveImageToProjectDirectory(currentScreenshot, $"TestScriptData\\{currentElementName}.png");
-                    ShowCaptureUI = false;
-                    ShowCaptureTool = false;
-                    CurrentScreenShot = null;
-                }
-                catch (InvalidOperationException ex)
-                {
-                    System.Windows.MessageBox.Show(ex.Message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
-                    return;
-                }
-                catch (ArgumentException ex)
-                {
-                    System.Windows.MessageBox.Show(ex.Message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
-                    return;
-                }
+                    await SaveAsync();
+                });
             });
+
+        }
+
+        public async Task SaveAsync()
+        {
+            try
+            {
+                await interop.AddAsync(currentScreenshot, currentElementName);
+                ShowCaptureUI = false;
+                ShowCaptureTool = false;
+                CurrentScreenShot = null;
+                CurrentElementName = string.Empty;
+                TextFound = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(ex.Message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                return;
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
