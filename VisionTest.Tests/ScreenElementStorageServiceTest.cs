@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
+using VisionTest.ConsoleInterop.Storage;
 using VisionTest.Core.Models;
-using VisionTest.Core.Services.Storage;
 
 namespace VisionTest.Tests
 {
@@ -33,13 +33,13 @@ namespace VisionTest.Tests
         }
 
         [Test]
-        public async Task DeleteAsync_test()
+        public void Delete_test()
         {
             var img = new Bitmap(100, 100);
             img.Save(Path.Combine(_testDirectory, "deleteTest.png"));
             Assert.IsTrue(File.Exists(Path.Combine(_testDirectory, "deleteTest.png")));
 
-            await _storageService.DeleteAsync("deleteTest");
+            _storageService.Delete("deleteTest");
 
             Assert.IsFalse(File.Exists(Path.Combine(_testDirectory, "deleteTest.png")));
         }

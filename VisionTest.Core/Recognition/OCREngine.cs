@@ -48,7 +48,7 @@ namespace VisionTest.Core.Recognition
         public string CharWhiteList { private get; set; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz "; 
         public IEnumerable<string> WordWhiteList {get; set; } = []; // e.g. ["MYTARGETWORD", "ANOTHERWORD"]
         public bool UseThresholdFilter { private get; set; } = false; // false by default to maintain existing behavior
-        public bool ImproveDpi { private get; set; } = false; // false by default, set to true to improve DPI of input images
+        public bool ImproveDpi { private get; set; } = false; // false by default, set to true to improve DPI of input images //TODO DPI Value instead of boolean
 
 
 
@@ -169,7 +169,7 @@ namespace VisionTest.Core.Recognition
         }
 
         // FuzzyMatch et Levenshtein comme précédemment :
-        private bool IsFuzzyMatch(string word1, string word2, int tolerance)
+        private bool IsFuzzyMatch(string word1, string word2, int tolerance) //TODO do it with a string comparer
         {
             if (string.IsNullOrEmpty(word1) || string.IsNullOrEmpty(word2)) return false;
             if (word1.Equals(word2, StringComparison.OrdinalIgnoreCase)) return true;
@@ -219,8 +219,8 @@ namespace VisionTest.Core.Recognition
         /// <returns>A Rectangle in the original image’s pixel coordinates.</returns>
         private static Rectangle MapRectangleToOriginal(Rectangle rectInProcessed, Bitmap original, Bitmap processed)
         {
-            if (original == null) throw new ArgumentNullException(nameof(original));
-            if (processed == null) throw new ArgumentNullException(nameof(processed));
+            ArgumentNullException.ThrowIfNull(original);
+            ArgumentNullException.ThrowIfNull(processed);
 
             // Compute the scale factors between the two images
             double scaleX = (double)original.Width / processed.Width;

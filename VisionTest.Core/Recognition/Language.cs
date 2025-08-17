@@ -1,12 +1,9 @@
-﻿using VisionTest.Core.Recognition;
+﻿namespace VisionTest.Core.Recognition;
 
-namespace VisionTest.Core.Recognition
+public enum Language
 {
-    public enum Language
-    {
-        english,
-        french
-    }
+    english,
+    french
 }
 
 public static class LanguageExtensions

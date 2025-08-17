@@ -2,9 +2,9 @@
 using System.Drawing;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using VisionTest.ConsoleInterop.Storage;
 using VisionTest.Core.Models;
 using VisionTest.Core.Recognition;
-using VisionTest.Core.Services.Storage;
 
 //add C:\Users\guill\Programmation\dotNET_doc\VisionTest\VisionTest.TestsImplementation buttonlik2 C:\Users\guill\Programmation\dotNET_doc\VisionTest\VisionTest.Tests\images\cottonLike2.png
 //add C:\Users\guill\Programmation\dotNET_doc\VisionTest\VisionTest.TestsImplementation buttonlik C:\Users\guill\Programmation\dotNET_doc\VisionTest\VisionTest.Tests\images\cottonLike.png

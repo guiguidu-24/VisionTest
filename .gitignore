@@ -366,9 +366,11 @@ FodyWeavers.xsd
 /VisionTest.Tests/TestResources.Designer.cs
 
 /VSCaptureExtension/PreviewAPI/*
+/VisionTest.VSExtension/InteropTools/*
 /VisionTest.VSExtension/InteropTools/**/*
 /VisionTest.VSExtension/InteropTools/runtimes/win-x64/native/opencv_videoio_ffmpeg4100_64.dll
 /VisionTest.VSExtension/InteropTools/runtimes/win-x64/native/OpenCvSharpExtern.dll
 /VisionTest.VSExtension/InteropTools/runtimes/win-x86/native/opencv_videoio_ffmpeg4100.dll
 /VisionTest.VSExtension/InteropTools/runtimes/win-x86/native/OpenCvSharpExtern.dll
 /VisionTest.TestsImplementation/ScreenElements.cs
+/VisionTest.Core/architecture.txt
