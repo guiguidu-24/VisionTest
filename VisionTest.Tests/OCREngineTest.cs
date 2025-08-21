@@ -5,13 +5,13 @@ namespace VisionTest.Tests
 {
     internal class OCREngineTest
     {
-        private OCREngine ocrEngine;
+        private OcrEngine ocrEngine;
 
         [SetUp]
         public void Setup()
         {
             // Initialiser OCREngine avec le chemin extrait
-            ocrEngine = new OCREngine(new OCREngineOptions()
+            ocrEngine = new OCREngine(new OCROptions()
             {
                 ImproveDPI = true,
             });

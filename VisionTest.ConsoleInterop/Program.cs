@@ -164,7 +164,7 @@ public class Program
         string extractedText;
         using (var image = new Bitmap(imagePath))
         {
-            var ocrEngine = new OCREngine("eng");
+            var ocrEngine = new OcrEngine("eng");
             extractedText = ocrEngine.GetText(image).TrimEnd('\n');
         }
 

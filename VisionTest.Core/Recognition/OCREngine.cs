@@ -6,42 +6,34 @@ using VisionTest.Core.Utils;
 
 namespace VisionTest.Core.Recognition
 {
-    public class OCREngine : IRecognitionEngine<string>
+    public class OcrEngine : IRecognitionEngine<string>
     {
         private string language;
         private string datapath; // vaut ./tessdata
         private int fuzzyTolerance = 1;
 
-        public OCREngine(string language)
+        public OcrEngine(string language)
         {
             this.language = language;
-
-            // Retrieving the Tesseract data path from App.config
-            //this.datapath = ConfigurationManager.AppSettings["TesseractDataPath"]
-            //                ?? throw new ConfigurationErrorsException("La clé 'TesseractDataPath' est manquante dans App.config.");
-
             string assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new NullReferenceException("The assembly path is null");
             datapath = Path.Combine(assemblyDir, "tessdata");
-
-            
-
         }
 
-        public OCREngine(string language, string datapath)
+        public OcrEngine(string language, string datapath)
         {
             this.language = language;
             this.datapath = datapath;
         }
 
-        public OCREngine(OCREngineOptions options)
+        public OcrEngine(OcrOptions options)
         {
-            this.language = options.Lang.ToCode();
-            this.datapath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata");
-            this.CharWhiteList = options.WhiteListChar;
-            this.WordWhiteList = options.WordWhiteList ?? [];
-            this.LstmOnly = options.LTSMOnly;
-            this.UseThresholdFilter = options.UseThresholdFilter;
-            this.ImproveDpi = options.ImproveDPI;
+            language = options.Lang.ToCode();
+            datapath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata");
+            CharWhiteList = options.WhiteListChar;
+            WordWhiteList = options.WordWhiteList ?? [];
+            LstmOnly = options.LTSMOnly;
+            UseThresholdFilter = options.UseThresholdFilter;
+            ImproveDpi = options.ImproveDPI;
         }
 
         public bool LstmOnly {private get; set; } = true; // true for best accuracy on trained models, false for legacy Tesseract mode

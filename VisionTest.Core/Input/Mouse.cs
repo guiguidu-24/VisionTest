@@ -9,61 +9,61 @@ namespace VisionTest.Core.Input
         private readonly IScreen _screen = new Screen();
 
         
-        public void DoubleClick()
+        public Task DoubleClick()
         {
-            Simulate.Events().DoubleClick(ButtonCode.Left).Invoke().Wait();
+            return Simulate.Events().DoubleClick(ButtonCode.Left).Invoke();
         }
 
-        public void LeftClick()
+        public Task LeftClick()
         {
-            Simulate.Events().Click(ButtonCode.Left).Invoke().Wait();
+            return Simulate.Events().Click(ButtonCode.Left).Invoke();
         }
 
-        public void LeftDown()
+        public Task LeftDown()
         {
-            Simulate.Events().Hold(ButtonCode.Left).Invoke().Wait();
+            return Simulate.Events().Hold(ButtonCode.Left).Invoke();
         }
 
-        public void LeftUp()
+        public Task LeftUp()
         {
-            Simulate.Events().Release(ButtonCode.Left).Invoke().Wait();
+            return Simulate.Events().Release(ButtonCode.Left).Invoke();
         }
 
-        public void MoveBy(int deltaX, int deltaY)
+        public Task MoveBy(int deltaX, int deltaY)
         {
-            Simulate.Events().MoveBy(CoordinateCorrection(deltaX), CoordinateCorrection(deltaY)).Invoke().Wait();
+            return Simulate.Events().MoveBy(CoordinateCorrection(deltaX), CoordinateCorrection(deltaY)).Invoke();
         }
 
-        public void MoveTo(int x, int y)
+        public Task MoveTo(int x, int y)
         {
-            Simulate.Events().MoveTo(CoordinateCorrection(x), CoordinateCorrection(y)).Invoke().Wait();
+            return Simulate.Events().MoveTo(CoordinateCorrection(x), CoordinateCorrection(y)).Invoke();
         }
 
-        public void RightClick()
+        public Task RightClick()
         {
-            Simulate.Events().Click(ButtonCode.Right).Invoke().Wait();
+            return Simulate.Events().Click(ButtonCode.Right).Invoke();
         }
 
-        public void RightDown()
+        public Task RightDown()
         {
-            Simulate.Events().Hold(ButtonCode.Right).Invoke().Wait();
+            return Simulate.Events().Hold(ButtonCode.Right).Invoke();
         }
 
-        public void RightUp()
+        public Task RightUp()
         {
-            Simulate.Events().Release(ButtonCode.Right).Invoke().Wait();
-        }
-
-        [Obsolete("⚠️ Not tested — use with caution.", false)]
-        public void ScrollHorizontal(int delta) //TODO Test scrolling
-        {
-            Simulate.Events().Scroll(ButtonCode.None, ButtonScrollDirection.Right, delta).Invoke().Wait();
+            return Simulate.Events().Release(ButtonCode.Right).Invoke();
         }
 
         [Obsolete("⚠️ Not tested — use with caution.", false)]
-        public void ScrollVertical(int delta)
+        public Task ScrollHorizontal(int delta) //TODO Test scrolling
         {
-            Simulate.Events().Scroll( ButtonCode.None, ButtonScrollDirection.Up, delta).Invoke().Wait();
+            return Simulate.Events().Scroll(ButtonCode.None, ButtonScrollDirection.Right, delta).Invoke();
+        }
+
+        [Obsolete("⚠️ Not tested — use with caution.", false)]
+        public Task ScrollVertical(int delta)
+        {
+            return Simulate.Events().Scroll( ButtonCode.None, ButtonScrollDirection.Up, delta).Invoke();
         }
 
         private int CoordinateCorrection(int coordinate)

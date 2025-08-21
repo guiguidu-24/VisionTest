@@ -7,6 +7,10 @@ namespace VisionTest.Core.Recognition
 {
     public class ImgEngine : IRecognitionEngine<Bitmap>
     {
+        public ImgEngine(ImgEngineOptions options)
+        {
+            throw new NotImplementedException("ImgEngine is not implemented yet.");
+        }
         /// <summary>
         /// The threshold for template matching.
         /// </summary>

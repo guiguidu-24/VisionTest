@@ -1,8 +1,8 @@
 ﻿namespace VisionTest.Core.Recognition
 {
-    public record class OCREngineOptions(
+    public record class OcrOptions(
         string WhiteListChar = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ",
-        IEnumerable<string> WordWhiteList = null,
+        IEnumerable<string>? WordWhiteList = null,
         bool LTSMOnly = true,
         Language Lang = Language.english,
         bool UseThresholdFilter = false,

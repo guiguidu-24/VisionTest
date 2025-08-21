@@ -55,7 +55,7 @@ namespace VisionTest.Core.Services
 
         public TestExecutor()
         {
-            ocrEngine = new OCREngine("eng");
+            ocrEngine = new OcrEngine("eng");
             imgEngine = new ImgEngine();
             ((ImgEngine)imgEngine).Threshold = defaultThreshold; // Set the default threshold for image recognition
         }

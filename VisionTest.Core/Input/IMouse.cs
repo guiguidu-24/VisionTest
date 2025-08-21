@@ -11,58 +11,58 @@ namespace VisionTest.Core.Input
         // <summary>
         /// Moves the mouse to the absolute screen coordinates.
         /// </summary>
-        void MoveTo(int x, int y);
+        Task MoveTo(int x, int y);
 
         /// <summary>
         /// Moves the mouse relative to its current position.
         /// </summary>
-        void MoveBy(int deltaX, int deltaY);
+        Task MoveBy(int deltaX, int deltaY);
 
         /// <summary>
         /// Performs a left click (press and release).
         /// </summary>
-        void LeftClick();
+        Task LeftClick();
 
         /// <summary>
         /// Performs a right click (press and release).
         /// </summary>
-        void RightClick();
+        Task RightClick();
 
         /// <summary>
         /// Performs a double click with the left button.
         /// </summary>
-        void DoubleClick();
+        Task DoubleClick();
 
         /// <summary>
         /// Presses the left button down (useful for dragging).
         /// </summary>
-        void LeftDown();
+        Task LeftDown();
 
         /// <summary>
         /// Releases the left button (useful for dragging).
         /// </summary>
-        void LeftUp();
+        Task LeftUp();
 
         /// <summary>
         /// Presses the right button down.
         /// </summary>
-        void RightDown();
+        Task RightDown();
 
         /// <summary>
         /// Releases the right button.
         /// </summary>
-        void RightUp();
+        Task RightUp();
 
         /// <summary>
         /// Scrolls the mouse wheel vertically.
         /// Positive is up, negative is down.
         /// </summary>
-        void ScrollVertical(int delta);
+        Task ScrollVertical(int delta);
 
         /// <summary>
         /// Scrolls the mouse wheel horizontally.
         /// Positive is right, negative is left.
         /// </summary>
-        void ScrollHorizontal(int delta);
+        Task ScrollHorizontal(int delta);
     }
 }
