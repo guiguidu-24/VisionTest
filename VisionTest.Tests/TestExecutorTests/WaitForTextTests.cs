@@ -1,6 +1,5 @@
 ﻿using System.Windows.Forms;
 using System.Drawing;
-using VisionTest.Core.Services;
 using VisionTest.Core.Input;
 using VisionTest.Core.Utils;
 using VisionTest.Core.Models;
@@ -10,19 +9,16 @@ namespace VisionTest.Tests.TestExecutorTests
 {
     internal class WaitForTextTests
     {
-        private TestExecutor appli;
-
         [SetUp]
         public void Setup()
         {
-            // Initialisation avant chaque test
-            appli = new TestExecutor();
+            // No setup needed for LocatorV tests
         }
 
         [TearDown]
         public void TearDown()
         {
-            appli = null!;
+            // No cleanup needed
         }
 
         [Test]
@@ -110,8 +106,10 @@ namespace VisionTest.Tests.TestExecutorTests
 
                     try
                     {
-                        // Call the method under test
-                        var actualPoint = appli.WaitFor(targetText); // screen-relative center point
+                        // Call the method under test - Use LocatorV to wait for text
+                        var locator = new LocatorV(targetText);
+                        var actualRect = await locator.WaitForAsync();
+                        var actualPoint = actualRect.Center();
 
                         // Calculate the expected screen-relative center of the label
                         var screenLocation = form.PointToScreen(targetLabel.Location);
@@ -121,7 +119,7 @@ namespace VisionTest.Tests.TestExecutorTests
                             (int)((screenLocation.Y + labelSize.Height / 2) * new Core.Input.Screen().ScaleFactor)
                         );
 
-                        tcs.SetResult((actualPoint.Center(), expectedCenter, null));
+                        tcs.SetResult((actualPoint, expectedCenter, null));
                     }
                     catch (TimeoutException ex)
                     {
@@ -159,8 +157,6 @@ namespace VisionTest.Tests.TestExecutorTests
         public async Task WaitforElement_ShouldReturnCenterOfTextOnScreen()
         {
             var targetText = "TargetLabelText";
-            var targetElement = new ScreenElement();
-            targetElement.Texts.Add(targetText);
             var tcs = new TaskCompletionSource<(Point? actual, Point? expected, Exception? exception)>();
 
             var uiThread = new Thread(() =>
@@ -204,8 +200,10 @@ namespace VisionTest.Tests.TestExecutorTests
 
                     try
                     {
-                        // Call the method under test
-                        var actualPoint = appli.WaitFor(targetElement); // screen-relative center point
+                        // Call the method under test - Use LocatorV to wait for text
+                        var locator = new LocatorV(targetText);
+                        var actualRect = await locator.WaitForAsync();
+                        var actualPoint = actualRect.Center();
 
                         // Calculate the expected screen-relative center of the label
                         var screenLocation = form.PointToScreen(targetLabel.Location);
@@ -215,7 +213,7 @@ namespace VisionTest.Tests.TestExecutorTests
                             (int)((screenLocation.Y + labelSize.Height / 2) * int.Parse(TestResources.ScreenScale.TrimEnd('%')) / 100.0f)
                         );
 
-                        tcs.SetResult((actualPoint.Center(), expectedCenter, null));
+                        tcs.SetResult((actualPoint, expectedCenter, null));
                     }
                     catch (TimeoutException ex)
                     {
@@ -252,44 +250,67 @@ namespace VisionTest.Tests.TestExecutorTests
         [Test]
         public async Task Waitfor_Text_or_imagePath_ShouldReturnCenterOfTextOnScreen()
         {
-
-            await Waitfor_Method_Path_ShouldReturnCenterOfTextOnScreen(s => appli.WaitFor(s, "C:\\Users\\guill\\Programmation\\dotNET_doc\\VisionTest\\VisionTest.Tests\\images\\cottonLike.png"));
+            // This test now uses LocatorV with multiple SimpleLocatorV objects to simulate text OR image search
+            var imagePath = "C:\\Users\\guill\\Programmation\\dotNET_doc\\VisionTest\\VisionTest.Tests\\images\\cottonLike.png";
+            var image = new Bitmap(imagePath);
+            await Waitfor_Method_Path_ShouldReturnCenterOfTextOnScreen(async s => 
+            {
+                // Create LocatorV with both text and image options
+                var textLocator = new SimpleLocatorV(text: s);
+                var imageLocator = new SimpleLocatorV(image: image);
+                var locator = new LocatorV(new[] { textLocator, imageLocator });
+                return await locator.WaitForAsync();
+            });
         }
 
         [Test]
-        public void TryWaitfor_ScreenElement_True()
+        public async Task TryWaitfor_MultipleTexts_True()
         {
-            var result = appli.TryWaitFor(new ScreenElement() { Texts = { "File", Guid.NewGuid().ToString() }, Images = {new Bitmap("C:\\Users\\guill\\Programmation\\dotNET_doc\\VisionTest\\VisionTest.Tests\\images\\cottonLike2.png") } }, out _);
-            Assert.That(result, Is.True, "Expected TryWaitFor to return true for existing text.");
+            // Test LocatorV with multiple text options - should find "File"
+            var textLocator1 = new SimpleLocatorV(text: "File");
+            var textLocator2 = new SimpleLocatorV(text: Guid.NewGuid().ToString());
+            var imagePath = "C:\\Users\\guill\\Programmation\\dotNET_doc\\VisionTest\\VisionTest.Tests\\images\\cottonLike2.png";
+            var imageLocator = new SimpleLocatorV(image: new Bitmap(imagePath));
+            var locator = new LocatorV(new[] { textLocator1, textLocator2, imageLocator });
+            
+            var (success, area) = await locator.TryWaitForAsync();
+            Assert.That(success, Is.True, "Expected TryWaitFor to return true for existing text.");
+            Assert.That(area, Is.Not.Null, "Expected area to be not null when text is found.");
         }
 
         [Test]
-        public void TryWaitfor_ScreenElement_False()
+        public async Task TryWaitfor_MultipleTexts_False()
         {
-            Rectangle? rect;
-            var result = appli.TryWaitFor(new ScreenElement() { Texts = { Guid.NewGuid().ToString(), Guid.NewGuid().ToString() } }, out rect);
-            Assert.That(result, Is.False, "Expected TryWaitFor to return False for existing text.");
-            Assert.That(rect, Is.Null, "Expected rectangle to be null when text is not found.");
+            // Test LocatorV with multiple random text options - should not find any
+            var textLocator1 = new SimpleLocatorV(text: Guid.NewGuid().ToString());
+            var textLocator2 = new SimpleLocatorV(text: Guid.NewGuid().ToString());
+            var locator = new LocatorV(new[] { textLocator1, textLocator2 });
+            
+            var (success, area) = await locator.TryWaitForAsync();
+            Assert.That(success, Is.False, "Expected TryWaitFor to return False for non-existing text.");
+            Assert.That(area, Is.Null, "Expected area to be null when text is not found.");
         }
 
         [Test]
-        public void TryWaitfor_Text_True()
+        public async Task TryWaitfor_Text_True()
         {
-            var result = appli.TryWaitFor("File", out _);
-            Assert.That(result, Is.True, "Expected TryWaitFor to return true for existing text.");
+            var locator = new LocatorV("File");
+            var (success, area) = await locator.TryWaitForAsync();
+            Assert.That(success, Is.True, "Expected TryWaitFor to return true for existing text.");
+            Assert.That(area, Is.Not.Null, "Expected area to be not null when text is found.");
         }
 
         [Test]
-        public void TryWaitfor_Text_False()
+        public async Task TryWaitfor_Text_False()
         {
-            Rectangle? rect;
-            var result = appli.TryWaitFor(Guid.NewGuid().ToString(), out rect);
-            Assert.That(result, Is.False, "Expected TryWaitFor to return False for existing text.");
-            Assert.That(rect, Is.Null, "Expected rectangle to be null when text is not found.");
+            var locator = new LocatorV(Guid.NewGuid().ToString());
+            var (success, area) = await locator.TryWaitForAsync();
+            Assert.That(success, Is.False, "Expected TryWaitFor to return False for non-existing text.");
+            Assert.That(area, Is.Null, "Expected area to be null when text is not found.");
         }
 
 
-        private async Task Waitfor_Method_Path_ShouldReturnCenterOfTextOnScreen(Func<string, Rectangle> methodUnderTest)
+        private async Task Waitfor_Method_Path_ShouldReturnCenterOfTextOnScreen(Func<string, Task<Rectangle>> methodUnderTest)
         {
             var targetText = "TargetLabelText";
             var tcs = new TaskCompletionSource<(Point? actual, Point? expected, Exception? exception)>();
@@ -338,7 +359,8 @@ namespace VisionTest.Tests.TestExecutorTests
                     try
                     {
                         // Call the method under test
-                        var actualPoint = methodUnderTest(targetText); // screen-relative center point
+                        var actualRect = await methodUnderTest(targetText);
+                        var actualPoint = actualRect.Center();
 
                         // Calculate the expected screen-relative center of the label
                         var screenLocation = form.PointToScreen(targetLabel.Location);
@@ -348,7 +370,7 @@ namespace VisionTest.Tests.TestExecutorTests
                             (int)((screenLocation.Y + labelSize.Height / 2) * int.Parse(TestResources.ScreenScale.TrimEnd('%')) / 100.0f)
                         );
 
-                        tcs.SetResult((actualPoint.Center(), expectedCenter, null));
+                        tcs.SetResult((actualPoint, expectedCenter, null));
                     }
                     catch (TimeoutException ex)
                     {

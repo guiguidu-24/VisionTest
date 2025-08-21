@@ -1,6 +1,5 @@
 ﻿using System.Windows.Forms;
 using System.Drawing;
-using VisionTest.Core.Services;
 using VisionTest.Core.Input;
 using VisionTest.Core.Utils;
 using VisionTest.Core.Models;
@@ -9,19 +8,16 @@ namespace VisionTest.Tests.TestExecutorTests
 {
     internal class ClickTest
     {
-        private TestExecutor appli;
-
         [SetUp]
         public void Setup()
         {
-            // Initialisation avant chaque test
-            appli = new TestExecutor();
+            // No setup needed for LocatorV tests
         }
 
         [TearDown]
         public void TearDown()
         {
-            appli = null!;
+            // No cleanup needed
         }
 
         [Test]
@@ -60,8 +56,10 @@ namespace VisionTest.Tests.TestExecutorTests
                     var buttonScreenLocation = form.PointToScreen(button.Location);
                     var clickPoint = new Point((int) ((buttonScreenLocation.X + button.Width / 2) * int.Parse(TestResources.ScreenScale.TrimEnd('%'))/100f), (int)((buttonScreenLocation.Y + button.Height / 2) * int.Parse(TestResources.ScreenScale.TrimEnd('%')) / 100f));
 
-                    // Act
-                    appli.Click(clickPoint);
+                    // Act - Use LocatorV to click at the specific point
+                    var mouse = new Mouse();
+                    await mouse.MoveTo(clickPoint.X, clickPoint.Y);
+                    await mouse.LeftClick();
                     await Task.Delay(100); // Allow time for the click to be processed
 
                     tcs.SetResult(buttonClicked);

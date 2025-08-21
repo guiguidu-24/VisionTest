@@ -25,7 +25,7 @@ public class LocatorV : ILocatorV
     public LocatorV(SimpleLocatorV simpleLocator) : this([simpleLocator]) { }
     public LocatorV(string text, OcrOptions? ocrOption = null, Rectangle? region = null) 
         : this(new SimpleLocatorV(text: text, ocrOption: ocrOption, region: region)) { }
-    public LocatorV(Bitmap image, ImgEngineOptions? imgOption = null, Rectangle? region = null) 
+    public LocatorV(Bitmap image, ImgOptions? imgOption = null, Rectangle? region = null) 
         : this(new SimpleLocatorV(image: image, imgOption: imgOption, region: region)) { }
     
 

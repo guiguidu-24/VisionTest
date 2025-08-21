@@ -8,9 +8,9 @@ public record class SimpleLocatorV
     public string? Text { get; }
     public Rectangle? Region { get; }
     public OcrOptions OcrOption { get; }
-    public ImgEngineOptions ImgOption { get; }
+    public ImgOptions ImgOption { get; }
 
-    public SimpleLocatorV(Bitmap? image = null, string? text = null, Rectangle? region = null, OcrOptions? ocrOption = null, ImgEngineOptions? imgOption = null)
+    public SimpleLocatorV(Bitmap? image = null, string? text = null, Rectangle? region = null, OcrOptions? ocrOption = null, ImgOptions? imgOption = null)
     {
         if (text is not null && image is not null)
             throw new ArgumentException("SimpleLocatorV cannot contain both Image and Text.");
@@ -32,11 +32,11 @@ public record class SimpleLocatorV
         if (Text is not null)
         {
             OcrOption = ocrOption ?? new OcrOptions();
-            ImgOption = new ImgEngineOptions(); // Provide a default, but not used
+            ImgOption = new ImgOptions(); // Provide a default, but not used
         }
         else
         {
-            ImgOption = imgOption ?? new ImgEngineOptions();
+            ImgOption = imgOption ?? new ImgOptions();
             OcrOption = new OcrOptions(); // Provide a default, but not used
         }
     }

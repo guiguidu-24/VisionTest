@@ -7,15 +7,13 @@ namespace VisionTest.Core.Recognition
 {
     public class ImgEngine : IRecognitionEngine<Bitmap>
     {
-        public ImgEngine(ImgEngineOptions options)
+        private float threshold;
+        private bool colorMatch;
+        public ImgEngine(ImgOptions options)
         {
-            throw new NotImplementedException("ImgEngine is not implemented yet.");
+            threshold = options.Threshold;
+            colorMatch = options.ColorMatch;
         }
-        /// <summary>
-        /// The threshold for template matching.
-        /// </summary>
-        public float Threshold { get; set; } = 0.9f;
-        public bool ColorMatch { get; set; } = true;
 
         /// <summary>
         /// Finds all occurrences of the target image in the source image using template matching.
@@ -30,8 +28,8 @@ namespace VisionTest.Core.Recognition
             if (target is null) throw new ArgumentNullException(nameof(target));
 
 
-            using var sourceMat = ColorMatch ? image.ToMat().ConvertToBGRA() : image.ToMat().ConvertToGray();
-            using var templateMat = ColorMatch ? target.ToMat().ConvertToBGRA() : target.ToMat().ConvertToGray();
+            using var sourceMat = colorMatch ? image.ToMat().ConvertToBGRA() : image.ToMat().ConvertToGray();
+            using var templateMat = colorMatch ? target.ToMat().ConvertToBGRA() : target.ToMat().ConvertToGray();
             using var result = new Mat();
 
             // MatchTemplate method: CV_TM_CCOEFF_NORMED gives good normalized results
@@ -44,7 +42,7 @@ namespace VisionTest.Core.Recognition
             {
                 Cv2.MinMaxLoc(result, out _, out double maxVal, out _, out OpenCvSharp.Point maxLoc);
 
-                if (maxVal < Threshold)
+                if (maxVal < threshold)
                     break;
 
                 var matchRect = new Rectangle(maxLoc.X, maxLoc.Y, templateMat.Width, templateMat.Height);

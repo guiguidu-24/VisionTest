@@ -4,7 +4,7 @@ using System.Diagnostics;
 using VisionTest.Core.Input;
 using VisionTest.Core.Utils;
 
-
+/*
 namespace VisionTest.Core.Services
 {
     public class TestExecutor //TODO : for an image, directly use the name of the image instead of the path
@@ -55,7 +55,7 @@ namespace VisionTest.Core.Services
 
         public TestExecutor()
         {
-            ocrEngine = new OcrEngine("eng");
+            ocrEngine = new OCREngine("eng");
             imgEngine = new ImgEngine();
             ((ImgEngine)imgEngine).Threshold = defaultThreshold; // Set the default threshold for image recognition
         }
@@ -545,3 +545,4 @@ namespace VisionTest.Core.Services
         }
     }
 }
+*/

@@ -46,7 +46,7 @@ namespace VisionTest.Tests.OcrBenchmark
                 var ymax = int.Parse(bndbox.Element("ymax")?.Value ?? "0");
                 Rectangle targetRect = new Rectangle(xmin, ymin, xmax - xmin, ymax - ymin);
 
-                OcrEngine ocrEngine = new OCREngine(new OCROptions {ImproveDPI = improveDPI, UseThresholdFilter = useThresholdFilter});
+                OcrEngine ocrEngine = new OcrEngine(new OcrOptions {ImproveDPI = improveDPI, UseThresholdFilter = useThresholdFilter});
                 
 
                 using var targetImage = new Bitmap(imagePath);
