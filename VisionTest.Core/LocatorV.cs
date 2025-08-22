@@ -1,8 +1,9 @@
 ﻿using VisionTest.Core.Input;
+using VisionTest.Core.Models;
 using VisionTest.Core.Recognition;
 using VisionTest.Core.Utils;
 
-namespace VisionTest.Core.Models;
+namespace VisionTest.Core;
 
 public class LocatorV : ILocatorV
 {

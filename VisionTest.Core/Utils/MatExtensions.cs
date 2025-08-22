@@ -27,11 +27,11 @@ public static class MatExtensions
     }
 
     /// <summary>
-    /// Convertit une image Mat OpenCV en une autre couleur.
+    /// Converts an OpenCV Mat image to another color space using the specified color conversion code.
     /// </summary>
-    /// <param name="src"></param>
-    /// <param name="code"></param>
-    /// <returns></returns>
+    /// <param name="src">The source Mat image to convert.</param>
+    /// <param name="code">The color conversion code to use for the transformation.</param>
+    /// <returns>A new Mat image in the target color space.</returns>
     private static Mat ConvertTo(Mat src, ColorConversionCodes code)
     {
         Mat dst = new();
