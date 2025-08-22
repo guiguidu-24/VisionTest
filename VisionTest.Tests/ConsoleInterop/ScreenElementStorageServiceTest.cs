@@ -1,8 +1,7 @@
 ﻿using System.Drawing;
-using VisionTest.Core.Models;
-using VisionTest.Core.Services.Storage;
+using VisionTest.ConsoleInterop.Storage;
 
-namespace VisionTest.Tests
+namespace VisionTest.Tests.ConsoleInterop
 {
     [TestFixture]
     public class ScreenElementStorageServiceTest
@@ -33,13 +32,13 @@ namespace VisionTest.Tests
         }
 
         [Test]
-        public async Task DeleteAsync_test()
+        public void Delete_test()
         {
             var img = new Bitmap(100, 100);
             img.Save(Path.Combine(_testDirectory, "deleteTest.png"));
             Assert.IsTrue(File.Exists(Path.Combine(_testDirectory, "deleteTest.png")));
 
-            await _storageService.DeleteAsync("deleteTest");
+            _storageService.Delete("deleteTest");
 
             Assert.IsFalse(File.Exists(Path.Combine(_testDirectory, "deleteTest.png")));
         }
@@ -57,20 +56,6 @@ namespace VisionTest.Tests
                 Assert.That(element.Images.Count, Is.EqualTo(1));
             });
         }
-
-
-        //[Test]
-        //public async Task GetAllAsync_test()
-        //{
-        //    const string id = "Firefox";
-        //    var elements = await _storageService.GetAllAsync();
-        //
-        //    Assert.That(elements, Is.Not.Null);
-        //    Assert.That(elements.Count(), Is.EqualTo(1));
-        //
-        //    Assert.That(elements.First().Id, Is.EqualTo(id));
-        //    Assert.That(elements.First().Images.Count, Is.EqualTo(1));
-        //}
 
         [Test]
         public async Task ExistsAsync_test_true()

@@ -1,17 +1,17 @@
 ﻿using VisionTest.Core.Recognition;
 using System.Drawing;
 
-namespace VisionTest.Tests
+namespace VisionTest.Tests.Core.Recognition
 {
     internal class OCREngineTest
     {
-        private OCREngine ocrEngine;
+        private OcrEngine ocrEngine;
 
         [SetUp]
         public void Setup()
         {
             // Initialiser OCREngine avec le chemin extrait
-            ocrEngine = new OCREngine(new OCREngineOptions()
+            ocrEngine = new OcrEngine(new OcrOptions()
             {
                 ImproveDPI = true,
             });

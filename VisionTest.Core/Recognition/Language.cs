@@ -1,12 +1,9 @@
-﻿using VisionTest.Core.Recognition;
+﻿namespace VisionTest.Core.Recognition;
 
-namespace VisionTest.Core.Recognition
+public enum Language
 {
-    public enum Language
-    {
-        english,
-        french
-    }
+    English,
+    French
 }
 
 public static class LanguageExtensions
@@ -15,8 +12,8 @@ public static class LanguageExtensions
     {
         return language switch
         {
-            Language.english => "eng",
-            Language.french => "fra",
+            Language.English => "eng",
+            Language.French => "fra",
             _ => throw new ArgumentOutOfRangeException(nameof(language), language, null)
         };
     }

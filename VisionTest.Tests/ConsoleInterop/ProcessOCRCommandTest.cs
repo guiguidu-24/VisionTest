@@ -126,7 +126,7 @@ namespace VisionTest.Tests.ConsoleInterop
                 Assert.Multiple(() =>
                 {
                     Assert.That(status.GetString(), Is.EqualTo("error"), "Status should be 'error'");
-                    Assert.That(message.GetString(), Is.EqualTo($"The file '{imagePath}' does not exist."), "Message should indicate missing file");
+                    Assert.That(message.GetString(), Is.EqualTo($"The file {imagePath} does not exist."), "Message should indicate missing file");
                     Assert.That(response.TryGetProperty("data", out _), Is.False, "Error response should not contain 'data' property");
                 });
             }
