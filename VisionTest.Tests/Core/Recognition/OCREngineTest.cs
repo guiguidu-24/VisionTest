@@ -1,7 +1,7 @@
 ﻿using VisionTest.Core.Recognition;
 using System.Drawing;
 
-namespace VisionTest.Tests
+namespace VisionTest.Tests.Core.Recognition
 {
     internal class OCREngineTest
     {

@@ -5,7 +5,7 @@ using VisionTest.Core.Utils;
 using WindowsInput;
 using WindowsInput.Events;
 
-namespace VisionTest.Tests.TestExecutorTests
+namespace VisionTest.Tests.Core.Models.LocatorVTests
 {
     [TestFixture]
     internal class WaitForImageTest
@@ -48,7 +48,7 @@ namespace VisionTest.Tests.TestExecutorTests
             });
 
             await Task.Delay(1000);
-            Simulate.Events().Click(WindowsInput.Events.KeyCode.F11).Invoke().Wait();
+            Simulate.Events().Click(KeyCode.F11).Invoke().Wait();
             await Task.Delay(1000); // Wait for the application to maximize
 
             try
@@ -98,7 +98,7 @@ namespace VisionTest.Tests.TestExecutorTests
 
             await Task.Delay(1000); // Wait for the application to open and load the image
             // Maximize the Paint window  
-            Simulate.Events().Click(WindowsInput.Events.KeyCode.F11).Invoke().Wait();
+            Simulate.Events().Click(KeyCode.F11).Invoke().Wait();
             await Task.Delay(500); // Wait for the application to maximize
             var screenshot = new Screen().CaptureScreen();            
 
@@ -159,7 +159,7 @@ namespace VisionTest.Tests.TestExecutorTests
             });
 
             await Task.Delay(1000);
-            Simulate.Events().Click(WindowsInput.Events.KeyCode.F11).Invoke().Wait();
+            Simulate.Events().Click(KeyCode.F11).Invoke().Wait();
             await Task.Delay(1000); // Wait for the application to maximize
 
             try

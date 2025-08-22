@@ -1,8 +1,7 @@
 ﻿using System.Drawing;
 using VisionTest.ConsoleInterop.Storage;
-using VisionTest.Core.Models;
 
-namespace VisionTest.Tests
+namespace VisionTest.Tests.ConsoleInterop
 {
     [TestFixture]
     public class ScreenElementStorageServiceTest
@@ -57,20 +56,6 @@ namespace VisionTest.Tests
                 Assert.That(element.Images.Count, Is.EqualTo(1));
             });
         }
-
-
-        //[Test]
-        //public async Task GetAllAsync_test()
-        //{
-        //    const string id = "Firefox";
-        //    var elements = await _storageService.GetAllAsync();
-        //
-        //    Assert.That(elements, Is.Not.Null);
-        //    Assert.That(elements.Count(), Is.EqualTo(1));
-        //
-        //    Assert.That(elements.First().Id, Is.EqualTo(id));
-        //    Assert.That(elements.First().Images.Count, Is.EqualTo(1));
-        //}
 
         [Test]
         public async Task ExistsAsync_test_true()

@@ -1,25 +1,11 @@
 ﻿using System.Windows.Forms;
 using System.Drawing;
 using VisionTest.Core.Input;
-using VisionTest.Core.Utils;
-using VisionTest.Core.Models;
 
-namespace VisionTest.Tests.TestExecutorTests
+namespace VisionTest.Tests.Core.Input
 {
-    internal class ClickTest
+    public class MouseTests
     {
-        [SetUp]
-        public void Setup()
-        {
-            // No setup needed for LocatorV tests
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            // No cleanup needed
-        }
-
         [Test]
         public async Task Click_ShouldClickButtonOnScreen()
         {
@@ -77,7 +63,6 @@ namespace VisionTest.Tests.TestExecutorTests
 
             Assert.That(buttonClicked, Is.True, "The button should have been clicked.");
         }
-    
     }
 }
 

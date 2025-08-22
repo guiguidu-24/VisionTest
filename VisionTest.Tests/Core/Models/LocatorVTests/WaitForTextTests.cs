@@ -3,9 +3,8 @@ using System.Drawing;
 using VisionTest.Core.Input;
 using VisionTest.Core.Utils;
 using VisionTest.Core.Models;
-using NUnit.Framework.Internal.Execution;
 
-namespace VisionTest.Tests.TestExecutorTests
+namespace VisionTest.Tests.Core.Models.LocatorVTests
 {
     internal class WaitForTextTests
     {
@@ -115,8 +114,8 @@ namespace VisionTest.Tests.TestExecutorTests
                         var screenLocation = form.PointToScreen(targetLabel.Location);
                         var labelSize = targetLabel.PreferredSize;
                         var expectedCenter = new Point(
-                            (int)((screenLocation.X + labelSize.Width / 2)*new Core.Input.Screen().ScaleFactor),
-                            (int)((screenLocation.Y + labelSize.Height / 2) * new Core.Input.Screen().ScaleFactor)
+                            (int)((screenLocation.X + labelSize.Width / 2)*new VisionTest.Core.Input.Screen().ScaleFactor),
+                            (int)((screenLocation.Y + labelSize.Height / 2) * new VisionTest.Core.Input.Screen().ScaleFactor)
                         );
 
                         tcs.SetResult((actualPoint, expectedCenter, null));
