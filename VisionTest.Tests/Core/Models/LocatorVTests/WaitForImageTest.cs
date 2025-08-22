@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using VisionTest.Core;
 using VisionTest.Core.Input;
 using VisionTest.Core.Models;
 using VisionTest.Core.Utils;

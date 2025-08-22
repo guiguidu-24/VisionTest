@@ -3,6 +3,7 @@ using System.Drawing;
 using VisionTest.Core.Input;
 using VisionTest.Core.Utils;
 using VisionTest.Core.Models;
+using VisionTest.Core;
 
 namespace VisionTest.Tests.Core.Models.LocatorVTests;
 
