@@ -73,9 +73,10 @@ namespace VisionTest.Core.Recognition
             // 3. User-words (to bias toward your phrase)
             string cfgDir = Path.Combine(datapath, "configs");
             Directory.CreateDirectory(cfgDir);
-            string userWordsFile = Path.Combine(cfgDir, "user-words.txt");
+            string userWordsFileName = Guid.NewGuid() + "user-words.txt";
+            string userWordsFile = Path.Combine(cfgDir, userWordsFileName);
             File.WriteAllLines(userWordsFile, WordWhiteList.Append(target));
-            engine.SetVariable("user_words_file", "user-words");
+            engine.SetVariable("user_words_file", userWordsFileName.AsSpan().TrimEnd(".txt").ToString());
 
             // Apply threshold filter if enabled
             using var processedImage = UseThresholdFilter ? ThresholdFilter(image) : image;
@@ -136,6 +137,7 @@ namespace VisionTest.Core.Recognition
                 result.Add(MapRectangleToOriginal(new Rectangle(x1, y1, x2 - x1, y2 - y1), image, processedImageDpi));
             }
 
+            File.Delete(userWordsFile);
             return result;
         }
 
