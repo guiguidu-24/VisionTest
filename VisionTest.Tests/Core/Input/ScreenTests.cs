@@ -25,7 +25,6 @@ public class ScreenTests
     public void Screen_ShouldHaveCorrectBounds()
     {
         // Load expected dimensions from TestResources.resx
-        var resourceManager = new ResourceManager("TestTesseract.TestResources", typeof(ScreenTests).Assembly);
         var widthString = TestResources.ScreenWidth;
         var heightString = TestResources.ScreenHeight;
 
@@ -50,8 +49,7 @@ public class ScreenTests
     public void GetScaleFactor_ShouldMatchResourceValue()
     {
         // Load the expected value from TestResources.resx  
-        var resourceManager = new ResourceManager("TestTesseract.TestResources", typeof(ScreenTests).Assembly);
-        var scaleFactorString = resourceManager.GetString("ScreenScale");
+        var scaleFactorString = TestResources.ScreenScale;
         Assert.That(scaleFactorString, Is.Not.Null.And.Not.Empty, "'ScreenScale' value in resources is empty or null.");
         var expectedScaleFactor = float.Parse(scaleFactorString.TrimEnd('%')) / 100;
 
