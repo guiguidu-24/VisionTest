@@ -95,7 +95,7 @@ public class LocatorV : ILocatorV
     {
         if(await TryWaitForAsync(timeout) is (true, var area))
             return area!.Value;
-        throw new Exception("Object not found within the specified timeout.");
+        throw new TimeoutException("Object not found within the specified timeout.");
     }
 
     private async Task<Rectangle?> WaitForAsync<TTarget>(IRecognitionEngine<TTarget> engine, TTarget target, Rectangle? box, CancellationToken cancellationToken)

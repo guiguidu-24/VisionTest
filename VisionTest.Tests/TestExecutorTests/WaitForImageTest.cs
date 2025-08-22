@@ -71,6 +71,10 @@ namespace VisionTest.Tests.TestExecutorTests
             {
                 Assert.Fail($"The image was not found within the timeout period. Exception: {ex.Message}");
             }
+            catch (Exception)
+            {
+                throw;
+            }
             finally
             {
                 process?.Kill();
@@ -190,12 +194,6 @@ namespace VisionTest.Tests.TestExecutorTests
                     return await locator.WaitForAsync(TimeSpan.FromSeconds(5));
                 },
                 new Bitmap(smallImagePath));
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            Simulate.Events().ClickChord(WindowsInput.Events.KeyCode.Alt, KeyCode.F4).Invoke().Wait();
         }
     }
 }
