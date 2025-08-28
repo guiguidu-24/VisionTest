@@ -16,7 +16,7 @@ public class ScreenTests
         var screenshot = new Screen().CaptureScreen();
 
         // Assert  
-        Assert.IsNotNull(screenshot, "The screenshot should not be null.");
+        Assert.That(screenshot, Is.Not.Null, "The screenshot should not be null.");
         Assert.That(screenshot.Width, Is.EqualTo(expectedWidth), $"The screenshot width should be {expectedWidth}.");
         Assert.That(screenshot.Height, Is.EqualTo(expectedHeight), $"The screenshot height should be {expectedHeight}.");
     }

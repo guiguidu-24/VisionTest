@@ -25,7 +25,7 @@ namespace VisionTest.Tests.ConsoleInterop
             element.Images.Add(new Bitmap(100, 100)); // Add a dummy image
 
             await _storageService.SaveAsync(element);
-            Assert.IsTrue(File.Exists(Path.Combine(_testDirectory, $"{element.Id}.png")));
+            Assert.That(File.Exists(Path.Combine(_testDirectory, $"{element.Id}.png")));
 
 
             File.Delete(Path.Combine(_testDirectory, $"{element.Id}.png"));
@@ -36,11 +36,11 @@ namespace VisionTest.Tests.ConsoleInterop
         {
             var img = new Bitmap(100, 100);
             img.Save(Path.Combine(_testDirectory, "deleteTest.png"));
-            Assert.IsTrue(File.Exists(Path.Combine(_testDirectory, "deleteTest.png")));
+            Assert.That(File.Exists(Path.Combine(_testDirectory, "deleteTest.png")));
 
             _storageService.Delete("deleteTest");
 
-            Assert.IsFalse(File.Exists(Path.Combine(_testDirectory, "deleteTest.png")));
+            Assert.That(!File.Exists(Path.Combine(_testDirectory, "deleteTest.png")));
         }
 
         [Test]

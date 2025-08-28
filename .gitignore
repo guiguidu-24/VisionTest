@@ -374,3 +374,8 @@ FodyWeavers.xsd
 /VisionTest.VSExtension/InteropTools/runtimes/win-x86/native/OpenCvSharpExtern.dll
 /VisionTest.TestsImplementation/ScreenElements.cs
 /VisionTest.Core/architecture.txt
+
+
+# Verify
+*.received.*
+*.received/
