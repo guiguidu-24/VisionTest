@@ -1,4 +1,4 @@
-# VisionTest
+# VisionTest (This project is still in preview)
 
 UI test automation framework powered by computer vision (OpenCV) and OCR (Tesseract).
 
