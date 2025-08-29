@@ -29,6 +29,45 @@ public class LocatorV : ILocatorV
     public LocatorV(Bitmap image, ImgOptions? imgOption = null, Rectangle? region = null) 
         : this(new SimpleLocatorV(image: image, imgOption: imgOption, region: region)) { }
     
+    public async Task RightClickAsync()
+    {
+        var area = await WaitForAsync();
+        await _mouse.MoveTo(area.Center().X, area.Center().Y);
+        await _mouse.RightClick();
+    }
+
+    public async Task RightClickAsync(TimeSpan timeout)
+    {
+        var area = await WaitForAsync(timeout);
+        await _mouse.MoveTo(area.Center().X, area.Center().Y);
+        await _mouse.RightClick();
+    }
+
+    public async Task DoubleClickAsync()
+    {
+        var area = await WaitForAsync();
+        await _mouse.MoveTo(area.Center().X, area.Center().Y);
+        await _mouse.DoubleClick();
+    }
+
+    public async Task DoubleClickAsync(TimeSpan timeout)
+    {
+        var area = await WaitForAsync(timeout);
+        await _mouse.MoveTo(area.Center().X, area.Center().Y);
+        await _mouse.DoubleClick();
+    }
+
+    public async Task HoverAsync()
+    {
+        var area = await WaitForAsync();
+        await _mouse.MoveTo(area.Center().X, area.Center().Y);
+    }
+
+    public async Task HoverAsync(TimeSpan timeout)
+    {
+        var area = await WaitForAsync(timeout);
+        await _mouse.MoveTo(area.Center().X, area.Center().Y);
+    }
 
     public async Task ClickAsync()
     {
