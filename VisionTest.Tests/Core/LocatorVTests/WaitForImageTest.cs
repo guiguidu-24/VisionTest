@@ -22,7 +22,7 @@ public class WaitForImageTest
     private Bitmap bigImage = null!;
     private Bitmap smallImage = null!;
 
-    [OneTimeSetUp]
+    [SetUp]
     public void Setup()
     {
         if (!File.Exists(_bigImagePath))
@@ -35,7 +35,7 @@ public class WaitForImageTest
         smallImage = new Bitmap(_smallImagePath);
     }
 
-    [OneTimeTearDown]
+    [TearDown]
     public void TearDown()
     {
         bigImage.Dispose();
