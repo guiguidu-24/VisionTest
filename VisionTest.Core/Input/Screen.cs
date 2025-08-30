@@ -8,26 +8,6 @@ public class Screen : IScreen
 
     public float ScaleFactor => GetScaleFactor();
 
-    [Obsolete("⚠️ Not tested — use with caution.", false)]
-    public Bitmap CaptureRegion(Rectangle region)
-    {
-        if (System.Windows.Forms.Screen.PrimaryScreen == null)
-        {
-            throw new InvalidOperationException("Primary screen is not available.");
-        }
-
-        Rectangle bounds = new Rectangle(
-            region.X,
-            region.Y,
-            region.Width,
-            region.Height
-        );
-        Bitmap bitmap = new Bitmap(region.Width, region.Height);
-        using Graphics g = Graphics.FromImage(bitmap);
-        g.CopyFromScreen(bounds.Location, Point.Empty, bounds.Size);
-        return bitmap;
-    }
-
     private int width = (int)((System.Windows.Forms.Screen.PrimaryScreen?.Bounds.Width ?? 0) * GetScaleFactor());
     private int height = (int)((System.Windows.Forms.Screen.PrimaryScreen?.Bounds.Height ?? 0) * GetScaleFactor());
 

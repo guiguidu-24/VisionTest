@@ -17,10 +17,4 @@ public interface IScreen
     /// Captures the entire screen and returns a Bitmap image.
     /// </summary>
     Bitmap CaptureScreen();
-
-    /// <summary>
-    /// Captures a specific region of the screen and returns a Bitmap.
-    /// </summary>
-    /// <param name="region">The rectangle area in screen coordinates to capture.</param>
-    Bitmap CaptureRegion(Rectangle region);
 }

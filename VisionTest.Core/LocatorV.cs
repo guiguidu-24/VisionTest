@@ -9,25 +9,30 @@ public class LocatorV : ILocatorV
 {
     private readonly TimeSpan _defaultTimeout = TimeSpan.FromSeconds(15);
 
-    private readonly IScreen _screen = new Input.Screen();
+    private readonly IScreen _screen;
     private readonly IMouse _mouse = new Mouse();
 
     private SimpleLocatorV[] simpleLocators;
 
-    public LocatorV(SimpleLocatorV[] simpleLocators)
+    public LocatorV(SimpleLocatorV[] simpleLocators, IScreen? screen = null)
     {
         ArgumentNullException.ThrowIfNull(simpleLocators, nameof(simpleLocators));
         if (simpleLocators.Length == 0)
             throw new ArgumentException("At least one SimpleLocatorV must be provided.", nameof(simpleLocators));
 
         this.simpleLocators = simpleLocators;
+
+        if (screen is not null)
+            _screen = screen;
+        else
+            _screen = new Input.Screen();
     }
 
-    public LocatorV(SimpleLocatorV simpleLocator) : this([simpleLocator]) { }
-    public LocatorV(string text, OcrOptions? ocrOption = null, Rectangle? region = null) 
-        : this(new SimpleLocatorV(text: text, ocrOption: ocrOption, region: region)) { }
-    public LocatorV(Bitmap image, ImgOptions? imgOption = null, Rectangle? region = null) 
-        : this(new SimpleLocatorV(image: image, imgOption: imgOption, region: region)) { }
+    public LocatorV(SimpleLocatorV simpleLocator, IScreen? screen = null) : this([simpleLocator], screen) { }
+    public LocatorV(string text, OcrOptions? ocrOption = null, Rectangle? region = null, IScreen? screen = null) 
+        : this(new SimpleLocatorV(text: text, ocrOption: ocrOption, region: region), screen) { }
+    public LocatorV(Bitmap image, ImgOptions? imgOption = null, Rectangle? region = null, IScreen? screen = null) 
+        : this(new SimpleLocatorV(image: image, imgOption: imgOption, region: region), screen) { }
     
 
     public async Task ClickAsync()
