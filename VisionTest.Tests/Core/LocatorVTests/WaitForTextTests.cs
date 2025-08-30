@@ -5,7 +5,7 @@ using VisionTest.Core.Utils;
 using VisionTest.Core.Models;
 using VisionTest.Core;
 
-namespace VisionTest.Tests.Core.Models.LocatorVTests;
+namespace VisionTest.Tests.Core.LocatorVTests;
 
 public class WaitForTextTests
 {
