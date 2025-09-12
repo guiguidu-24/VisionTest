@@ -15,6 +15,14 @@ High-level capabilities
 - Input automation (mouse and keyboard)
 - Locator abstraction for waiting/clicking visual targets, supporting multiple strategies (text and/or image) and regions
 
+## Quickstart
+
+To install the package, use the following command:
+
+```bash
+dotnet add package VisionTest.Core --version 0.0.1
+```
+
 ### Target/runtime
 - Target Framework: net9.0-windows
 - Windows only for the moment (uses Windows-specific APIs and WindowsInput)
