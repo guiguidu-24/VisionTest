@@ -1,5 +1,5 @@
-using WindowsInput;
-using WindowsInput.Events;
+using SharpHook;
+using SharpHook.Data;
 
 namespace VisionTest.Core.Input;
 
@@ -8,25 +8,27 @@ namespace VisionTest.Core.Input;
 /// </summary>
 public class Keyboard :IKeyboard
 {
+    private EventSimulator simulator = new();
 
     public void PressKey(KeyCode key)
     {
-        Simulate.Events().Click(key).Invoke().Wait();
+        simulator.SimulateKeyPress(key);
+        simulator.SimulateKeyRelease(key);
     }
 
     public void KeyDown(KeyCode key)
     {
-        Simulate.Events().Hold(key).Invoke().Wait();
+        simulator.SimulateKeyPress(key);
     }
 
     public void KeyUp(KeyCode key)
     {
-        Simulate.Events().Release(key).Invoke().Wait();
+        simulator.SimulateKeyRelease(key);
     }
 
     public void TypeText(string text)
     {
-        Simulate.Events().Click(text).Invoke().Wait();
+        simulator.SimulateTextEntry(text);
     }
 
     public void SendModifiedKeyStroke(IEnumerable<KeyCode> modifiers, KeyCode key)
@@ -47,13 +49,9 @@ public class Keyboard :IKeyboard
 
     public void ReleaseAllKeys()
     {
-        var sim = Simulate.Events();
-
         foreach (var key in Enum.GetValues(typeof(KeyCode)).Cast<KeyCode>())
         {
-            sim.Release(key);
+            KeyUp(key);
         }
-
-        sim.Invoke().Wait();
     }
 }

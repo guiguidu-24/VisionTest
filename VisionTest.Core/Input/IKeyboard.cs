@@ -1,4 +1,4 @@
-﻿using WindowsInput.Events;
+﻿using SharpHook.Data;
 
 namespace VisionTest.Core.Input;
 
