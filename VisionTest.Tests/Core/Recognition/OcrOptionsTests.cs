@@ -81,7 +81,7 @@ public class OcrOptionsTests
         string customWhiteList = "0123456789";
 
         // Act
-        var options = new OcrOptions(WhiteListChar: customWhiteList);
+        var options = new OcrOptions(whiteListChar: customWhiteList);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -97,7 +97,7 @@ public class OcrOptionsTests
     public void Constructor_WithEmptyWhiteListChar_ShouldSetProperty()
     {
         // Act
-        var options = new OcrOptions(WhiteListChar: "");
+        var options = new OcrOptions(whiteListChar: "");
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -112,7 +112,7 @@ public class OcrOptionsTests
     public void Constructor_WithNullWhiteListChar_ShouldSetProperty()
     {
         // Act
-        var options = new OcrOptions(WhiteListChar: null!);
+        var options = new OcrOptions(whiteListChar: null!);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -127,7 +127,7 @@ public class OcrOptionsTests
     public void Constructor_WithCustomWhiteListChar_ShouldPreserveOtherDefaults()
     {
         // Act
-        var options = new OcrOptions(WhiteListChar: "ABC123");
+        var options = new OcrOptions(whiteListChar: "ABC123");
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -147,7 +147,7 @@ public class OcrOptionsTests
         var words = new List<string> { "HELLO", "WORLD", "TEST" };
 
         // Act
-        var options = new OcrOptions(WordWhiteList: words);
+        var options = new OcrOptions(wordWhiteList: words);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -168,7 +168,7 @@ public class OcrOptionsTests
         var emptyWords = new List<string>();
 
         // Act
-        var options = new OcrOptions(WordWhiteList: emptyWords);
+        var options = new OcrOptions(wordWhiteList: emptyWords);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -183,7 +183,7 @@ public class OcrOptionsTests
     public void Constructor_WithNullWordWhiteList_ShouldInitializeAsEmpty()
     {
         // Act
-        var options = new OcrOptions(WordWhiteList: null);
+        var options = new OcrOptions(wordWhiteList: null);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -201,7 +201,7 @@ public class OcrOptionsTests
         var words = new[] { "TARGET" };
 
         // Act
-        var options = new OcrOptions(WordWhiteList: words);
+        var options = new OcrOptions(wordWhiteList: words);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -218,7 +218,7 @@ public class OcrOptionsTests
     public void Constructor_WithLTSMOnlyTrue_ShouldSetProperty()
     {
         // Act
-        var options = new OcrOptions(LTSMOnly: true);
+        var options = new OcrOptions(lTSMOnly: true);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -234,7 +234,7 @@ public class OcrOptionsTests
     public void Constructor_WithLTSMOnlyFalse_ShouldSetProperty()
     {
         // Act
-        var options = new OcrOptions(LTSMOnly: false);
+        var options = new OcrOptions(lTSMOnly: false);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -250,7 +250,7 @@ public class OcrOptionsTests
     public void Constructor_WithLTSMOnly_ShouldPreserveOtherDefaults()
     {
         // Act
-        var options = new OcrOptions(LTSMOnly: false);
+        var options = new OcrOptions(lTSMOnly: false);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -267,8 +267,8 @@ public class OcrOptionsTests
     public void Constructor_WithLTSMOnlyValue_ShouldOnlyAffectThatProperty()
     {
         // Act
-        var optionsTrue = new OcrOptions(LTSMOnly: true);
-        var optionsFalse = new OcrOptions(LTSMOnly: false);
+        var optionsTrue = new OcrOptions(lTSMOnly: true);
+        var optionsFalse = new OcrOptions(lTSMOnly: false);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -284,7 +284,7 @@ public class OcrOptionsTests
     public void Constructor_WithLanguageEnglish_ShouldSetProperty()
     {
         // Act
-        var options = new OcrOptions(Lang: Language.English);
+        var options = new OcrOptions(lang: Language.English);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -300,7 +300,7 @@ public class OcrOptionsTests
     public void Constructor_WithLanguageFrench_ShouldSetProperty()
     {
         // Act
-        var options = new OcrOptions(Lang: Language.French);
+        var options = new OcrOptions(lang: Language.French);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -316,7 +316,7 @@ public class OcrOptionsTests
     public void Constructor_WithLanguage_ShouldPreserveOtherDefaults()
     {
         // Act
-        var options = new OcrOptions(Lang: Language.French);
+        var options = new OcrOptions(lang: Language.French);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -333,8 +333,8 @@ public class OcrOptionsTests
     public void Constructor_WithDifferentLanguages_ShouldOnlyAffectLanguageProperty()
     {
         // Act
-        var englishOptions = new OcrOptions(Lang: Language.English);
-        var frenchOptions = new OcrOptions(Lang: Language.French);
+        var englishOptions = new OcrOptions(lang: Language.English);
+        var frenchOptions = new OcrOptions(lang: Language.French);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -350,7 +350,7 @@ public class OcrOptionsTests
     public void Constructor_WithUseThresholdFilterTrue_ShouldSetProperty()
     {
         // Act
-        var options = new OcrOptions(UseThresholdFilter: true);
+        var options = new OcrOptions(useThresholdFilter: true);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -366,7 +366,7 @@ public class OcrOptionsTests
     public void Constructor_WithUseThresholdFilterFalse_ShouldSetProperty()
     {
         // Act
-        var options = new OcrOptions(UseThresholdFilter: false);
+        var options = new OcrOptions(useThresholdFilter: false);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -382,7 +382,7 @@ public class OcrOptionsTests
     public void Constructor_WithUseThresholdFilter_ShouldPreserveOtherDefaults()
     {
         // Act
-        var options = new OcrOptions(UseThresholdFilter: true);
+        var options = new OcrOptions(useThresholdFilter: true);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -399,8 +399,8 @@ public class OcrOptionsTests
     public void Constructor_WithUseThresholdFilterValue_ShouldOnlyAffectThatProperty()
     {
         // Act
-        var optionsTrue = new OcrOptions(UseThresholdFilter: true);
-        var optionsFalse = new OcrOptions(UseThresholdFilter: false);
+        var optionsTrue = new OcrOptions(useThresholdFilter: true);
+        var optionsFalse = new OcrOptions(useThresholdFilter: false);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -416,7 +416,7 @@ public class OcrOptionsTests
     public void Constructor_WithImproveDPITrue_ShouldSetProperty()
     {
         // Act
-        var options = new OcrOptions(ImproveDPI: true);
+        var options = new OcrOptions(improveDPI: true);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -432,7 +432,7 @@ public class OcrOptionsTests
     public void Constructor_WithImproveDPIFalse_ShouldSetProperty()
     {
         // Act
-        var options = new OcrOptions(ImproveDPI: false);
+        var options = new OcrOptions(improveDPI: false);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -448,7 +448,7 @@ public class OcrOptionsTests
     public void Constructor_WithImproveDPI_ShouldPreserveOtherDefaults()
     {
         // Act
-        var options = new OcrOptions(ImproveDPI: true);
+        var options = new OcrOptions(improveDPI: true);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -465,8 +465,8 @@ public class OcrOptionsTests
     public void Constructor_WithImproveDPIValue_ShouldOnlyAffectThatProperty()
     {
         // Act
-        var optionsTrue = new OcrOptions(ImproveDPI: true);
-        var optionsFalse = new OcrOptions(ImproveDPI: false);
+        var optionsTrue = new OcrOptions(improveDPI: true);
+        var optionsFalse = new OcrOptions(improveDPI: false);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -491,12 +491,12 @@ public class OcrOptionsTests
 
         // Act
         var options = new OcrOptions(
-            WhiteListChar: customWhiteList,
-            WordWhiteList: customWordList,
-            LTSMOnly: customLTSMOnly,
-            Lang: customLang,
-            UseThresholdFilter: customUseThresholdFilter,
-            ImproveDPI: customImproveDPI
+            whiteListChar: customWhiteList,
+            wordWhiteList: customWordList,
+            lTSMOnly: customLTSMOnly,
+            lang: customLang,
+            useThresholdFilter: customUseThresholdFilter,
+            improveDPI: customImproveDPI
         );
 
         // Assert
@@ -516,9 +516,9 @@ public class OcrOptionsTests
     {
         // Act
         var options = new OcrOptions(
-            WhiteListChar: "NUMBERS123",
-            Lang: Language.French,
-            ImproveDPI: true
+            whiteListChar: "NUMBERS123",
+            lang: Language.French,
+            improveDPI: true
         );
 
         // Assert
@@ -538,8 +538,8 @@ public class OcrOptionsTests
     public void RecordEquality_WithSameValues_ShouldBeEqual()
     {
         // Arrange
-        var options1 = new OcrOptions(WhiteListChar: "ABC", Lang: Language.French);
-        var options2 = new OcrOptions(WhiteListChar: "ABC", Lang: Language.French);
+        var options1 = new OcrOptions(whiteListChar: "ABC", lang: Language.French);
+        var options2 = new OcrOptions(whiteListChar: "ABC", lang: Language.French);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -555,8 +555,8 @@ public class OcrOptionsTests
     public void RecordEquality_WithDifferentValues_ShouldNotBeEqual()
     {
         // Arrange
-        var options1 = new OcrOptions(Lang: Language.English);
-        var options2 = new OcrOptions(Lang: Language.French);
+        var options1 = new OcrOptions(lang: Language.English);
+        var options2 = new OcrOptions(lang: Language.French);
 
         // Assert
         using (Assert.EnterMultipleScope())
