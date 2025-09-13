@@ -120,7 +120,10 @@ public class LocatorV : ILocatorV
 
         var taskFinished = await Task.WhenAny(tasks);
         cts.Cancel(); // Cancel all other tasks once one is finished
+        if (taskFinished.IsCanceled)
+            return (false, null);
         var result = await taskFinished;
+
         if (result.HasValue)
             return (true, result.Value);
         

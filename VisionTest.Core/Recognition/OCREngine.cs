@@ -62,8 +62,8 @@ public class OcrEngine : IRecognitionEngine<string>
                                 .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
         // 1. Init engine
-        using var engine = new TesseractEngine(@"./tessdata", "eng",
-                               LstmOnly ? EngineMode.LstmOnly : EngineMode.TesseractAndLstm);
+        using var engine = new TesseractEngine(datapath, language,
+                               LstmOnly ? EngineMode.LstmOnly : EngineMode.TesseractAndLstm); //FIXIT #6
 
         // 2. Optionally restrict charset
         var charWhiteList = AddCharacters(target);
