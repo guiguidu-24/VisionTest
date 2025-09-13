@@ -62,8 +62,8 @@ public class OcrEngine : IRecognitionEngine<string>
                                 .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
         // 1. Init engine
-        using var engine = new TesseractEngine(@"./tessdata", "eng",
-                               LstmOnly ? EngineMode.LstmOnly : EngineMode.TesseractAndLstm);
+        using var engine = new TesseractEngine(datapath, language,
+                               LstmOnly ? EngineMode.LstmOnly : EngineMode.TesseractAndLstm); //FIXIT #6
 
         // 2. Optionally restrict charset
         var charWhiteList = AddCharacters(target);
@@ -76,7 +76,7 @@ public class OcrEngine : IRecognitionEngine<string>
         string userWordsFileName = Guid.NewGuid() + "user-words.txt";
         string userWordsFile = Path.Combine(cfgDir, userWordsFileName);
         File.WriteAllLines(userWordsFile, WordWhiteList.Append(target));
-        engine.SetVariable("user_words_file", userWordsFileName.AsSpan().TrimEnd(".txt").ToString());
+        engine.SetVariable("user_words_file", Path.GetFileNameWithoutExtension(userWordsFileName));
 
         // Apply threshold filter if enabled
         using var processedImage = UseThresholdFilter ? ThresholdFilter(image) : image;
@@ -213,8 +213,10 @@ public class OcrEngine : IRecognitionEngine<string>
     /// <returns>A Rectangle in the original image’s pixel coordinates.</returns>
     private static Rectangle MapRectangleToOriginal(Rectangle rectInProcessed, Bitmap original, Bitmap processed)
     {
-        ArgumentNullException.ThrowIfNull(original);
-        ArgumentNullException.ThrowIfNull(processed);
+        if (original == null)
+            throw new ArgumentNullException(nameof(original));
+        if (original == null)
+            throw new ArgumentNullException(nameof(processed));
 
         // Compute the scale factors between the two images
         double scaleX = (double)original.Width / processed.Width;

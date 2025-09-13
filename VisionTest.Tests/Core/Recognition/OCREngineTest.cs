@@ -11,10 +11,7 @@ namespace VisionTest.Tests.Core.Recognition
         public void Setup()
         {
             // Initialiser OCREngine avec le chemin extrait
-            ocrEngine = new OcrEngine(new OcrOptions()
-            {
-                ImproveDPI = true,
-            });
+            ocrEngine = new OcrEngine(new OcrOptions(improveDPI:true));
         }
 
         [Test]

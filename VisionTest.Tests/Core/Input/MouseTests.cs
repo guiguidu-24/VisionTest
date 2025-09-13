@@ -1,6 +1,4 @@
-﻿using System.Windows.Forms;
-using System.Drawing;
-using VisionTest.Core.Input;
+﻿using VisionTest.Core.Input;
 
 namespace VisionTest.Tests.Core.Input
 {
@@ -44,8 +42,8 @@ namespace VisionTest.Tests.Core.Input
 
                     // Act - Use LocatorV to click at the specific point
                     var mouse = new Mouse();
-                    await mouse.MoveTo(clickPoint.X, clickPoint.Y);
-                    await mouse.LeftClick();
+                    mouse.MoveTo(clickPoint.X, clickPoint.Y);
+                    mouse.LeftClick();
                     await Task.Delay(100); // Allow time for the click to be processed
 
                     tcs.SetResult(buttonClicked);

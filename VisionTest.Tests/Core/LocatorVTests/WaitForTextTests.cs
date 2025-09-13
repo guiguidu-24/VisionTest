@@ -103,8 +103,8 @@ public class WaitForTextTests
                     var screenLocation = form.PointToScreen(targetLabel.Location);
                     var labelSize = targetLabel.PreferredSize;
                     var expectedCenter = new Point(
-                        (int)((screenLocation.X + labelSize.Width / 2) * new VisionTest.Core.Input.Screen().ScaleFactor),
-                        (int)((screenLocation.Y + labelSize.Height / 2) * new VisionTest.Core.Input.Screen().ScaleFactor)
+                        (int)((screenLocation.X + labelSize.Width / 2) * new VisionTest.Core.Input.WinScreen().ScaleFactor),
+                        (int)((screenLocation.Y + labelSize.Height / 2) * new VisionTest.Core.Input.WinScreen().ScaleFactor)
                     );
 
                     tcs.SetResult((actualPoint, expectedCenter, null));

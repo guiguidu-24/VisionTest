@@ -6,8 +6,6 @@ using VisionTest.Core.Models;
 using VisionTest.Core.Recognition;
 using VisionTest.Core.Utils;
 using VisionTest.Tests.Core.TestHarness;
-using WindowsInput;
-using WindowsInput.Events;
 
 namespace VisionTest.Tests.Core.LocatorVTests;
 
@@ -234,7 +232,7 @@ public class WaitForImageTest
     {
         // Arrange
         IScreen screen = new ScreenSimulator { NextCapture = bigImage };
-        var ocrOptions = new OcrOptions(LTSMOnly: false, Lang: Language.English);
+        var ocrOptions = new OcrOptions(lTSMOnly: false, lang: Language.English);
         var locator = new LocatorV("nonexistent_text", ocrOptions, screen: screen);
 
         // Act & Assert
@@ -260,7 +258,7 @@ public class WaitForImageTest
     {
         // Arrange
         IScreen screen = new ScreenSimulator { NextCapture = bigImage };
-        var ocrOptions = new OcrOptions(Lang: Language.French);
+        var ocrOptions = new OcrOptions(lang: Language.French);
         var region = new Rectangle(0, 0, 200, 200);
         var locator = new LocatorV("texte_inexistant", ocrOptions, region, screen);
 

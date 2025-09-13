@@ -13,7 +13,7 @@ public class ScreenTests
         int expectedHeight = int.Parse(TestResources.ScreenHeight ?? throw new FileFormatException("The value with the key ScreenHeight is empty in the file TestResources.resx"));
 
         // Act
-        var screenshot = new Screen().CaptureScreen();
+        var screenshot = new WinScreen().CaptureScreen();
 
         // Assert  
         Assert.That(screenshot, Is.Not.Null, "The screenshot should not be null.");
@@ -40,8 +40,8 @@ public class ScreenTests
         // Verify screen dimensions
         Assert.Multiple(() =>
         {
-            Assert.That(new Screen().ScreenSize.Width, Is.EqualTo(expectedWidth), "The screen width does not match the expected value.");
-            Assert.That(new Screen().ScreenSize.Height, Is.EqualTo(expectedHeight), "The screen height does not match the expected value.");
+            Assert.That(new WinScreen().ScreenSize.Width, Is.EqualTo(expectedWidth), "The WinScreen width does not match the expected value.");
+            Assert.That(new WinScreen().ScreenSize.Height, Is.EqualTo(expectedHeight), "The screen height does not match the expected value.");
         });
     }
 
@@ -54,7 +54,7 @@ public class ScreenTests
         var expectedScaleFactor = float.Parse(scaleFactorString.TrimEnd('%')) / 100;
 
         // Call the method and verify the value  
-        var actualScaleFactor = new Screen().ScaleFactor;
+        var actualScaleFactor = new WinScreen().ScaleFactor;
         Assert.That(actualScaleFactor, Is.EqualTo(expectedScaleFactor), "The returned scale factor does not match the expected value in resources.");
     }
 }

@@ -1,72 +1,115 @@
-﻿using WindowsInput.Events;
-using WindowsInput;
+﻿using SharpHook;
+using SharpHook.Data;
+using System.Runtime.InteropServices;
 
 namespace VisionTest.Core.Input;
 
 public class Mouse : IMouse
 {
-    private readonly IScreen _screen = new Screen();
+    private const int defaultDelayBetweenClicksMs = 20;
 
-    
-    public Task DoubleClick()
+    private readonly IScreen _screen = new WinScreen();
+    private readonly EventSimulator _simulator = new();
+
+    public void DoubleClick()
     {
-        return Simulate.Events().DoubleClick(ButtonCode.Left).Invoke();
+        LeftClick();
+        Thread.Sleep(defaultDelayBetweenClicksMs);
+        LeftClick();
     }
 
-    public Task LeftClick()
+    public void LeftClick()
     {
-        return Simulate.Events().Click(ButtonCode.Left).Invoke();
+        LeftDown();
+        Thread.Sleep(defaultDelayBetweenClicksMs);
+        LeftUp();
     }
 
-    public Task LeftDown()
+    public void LeftDown()
     {
-        return Simulate.Events().Hold(ButtonCode.Left).Invoke();
+        _simulator.SimulateMousePress(MouseButton.Button1);
     }
 
-    public Task LeftUp()
+    public void LeftUp()
     {
-        return Simulate.Events().Release(ButtonCode.Left).Invoke();
+        _simulator.SimulateMouseRelease(MouseButton.Button1);
     }
 
-    public Task MoveBy(int deltaX, int deltaY)
+    public void MoveBy(int deltaX, int deltaY)
     {
-        return Simulate.Events().MoveBy(CoordinateCorrection(deltaX), CoordinateCorrection(deltaY)).Invoke();
+        _simulator.SimulateMouseMovementRelative(CoordinateCorrection(deltaX), CoordinateCorrection(deltaY));
     }
 
-    public Task MoveTo(int x, int y)
+    public void MoveTo(int x, int y)
     {
-        return Simulate.Events().MoveTo(CoordinateCorrection(x), CoordinateCorrection(y)).Invoke();
+        _simulator.SimulateMouseMovement(CoordinateCorrection(x), CoordinateCorrection(y));
     }
 
-    public Task RightClick()
+    public void RightClick()
     {
-        return Simulate.Events().Click(ButtonCode.Right).Invoke();
+        RightDown();
+        Thread.Sleep(defaultDelayBetweenClicksMs);
+        RightUp();
     }
 
-    public Task RightDown()
+    public void RightDown()
     {
-        return Simulate.Events().Hold(ButtonCode.Right).Invoke();
+        _simulator.SimulateMousePress(MouseButton.Button2);
     }
 
-    public Task RightUp()
+    public void RightUp()
     {
-        return Simulate.Events().Release(ButtonCode.Right).Invoke();
+        _simulator.SimulateMouseRelease(MouseButton.Button2);
     }
 
-    [Obsolete("⚠️ Not tested — use with caution.", false)]
-    public Task ScrollHorizontal(int delta) //TODO Test scrolling
+    public void ScrollHorizontal(int delta) //TODO Test scrolling
     {
-        return Simulate.Events().Scroll(ButtonCode.None, ButtonScrollDirection.Right, delta).Invoke();
+        int rotation;
+        var type = MouseWheelScrollType.UnitScroll;
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            rotation = 120 * delta;                     // Windows “step”
+                                                        // type ignored on Windows
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            rotation = delta;                           // small values on macOS
+            type = MouseWheelScrollType.BlockScroll;    // better for line scrolling
+        }
+        else
+        {
+            rotation = 100 * delta;                     // guideline for X11
+                                                        // type ignored on Linux
+        }
+
+        _simulator.SimulateMouseWheel((short)rotation, MouseWheelScrollDirection.Horizontal, type);
     }
 
-    [Obsolete("⚠️ Not tested — use with caution.", false)]
-    public Task ScrollVertical(int delta)
+    public void ScrollVertical(int lines)
     {
-        return Simulate.Events().Scroll( ButtonCode.None, ButtonScrollDirection.Up, delta).Invoke();
+        int rotation;
+        var type = MouseWheelScrollType.UnitScroll;
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            rotation = 120 * lines;                     // Windows “step”
+                                                        // type ignored on Windows
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            rotation = lines;                           // small values on macOS
+            type = MouseWheelScrollType.BlockScroll;    // better for line scrolling
+        }
+        else
+        {
+            rotation = 100 * lines;                     // guideline for X11
+                                                        // type ignored on Linux
+        }
+
+        _simulator.SimulateMouseWheel((short)rotation, MouseWheelScrollDirection.Vertical, type);
     }
 
-    private int CoordinateCorrection(int coordinate)
+    private short CoordinateCorrection(int coordinate)
     {
-        return (int)(coordinate / _screen.ScaleFactor);
+        return (short)(coordinate / _screen.ScaleFactor);
     }
 }

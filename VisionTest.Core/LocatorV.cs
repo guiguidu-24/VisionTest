@@ -16,7 +16,8 @@ public class LocatorV : ILocatorV
 
     public LocatorV(SimpleLocatorV[] simpleLocators, IScreen? screen = null)
     {
-        ArgumentNullException.ThrowIfNull(simpleLocators, nameof(simpleLocators));
+        if (simpleLocators == null)
+            throw new ArgumentNullException(nameof(simpleLocators));
         if (simpleLocators.Length == 0)
             throw new ArgumentException("At least one SimpleLocatorV must be provided.", nameof(simpleLocators));
 
@@ -25,7 +26,7 @@ public class LocatorV : ILocatorV
         if (screen is not null)
             _screen = screen;
         else
-            _screen = new Input.Screen();
+            _screen = new Input.WinScreen();
     }
 
     public LocatorV(SimpleLocatorV simpleLocator, IScreen? screen = null) : this([simpleLocator], screen) { }
@@ -37,55 +38,55 @@ public class LocatorV : ILocatorV
     public async Task RightClickAsync()
     {
         var area = await WaitForAsync();
-        await _mouse.MoveTo(area.Center().X, area.Center().Y);
-        await _mouse.RightClick();
+        _mouse.MoveTo(area.Center().X, area.Center().Y);
+        _mouse.RightClick();
     }
 
     public async Task RightClickAsync(TimeSpan timeout)
     {
         var area = await WaitForAsync(timeout);
-        await _mouse.MoveTo(area.Center().X, area.Center().Y);
-        await _mouse.RightClick();
+        _mouse.MoveTo(area.Center().X, area.Center().Y);
+        _mouse.RightClick();
     }
 
     public async Task DoubleClickAsync()
     {
         var area = await WaitForAsync();
-        await _mouse.MoveTo(area.Center().X, area.Center().Y);
-        await _mouse.DoubleClick();
+        _mouse.MoveTo(area.Center().X, area.Center().Y);
+        _mouse.DoubleClick();
     }
 
     public async Task DoubleClickAsync(TimeSpan timeout)
     {
         var area = await WaitForAsync(timeout);
-        await _mouse.MoveTo(area.Center().X, area.Center().Y);
-        await _mouse.DoubleClick();
+        _mouse.MoveTo(area.Center().X, area.Center().Y);
+        _mouse.DoubleClick();
     }
 
     public async Task HoverAsync()
     {
         var area = await WaitForAsync();
-        await _mouse.MoveTo(area.Center().X, area.Center().Y);
+        _mouse.MoveTo(area.Center().X, area.Center().Y);
     }
 
     public async Task HoverAsync(TimeSpan timeout)
     {
         var area = await WaitForAsync(timeout);
-        await _mouse.MoveTo(area.Center().X, area.Center().Y);
+        _mouse.MoveTo(area.Center().X, area.Center().Y);
     }
 
     public async Task ClickAsync()
     {
         var area = await WaitForAsync();
-        await _mouse.MoveTo(area.Center().X, area.Center().Y);
-        await _mouse.LeftClick();
+        _mouse.MoveTo(area.Center().X, area.Center().Y);
+        _mouse.LeftClick();
     }
 
     public async Task ClickAsync(TimeSpan timeout)
     {
         var area = await WaitForAsync(timeout);
-        await _mouse.MoveTo(area.Center().X, area.Center().Y);
-        await _mouse.LeftClick();
+        _mouse.MoveTo(area.Center().X, area.Center().Y);
+        _mouse.LeftClick();
     }
 
     public Task<(bool success, Rectangle? area)> TryWaitForAsync()
@@ -119,7 +120,10 @@ public class LocatorV : ILocatorV
 
         var taskFinished = await Task.WhenAny(tasks);
         cts.Cancel(); // Cancel all other tasks once one is finished
+        if (taskFinished.IsCanceled)
+            return (false, null);
         var result = await taskFinished;
+
         if (result.HasValue)
             return (true, result.Value);
         
@@ -145,9 +149,10 @@ public class LocatorV : ILocatorV
 
     private async Task<Rectangle?> WaitForAsync<TTarget>(IRecognitionEngine<TTarget> engine, TTarget target, Rectangle? box, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(engine, nameof(engine));
-        ArgumentNullException.ThrowIfNull(target, nameof(target));
-
+        if (engine == null)
+            throw new ArgumentNullException(nameof(engine));
+        if (target == null)
+            throw new ArgumentNullException(nameof(target));
 
         const int interval = 100; // Check every 100 milliseconds
 
