@@ -2,20 +2,27 @@
 
 namespace VisionTest.Core.Input;
 
-public class Screen : IScreen       
+public class WinScreen : IScreen       
 {
     public Size ScreenSize => new Size(width, height);
 
-    public float ScaleFactor => GetScaleFactor();
+    private int width = (int)(GetPrimaryScreenWidth() * GetScaleFactor());
+    private int height = (int)(GetPrimaryScreenHeight() * GetScaleFactor());
 
-    private int width = (int)((System.Windows.Forms.Screen.PrimaryScreen?.Bounds.Width ?? 0) * GetScaleFactor());
-    private int height = (int)((System.Windows.Forms.Screen.PrimaryScreen?.Bounds.Height ?? 0) * GetScaleFactor());
+    [DllImport("User32.dll")]
+    private static extern int GetSystemMetrics(SystemMetric smIndex);
 
     [DllImport("Shcore.dll")]
     private static extern int GetScaleFactorForMonitor(IntPtr hMonitor, out DEVICE_SCALE_FACTOR scale);
 
     [DllImport("User32.dll")]
     private static extern IntPtr MonitorFromPoint(POINT pt, MONITOR_DEFAULTTO dwFlags);
+
+    private enum SystemMetric : int
+    {
+        SM_CXSCREEN = 0,  // Width of the screen of the primary display monitor, in pixels
+        SM_CYSCREEN = 1,  // Height of the screen of the primary display monitor, in pixels
+    }
 
     private enum MONITOR_DEFAULTTO : uint
     {
@@ -41,6 +48,18 @@ public class Screen : IScreen
         public int Y;
     }
 
+    private static int GetPrimaryScreenWidth()
+    {
+        return GetSystemMetrics(SystemMetric.SM_CXSCREEN);
+    }
+
+    private static int GetPrimaryScreenHeight()
+    {
+        return GetSystemMetrics(SystemMetric.SM_CYSCREEN);
+    }
+
+    public float ScaleFactor => GetScaleFactor();
+
     private static float GetScaleFactor()
     {
         POINT pt = new POINT { X = 1, Y = 1 }; // coin haut gauche
@@ -56,11 +75,6 @@ public class Screen : IScreen
 
     public Bitmap CaptureScreen()
     {
-        if (System.Windows.Forms.Screen.PrimaryScreen == null)
-        {
-            throw new InvalidOperationException("Primary screen is not available.");
-        }
-
         Rectangle bounds = new Rectangle(
             0,
             0,
@@ -68,11 +82,9 @@ public class Screen : IScreen
             height
         );
 
-
         Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height);
         using Graphics g = Graphics.FromImage(bitmap);
         g.CopyFromScreen(Point.Empty, Point.Empty, bounds.Size);
-
 
         return bitmap;
     }
