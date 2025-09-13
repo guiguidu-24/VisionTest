@@ -8,7 +8,7 @@ public class Mouse : IMouse
 {
     private const int defaultDelayBetweenClicksMs = 20;
 
-    private readonly IScreen _screen = new Screen();
+    private readonly IScreen _screen = new WinScreen();
     private readonly EventSimulator _simulator = new();
 
     public void DoubleClick()
@@ -42,7 +42,7 @@ public class Mouse : IMouse
 
     public void MoveTo(int x, int y)
     {
-        _simulator.SimulateMouseMovementRelative(CoordinateCorrection(x), CoordinateCorrection(y));
+        _simulator.SimulateMouseMovement(CoordinateCorrection(x), CoordinateCorrection(y));
     }
 
     public void RightClick()

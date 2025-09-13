@@ -26,7 +26,7 @@ public class LocatorV : ILocatorV
         if (screen is not null)
             _screen = screen;
         else
-            _screen = new Input.Screen();
+            _screen = new Input.WinScreen();
     }
 
     public LocatorV(SimpleLocatorV simpleLocator, IScreen? screen = null) : this([simpleLocator], screen) { }
