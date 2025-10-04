@@ -12,6 +12,7 @@ on:
 jobs:
   test:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         dotnet: ['9.0.x', '8.0.x']
@@ -23,8 +24,6 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
           dotnet-version: ${{ matrix.dotnet }}
-    - name: show dir
-      run: ls
     - name: Restore dependencies Core
       run: dotnet restore ./VisionTest.Core/VisionTest.Core.csproj
     - name: Restore dependencies Tests
