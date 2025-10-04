@@ -23,8 +23,10 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
           dotnet-version: ${{ matrix.dotnet }}
-    - name: Restore dependencies
-      run: dotnet restore
+    - name: Restore dependencies Core
+      run: dotnet restore .\VisionTest.Core\VisionTest.Core.csproj
+    - name: Restore dependencies Tests
+      run: dotnet restore .\VisionTest.Tests\VisionTest.Tests.csproj
     - name: Build
       run: dotnet build .\VisionTest.Tests\VisionTest.Tests.csproj --no-restore
     - name: Test without Screen tests
