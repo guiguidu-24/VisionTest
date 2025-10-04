@@ -10,6 +10,7 @@ namespace VisionTest.Tests.Core.LocatorVTests;
 public class WaitForTextTests
 {
     [Test]
+    [Category(TestCategory.Screen)]
     public async Task Write_ShouldTypeCorrectCharacters() //FIXME: This test sometimes fails because the window doesn't have focus
     {
         var expectedText = "HelloWorld";
@@ -47,6 +48,7 @@ public class WaitForTextTests
     }
 
     [Test]
+    [Category(TestCategory.Screen)]
     public async Task Waitfor_ShouldReturnCenterOfTextOnScreen() //FIXME: This test sometimes fails because the window doesn't have focus
     {
         var targetText = "TargetLabelText";
@@ -142,6 +144,7 @@ public class WaitForTextTests
     }
 
     [Test]
+    [Category(TestCategory.Screen)]
     public async Task WaitforElement_ShouldReturnCenterOfTextOnScreen()
     {
         var targetText = "TargetLabelText";
@@ -236,6 +239,7 @@ public class WaitForTextTests
     }
 
     [Test]
+    [Category(TestCategory.Screen)]
     public async Task Waitfor_Text_or_imagePath_ShouldReturnCenterOfTextOnScreen()
     {
         // This test now uses LocatorV with multiple SimpleLocatorV objects to simulate text OR image search

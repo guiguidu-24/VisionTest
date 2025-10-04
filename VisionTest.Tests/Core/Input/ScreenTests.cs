@@ -4,6 +4,7 @@ using VisionTest.Core.Input;
 namespace VisionTest.Tests.Core.Input;
 
 [TestFixture]
+[Category(TestCategory.Screen)]
 public class ScreenTests
 {
     [Test]

@@ -2,6 +2,8 @@
 
 namespace VisionTest.Tests.Core.Input
 {
+    [TestFixture]
+    [Category(TestCategory.Screen)]
     public class MouseTests
     {
         [Test]
@@ -38,7 +40,7 @@ namespace VisionTest.Tests.Core.Input
 
                     // Calculate the button's screen coordinates
                     var buttonScreenLocation = form.PointToScreen(button.Location);
-                    var clickPoint = new Point((int) ((buttonScreenLocation.X + button.Width / 2) * int.Parse(TestResources.ScreenScale.TrimEnd('%'))/100f), (int)((buttonScreenLocation.Y + button.Height / 2) * int.Parse(TestResources.ScreenScale.TrimEnd('%')) / 100f));
+                    var clickPoint = new Point((int)((buttonScreenLocation.X + button.Width / 2) * int.Parse(TestResources.ScreenScale.TrimEnd('%')) / 100f), (int)((buttonScreenLocation.Y + button.Height / 2) * int.Parse(TestResources.ScreenScale.TrimEnd('%')) / 100f));
 
                     // Act - Use LocatorV to click at the specific point
                     var mouse = new Mouse();
