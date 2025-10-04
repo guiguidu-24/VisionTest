@@ -1,11 +1,11 @@
 # This workflow will build a .NET project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
 
-name: .NET unit tests
+name: VisionTest.Core unit tests
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master" , "GhActions"]
   pull_request:
     branches: [ "master" ]
 
@@ -26,6 +26,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet build .\VisionTest.Tests\VisionTest.Tests.csproj --no-restore
+    - name: Test without Screen tests
+      run: dotnet test .\VisionTest.Tests\VisionTest.Tests.csproj --filter "FullyQualifiedName~VisionTest.Tests.Core&TestCategory!=Screen" --no-build --verbosity normal
