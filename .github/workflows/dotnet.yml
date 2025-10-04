@@ -26,10 +26,10 @@ jobs:
     - name: show dir
       run: ls
     - name: Restore dependencies Core
-      run: dotnet restore .\VisionTest.Core\VisionTest.Core.csproj
+      run: dotnet restore ./VisionTest.Core/VisionTest.Core.csproj
     - name: Restore dependencies Tests
-      run: dotnet restore .\VisionTest.Tests\VisionTest.Tests.csproj
+      run: dotnet restore ./VisionTest.Tests/VisionTest.Tests.csproj
     - name: Build
-      run: dotnet build .\VisionTest.Tests\VisionTest.Tests.csproj --no-restore
+      run: dotnet build ./VisionTest.Tests/VisionTest.Tests.csproj --no-restore
     - name: Test without Screen tests
-      run: dotnet test .\VisionTest.Tests\VisionTest.Tests.csproj --filter "FullyQualifiedName~VisionTest.Tests.Core&TestCategory!=Screen" --no-build --verbosity normal
+      run: dotnet test ./VisionTest.Tests/VisionTest.Tests.csproj --filter "FullyQualifiedName~VisionTest.Tests.Core&TestCategory!=Screen" --no-build --verbosity normal
