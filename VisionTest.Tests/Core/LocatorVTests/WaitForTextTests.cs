@@ -261,7 +261,7 @@ public class WaitForTextTests
         // Test LocatorV with multiple text options - should find "File"
         var textLocator1 = new SimpleLocatorV(text: "File");
         var textLocator2 = new SimpleLocatorV(text: Guid.NewGuid().ToString());
-        var imagePath = "C:\\Users\\guill\\Programmation\\dotNET_doc\\VisionTest\\VisionTest.Tests\\images\\cottonLike2.png";
+        var imagePath = ".\\images\\cottonLike2.png";
         var imageLocator = new SimpleLocatorV(image: new Bitmap(imagePath));
         var locator = new LocatorV(new[] { textLocator1, textLocator2, imageLocator });
 
