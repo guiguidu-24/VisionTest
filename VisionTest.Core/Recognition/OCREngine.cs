@@ -11,32 +11,36 @@ public class OcrEngine : IRecognitionEngine<string>
     private string language;
     private string datapath; // vaut ./tessdata
     private int fuzzyTolerance = 1;
+    OcrOptions ocrOptions;
 
     public OcrEngine(string language)
     {
         this.language = language;
         string assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new NullReferenceException("The assembly path is null");
         datapath = Path.Combine(assemblyDir, "tessdata");
+
+        ocrOptions = new OcrOptions();
     }
 
     public OcrEngine(string language, string datapath)
     {
         this.language = language;
         this.datapath = datapath;
+
+        ocrOptions = new OcrOptions();
     }
 
     public OcrEngine(OcrOptions options)
     {
+        ocrOptions = options;
         language = options.Lang.ToCode();
         datapath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata");
         CharWhiteList = options.WhiteListChar;
         WordWhiteList = options.WordWhiteList ?? [];
-        LstmOnly = options.LTSMOnly;
         UseThresholdFilter = options.UseThresholdFilter;
         ImproveDpi = options.ImproveDPI;
     }
 
-    public bool LstmOnly {private get; set; } = true; // true for best accuracy on trained models, false for legacy Tesseract mode
     public string CharWhiteList { private get; set; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz "; 
     public IEnumerable<string> WordWhiteList {get; set; } = []; // e.g. ["MYTARGETWORD", "ANOTHERWORD"]
     public bool UseThresholdFilter { private get; set; } = false; // false by default to maintain existing behavior
@@ -62,8 +66,7 @@ public class OcrEngine : IRecognitionEngine<string>
                                 .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
         // 1. Init engine
-        using var engine = new TesseractEngine(datapath, language,
-                               LstmOnly ? EngineMode.LstmOnly : EngineMode.TesseractAndLstm); //FIXIT #6
+        using var engine = new TesseractEngine(datapath, ocrOptions.Lang.ToCode(), (EngineMode)ocrOptions.OEM ); //FIXIT #6
 
         // 2. Optionally restrict charset
         var charWhiteList = AddCharacters(target);

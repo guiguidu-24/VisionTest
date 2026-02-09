@@ -8,6 +8,8 @@ public record class OcrOptions //TODO: Check if record class default parameters 
     public Language Lang { get; }
     public bool UseThresholdFilter { get; }
     public bool ImproveDPI { get; }
+    public PageSegmentationMode PSM { get; set; }
+    public OcrEngineMode OEM { get; set; }
 
 
     public OcrOptions(
@@ -16,7 +18,10 @@ public record class OcrOptions //TODO: Check if record class default parameters 
         bool lTSMOnly = true,
         Language lang = Language.English,
         bool useThresholdFilter = false,
-        bool improveDPI = false)
+        bool improveDPI = false,
+        PageSegmentationMode psm = PageSegmentationMode.Auto,
+        OcrEngineMode oem = OcrEngineMode.Auto
+        )
     {
         WhiteListChar = whiteListChar;
         WordWhiteList = wordWhiteList ?? [];
@@ -24,5 +29,7 @@ public record class OcrOptions //TODO: Check if record class default parameters 
         Lang = lang;
         UseThresholdFilter = useThresholdFilter;
         ImproveDPI = improveDPI;
+        PSM = psm;
+        OEM = oem;
     }
 }
