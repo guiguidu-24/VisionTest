@@ -1,8 +1,4 @@
 ﻿using Tesseract;
-using System.Reflection;
-using OpenCvSharp;
-using OpenCvSharp.Extensions;
-using VisionTest.Core.Utils;
 
 namespace VisionTest.Core.Recognition;
 
@@ -11,11 +7,7 @@ public class OcrEngine : IRecognitionEngine<string>
     private string datapath; // vaut ./tessdata
     OcrOptions ocrOptions;
 
-    public OcrEngine()
-    {
-        datapath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata");
-        ocrOptions = new OcrOptions();
-    }
+    public OcrEngine() : this(new OcrOptions()) { }
 
     public OcrEngine(OcrOptions options, string datapath)
     {
