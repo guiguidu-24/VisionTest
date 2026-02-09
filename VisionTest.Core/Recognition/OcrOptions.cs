@@ -4,33 +4,29 @@ public record class OcrOptions //TODO: Check if record class default parameters 
 {
     public string WhiteListChar { get; private set; }
     public IEnumerable<string> WordWhiteList { get; }
-    public bool LTSMOnly { get; }
     public Language Lang { get; }
-    public bool UseThresholdFilter { get; }
-    public bool ImproveDPI { get; }
     public PageSegmentationMode PSM { get; set; }
     public OcrEngineMode OEM { get; set; }
     public string BlackListChar { get; set; }
 
 
     public OcrOptions(
-        string whiteListChar = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ",
+        string whiteListChar = "",
         string blackListChar = "",
         IEnumerable<string>? wordWhiteList = null,
-        bool lTSMOnly = true,
         Language lang = Language.English,
-        bool useThresholdFilter = false,
-        bool improveDPI = false,
         PageSegmentationMode psm = PageSegmentationMode.Auto,
         OcrEngineMode oem = OcrEngineMode.Auto
         )
     {
+        if (!string.IsNullOrEmpty(whiteListChar) && !string.IsNullOrEmpty(blackListChar))
+        {
+            throw new ArgumentException("Cannot specify both a whitelist and a blacklist simultaneously.");
+        }
+
         WhiteListChar = whiteListChar;
         WordWhiteList = wordWhiteList ?? [];
-        LTSMOnly = lTSMOnly;
         Lang = lang;
-        UseThresholdFilter = useThresholdFilter;
-        ImproveDPI = improveDPI;
         PSM = psm;
         OEM = oem;
         BlackListChar = blackListChar;

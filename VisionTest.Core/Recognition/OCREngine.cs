@@ -9,7 +9,6 @@ namespace VisionTest.Core.Recognition;
 public class OcrEngine : IRecognitionEngine<string>
 {
     private string datapath; // vaut ./tessdata
-    private int fuzzyTolerance = 1;
     OcrOptions ocrOptions;
 
     public OcrEngine()
@@ -28,16 +27,7 @@ public class OcrEngine : IRecognitionEngine<string>
     {
         ocrOptions = options;
         datapath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata");
-        WordWhiteList = options.WordWhiteList ?? [];
-        UseThresholdFilter = options.UseThresholdFilter;
-        ImproveDpi = options.ImproveDPI;
     }
-
-    public string CharWhiteList { private get; set; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz "; 
-    public IEnumerable<string> WordWhiteList {get; set; } = []; // e.g. ["MYTARGETWORD", "ANOTHERWORD"]
-    public bool UseThresholdFilter { private get; set; } = false; // false by default to maintain existing behavior
-    public bool ImproveDpi { private get; set; } = false; // false by default, set to true to improve DPI of input images //TODO DPI Value instead of boolean
-
 
 
     /// <summary>
@@ -74,16 +64,12 @@ public class OcrEngine : IRecognitionEngine<string>
         Directory.CreateDirectory(cfgDir);
         string userWordsFileName = Guid.NewGuid() + "user-words.txt";
         string userWordsFile = Path.Combine(cfgDir, userWordsFileName);
-        File.WriteAllLines(userWordsFile, WordWhiteList.Append(target));
+        File.WriteAllLines(userWordsFile, ocrOptions.WordWhiteList.Append(target));
         engine.SetVariable("user_words_file", Path.GetFileNameWithoutExtension(userWordsFileName));
 
-        // Apply threshold filter if enabled
-        using var processedImage = UseThresholdFilter ? ThresholdFilter(image) : image;
-
-        using var processedImageDpi = ImproveDpi ? processedImage.ImproveDpi(600f) : processedImage;
 
         // 4. Always use SparseText for precise word boxes
-        using var page = engine.Process(processedImageDpi, (PageSegMode) ocrOptions.PSM);
+        using var page = engine.Process(image, (PageSegMode) ocrOptions.PSM);
 
         // 5. Pull out every single word + its box
         var words = new List<(string Text, Tesseract.Rect Box)>();
@@ -133,7 +119,7 @@ public class OcrEngine : IRecognitionEngine<string>
                 y2 = Math.Max(y2, b.Y1 + b.Height);
             }
 
-            result.Add(MapRectangleToOriginal(new Rectangle(x1, y1, x2 - x1, y2 - y1), image, processedImageDpi));
+            result.Add(MapRectangleToOriginal(new Rectangle(x1, y1, x2 - x1, y2 - y1), image, image));
         }
 
         File.Delete(userWordsFile);
@@ -141,47 +127,6 @@ public class OcrEngine : IRecognitionEngine<string>
     }
 
 
-    // FuzzyMatch et Levenshtein comme précédemment :
-    private bool IsFuzzyMatch(string word1, string word2, int tolerance) //TODO do it with a string comparer
-    {
-        if (string.IsNullOrEmpty(word1) || string.IsNullOrEmpty(word2)) return false;
-        if (word1.Equals(word2, StringComparison.OrdinalIgnoreCase)) return true;
-        return LevenshteinDistance(word1, word2) <= tolerance;
-    }
-
-    private int LevenshteinDistance(string s, string t)
-    {
-        if (string.IsNullOrEmpty(s)) return t?.Length ?? 0;
-        if (string.IsNullOrEmpty(t)) return s.Length;
-
-        var d = new int[s.Length + 1, t.Length + 1];
-        for (int i = 0; i <= s.Length; i++) d[i, 0] = i;
-        for (int j = 0; j <= t.Length; j++) d[0, j] = j;
-
-        for (int i = 1; i <= s.Length; i++)
-        {
-            for (int j = 1; j <= t.Length; j++)
-            {
-                int cost = (s[i - 1] == t[j - 1]) ? 0 : 1;
-                d[i, j] = Math.Min(
-                    Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1),
-                    d[i - 1, j - 1] + cost);
-            }
-        }
-        return d[s.Length, t.Length];
-    }
-
-    private Bitmap ThresholdFilter(Bitmap src)
-    {
-        Mat gray = src.ToMat().ConvertToGray();
-        // Convert to grayscale 
-        Mat bw = new Mat();
-        Cv2.AdaptiveThreshold(gray, bw, 255,
-            AdaptiveThresholdTypes.GaussianC,
-            ThresholdTypes.BinaryInv, 11, 2);
-
-        return bw.ToBitmap();
-    }
 
     /// <summary>
     /// Maps a rectangle from the processed (e.g. upscaled) image back to the coordinate space of the original image.
