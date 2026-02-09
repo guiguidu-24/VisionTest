@@ -37,4 +37,10 @@ public static class RectangleExtensions
         _mouse.LeftClick();
         return area;
     }
+
+    public static Point UpperLeft(this Rectangle rect) => new Point(rect.X, rect.Y);
+    public static Point LowerRight(this Rectangle rect) => new Point(rect.X + rect.Width, rect.Y + rect.Height);
+    public static Point UpperRight(this Rectangle rect) => new Point(rect.X + rect.Width, rect.Y);
+    public static Point LowerLeft(this Rectangle rect) => new Point(rect.X, rect.Y + rect.Height);
+
 }
