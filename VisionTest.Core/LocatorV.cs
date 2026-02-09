@@ -178,6 +178,11 @@ public class LocatorV : ILocatorV
 
 
         // TODO: Warning if more than one result is found
+        if (box.HasValue)
+        {
+            // Adjust the coordinates to be relative to the entire screen
+            recognitionResult = recognitionResult.Select(r => new Rectangle(r.X + box.Value.X, r.Y + box.Value.Y, r.Width, r.Height));
+        }
         return recognitionResult.First();
     }
 }
