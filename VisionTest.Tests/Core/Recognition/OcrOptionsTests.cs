@@ -15,8 +15,8 @@ public class OcrOptionsTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(options.WhiteListChar, Is.EqualTo("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz "));
-            Assert.That(options.WordWhiteList, Is.Not.Null);
-            Assert.That(options.WordWhiteList, Is.Empty);
+            Assert.That(options.WordList, Is.Not.Null);
+            Assert.That(options.WordList, Is.Empty);
             Assert.That(options.LTSMOnly, Is.True);
             Assert.That(options.Lang, Is.EqualTo(Language.English));
             Assert.That(options.UseThresholdFilter, Is.False);
@@ -33,9 +33,9 @@ public class OcrOptionsTests
         // Assert
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(options.WordWhiteList, Is.Not.Null);
-            Assert.That(options.WordWhiteList, Is.Empty);
-            Assert.That(options.WordWhiteList.Count(), Is.EqualTo(0));
+            Assert.That(options.WordList, Is.Not.Null);
+            Assert.That(options.WordList, Is.Empty);
+            Assert.That(options.WordList.Count(), Is.EqualTo(0));
         }
     }
 
@@ -132,7 +132,7 @@ public class OcrOptionsTests
         // Assert
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(options.WordWhiteList, Is.Empty);
+            Assert.That(options.WordList, Is.Empty);
             Assert.That(options.LTSMOnly, Is.True);
             Assert.That(options.Lang, Is.EqualTo(Language.English));
             Assert.That(options.UseThresholdFilter, Is.False);
@@ -147,17 +147,17 @@ public class OcrOptionsTests
         var words = new List<string> { "HELLO", "WORLD", "TEST" };
 
         // Act
-        var options = new OcrOptions(wordWhiteList: words);
+        var options = new OcrOptions(wordList: words);
 
         // Assert
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(options.WordWhiteList, Is.Not.Null);
-            Assert.That(options.WordWhiteList, Is.EqualTo(words));
-            Assert.That(options.WordWhiteList.Count(), Is.EqualTo(3));
-            Assert.That(options.WordWhiteList, Contains.Item("HELLO"));
-            Assert.That(options.WordWhiteList, Contains.Item("WORLD"));
-            Assert.That(options.WordWhiteList, Contains.Item("TEST"));
+            Assert.That(options.WordList, Is.Not.Null);
+            Assert.That(options.WordList, Is.EqualTo(words));
+            Assert.That(options.WordList.Count(), Is.EqualTo(3));
+            Assert.That(options.WordList, Contains.Item("HELLO"));
+            Assert.That(options.WordList, Contains.Item("WORLD"));
+            Assert.That(options.WordList, Contains.Item("TEST"));
         }
     }
 
@@ -168,14 +168,14 @@ public class OcrOptionsTests
         var emptyWords = new List<string>();
 
         // Act
-        var options = new OcrOptions(wordWhiteList: emptyWords);
+        var options = new OcrOptions(wordList: emptyWords);
 
         // Assert
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(options.WordWhiteList, Is.Not.Null);
-            Assert.That(options.WordWhiteList, Is.Empty);
-            Assert.That(options.WordWhiteList.Count(), Is.EqualTo(0));
+            Assert.That(options.WordList, Is.Not.Null);
+            Assert.That(options.WordList, Is.Empty);
+            Assert.That(options.WordList.Count(), Is.EqualTo(0));
         }
     }
 
@@ -183,14 +183,14 @@ public class OcrOptionsTests
     public void Constructor_WithNullWordWhiteList_ShouldInitializeAsEmpty()
     {
         // Act
-        var options = new OcrOptions(wordWhiteList: null);
+        var options = new OcrOptions(wordList: null);
 
         // Assert
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(options.WordWhiteList, Is.Not.Null);
-            Assert.That(options.WordWhiteList, Is.Empty);
-            Assert.That(options.WordWhiteList.Count(), Is.EqualTo(0));
+            Assert.That(options.WordList, Is.Not.Null);
+            Assert.That(options.WordList, Is.Empty);
+            Assert.That(options.WordList.Count(), Is.EqualTo(0));
         }
     }
 
@@ -201,7 +201,7 @@ public class OcrOptionsTests
         var words = new[] { "TARGET" };
 
         // Act
-        var options = new OcrOptions(wordWhiteList: words);
+        var options = new OcrOptions(wordList: words);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -256,7 +256,7 @@ public class OcrOptionsTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(options.WhiteListChar, Is.EqualTo("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz "));
-            Assert.That(options.WordWhiteList, Is.Empty);
+            Assert.That(options.WordList, Is.Empty);
             Assert.That(options.Lang, Is.EqualTo(Language.English));
             Assert.That(options.UseThresholdFilter, Is.False);
             Assert.That(options.ImproveDPI, Is.False);
@@ -322,7 +322,7 @@ public class OcrOptionsTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(options.WhiteListChar, Is.EqualTo("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz "));
-            Assert.That(options.WordWhiteList, Is.Empty);
+            Assert.That(options.WordList, Is.Empty);
             Assert.That(options.LTSMOnly, Is.True);
             Assert.That(options.UseThresholdFilter, Is.False);
             Assert.That(options.ImproveDPI, Is.False);
@@ -388,7 +388,7 @@ public class OcrOptionsTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(options.WhiteListChar, Is.EqualTo("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz "));
-            Assert.That(options.WordWhiteList, Is.Empty);
+            Assert.That(options.WordList, Is.Empty);
             Assert.That(options.LTSMOnly, Is.True);
             Assert.That(options.Lang, Is.EqualTo(Language.English));
             Assert.That(options.ImproveDPI, Is.False);
@@ -454,7 +454,7 @@ public class OcrOptionsTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(options.WhiteListChar, Is.EqualTo("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz "));
-            Assert.That(options.WordWhiteList, Is.Empty);
+            Assert.That(options.WordList, Is.Empty);
             Assert.That(options.LTSMOnly, Is.True);
             Assert.That(options.Lang, Is.EqualTo(Language.English));
             Assert.That(options.UseThresholdFilter, Is.False);
@@ -503,7 +503,7 @@ public class OcrOptionsTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(options.WhiteListChar, Is.EqualTo(customWhiteList));
-            Assert.That(options.WordWhiteList, Is.EqualTo(customWordList));
+            Assert.That(options.WordList, Is.EqualTo(customWordList));
             Assert.That(options.LTSMOnly, Is.EqualTo(customLTSMOnly));
             Assert.That(options.Lang, Is.EqualTo(customLang));
             Assert.That(options.UseThresholdFilter, Is.EqualTo(customUseThresholdFilter));
@@ -528,7 +528,7 @@ public class OcrOptionsTests
             Assert.That(options.Lang, Is.EqualTo(Language.French));
             Assert.That(options.ImproveDPI, Is.True);
             // Defaults preserved
-            Assert.That(options.WordWhiteList, Is.Empty);
+            Assert.That(options.WordList, Is.Empty);
             Assert.That(options.LTSMOnly, Is.True);
             Assert.That(options.UseThresholdFilter, Is.False);
         }
