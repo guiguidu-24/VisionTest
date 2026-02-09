@@ -1,30 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing;
+using VisionTest.Core;
 using VisionTest.Core.Input;
-using VisionTest.Core.Services;
+using VisionTest.Core.Recognition;
 
 namespace VisionTest.TestsImplementation.TestScripts
 {
     [TestFixture]
     internal class Youtube
     {
-        private readonly TestExecutor testExecutor = new TestExecutor();
-        private readonly IKeyboard keyboard = new Keyboard();
-
         [Test]
-        public void Run()
+        public async Task Run()
         {
-            testExecutor.Click(new Bitmap("C:\\Users\\guill\\Programmation\\dotNET_doc\\VisionTest\\VisionTest.TestsImplementation\\TestScriptData\\Firefox.png"));
+            var firefox = new LocatorV(new Bitmap("C:\\Users\\guill\\Programmation\\dotNET_doc\\VisionTest\\VisionTest.TestsImplementation\\TestScriptData\\Firefox.png"));
+            await firefox.ClickAsync();
 
-            testExecutor.Click("Rechercher", "C:\\Users\\guill\\Programmation\\dotNET_doc\\VisionTest\\VisionTest.TestsImplementation\\TestScriptData\\rechercher_ytb.png");
+            var lettersOnly = new OcrOptions(whiteListChar: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ");
+            var barreDeRecherche = new LocatorV("Rechercher", lettersOnly);
 
-            keyboard.TypeText("blueg");
+            await barreDeRecherche.ClickAsync();
+            var kb = new Keyboard();
 
-            testExecutor.Click("bluegrass");
+            kb.TypeText("bluegrass");
+
+            var bluegrass = new LocatorV("bluegrass", lettersOnly);
+            await bluegrass.ClickAsync();
+
+            var title = new LocatorV("Greatest Bluegrass", lettersOnly);
+            await title.ClickAsync();
         }
     }
 }
