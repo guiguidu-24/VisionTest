@@ -138,7 +138,7 @@ public class OcrEngine : IRecognitionEngine<string>
         }
 
         File.Delete(userWordsFile);
-        if (string.IsNullOrEmpty(regexFile))
+        if (!string.IsNullOrEmpty(regexFile))
             File.Delete(regexFile);
 
         if (deleteConfigDir)
