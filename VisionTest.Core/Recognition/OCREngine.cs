@@ -8,34 +8,26 @@ namespace VisionTest.Core.Recognition;
 
 public class OcrEngine : IRecognitionEngine<string>
 {
-    private string language;
     private string datapath; // vaut ./tessdata
     private int fuzzyTolerance = 1;
     OcrOptions ocrOptions;
 
-    public OcrEngine(string language)
+    public OcrEngine()
     {
-        this.language = language;
-        string assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new NullReferenceException("The assembly path is null");
-        datapath = Path.Combine(assemblyDir, "tessdata");
-
+        datapath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata");
         ocrOptions = new OcrOptions();
     }
 
-    public OcrEngine(string language, string datapath)
+    public OcrEngine(OcrOptions options, string datapath)
     {
-        this.language = language;
         this.datapath = datapath;
-
-        ocrOptions = new OcrOptions();
+        ocrOptions = options;
     }
 
     public OcrEngine(OcrOptions options)
     {
         ocrOptions = options;
-        language = options.Lang.ToCode();
         datapath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata");
-        CharWhiteList = options.WhiteListChar;
         WordWhiteList = options.WordWhiteList ?? [];
         UseThresholdFilter = options.UseThresholdFilter;
         ImproveDpi = options.ImproveDPI;
@@ -69,12 +61,13 @@ public class OcrEngine : IRecognitionEngine<string>
         using var engine = new TesseractEngine(datapath, ocrOptions.Lang.ToCode(), (EngineMode)ocrOptions.OEM ); //FIXIT #6
 
         // 2. Optionally restrict charset
-        var charWhiteList = AddCharacters(target);
-        if (!string.IsNullOrEmpty(charWhiteList))
-            engine.SetVariable("tessedit_char_whitelist", charWhiteList);
+        var mergedWhiteList = ocrOptions.GetMergedWhiteList(target);
+        if (!string.IsNullOrEmpty(mergedWhiteList))
+            engine.SetVariable("tessedit_char_whitelist", mergedWhiteList);
 
-        if (!string.IsNullOrEmpty(ocrOptions.BlackListChar))
-            engine.SetVariable("tessedit_char_blacklist", ocrOptions.BlackListChar);
+        var mergedBlackList = ocrOptions.GetMergedBlackList(target);
+        if (!string.IsNullOrEmpty(mergedBlackList))
+            engine.SetVariable("tessedit_char_blacklist", mergedBlackList);
 
         // 3. User-words (to bias toward your phrase)
         string cfgDir = Path.Combine(datapath, "configs");
@@ -148,26 +141,6 @@ public class OcrEngine : IRecognitionEngine<string>
     }
 
 
-    private string AddCharacters(string text)
-    {
-        if (string.IsNullOrEmpty(text))
-            return CharWhiteList;
-
-        // Convert current whitelist to HashSet for efficient lookups
-        var existingChars = new HashSet<char>(CharWhiteList);
-        
-        // Add new unique characters from the text
-        foreach (char c in text)
-        {
-            if (!existingChars.Contains(c))
-                existingChars.Add(c);
-        }
-
-        // Convert back to string and update CharWhiteList
-        CharWhiteList = new string(existingChars.ToArray());
-        return CharWhiteList;
-    }
-
     // FuzzyMatch et Levenshtein comme précédemment :
     private bool IsFuzzyMatch(string word1, string word2, int tolerance) //TODO do it with a string comparer
     {
@@ -240,7 +213,7 @@ public class OcrEngine : IRecognitionEngine<string>
 
     public string GetText(Bitmap image)
     {
-        using var engine = new TesseractEngine(datapath, language, EngineMode.Default);
+        using var engine = new TesseractEngine(datapath, ocrOptions.Lang.ToCode(), EngineMode.Default);
         using Page page = engine.Process(image);
         return page.GetText();
     }
