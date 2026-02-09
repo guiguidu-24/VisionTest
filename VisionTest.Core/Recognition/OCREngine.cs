@@ -53,14 +53,37 @@ public class OcrEngine : IRecognitionEngine<string>
 
         // 3. User-words (to bias toward your phrase)
         string cfgDir = Path.Combine(datapath, "configs");
-        Directory.CreateDirectory(cfgDir);
+        bool deleteConfigDir = false;
+        if (!Directory.Exists(cfgDir))
+        {
+            Directory.CreateDirectory(cfgDir);
+            deleteConfigDir = true;
+
+        }
+
         string userWordsFileName = Guid.NewGuid() + "user-words.txt";
         string userWordsFile = Path.Combine(cfgDir, userWordsFileName);
-        File.WriteAllLines(userWordsFile, ocrOptions.WordWhiteList.Append(target));
+        File.WriteAllLines(userWordsFile, ocrOptions.WordList.Append(target));
         engine.SetVariable("user_words_file", Path.GetFileNameWithoutExtension(userWordsFileName));
 
+        string regexFile = "";
+        //Regex pattern (if specified)
+        if (!string.IsNullOrEmpty(ocrOptions.RegexPattern))
+        {
+            string regexFileName = Guid.NewGuid() + "regex.txt";
+            regexFile = Path.Combine(cfgDir, regexFileName);
+            File.WriteAllText(userWordsFile, ocrOptions.RegexPattern);
+            engine.SetVariable("user_patterns_file", regexFile);
+        }
 
-        // 4. Always use SparseText for precise word boxes
+        //Dictionnary
+        if (!ocrOptions.UseDictionnary)
+        {
+            engine.SetVariable("load_system_dawg", "0"); // Disable system dictionary
+            engine.SetVariable("load_freq_dawg", "0");   // Disable frequent words dictionary
+        }
+
+        // 4. Process the image
         using var page = engine.Process(image, (PageSegMode) ocrOptions.PSM);
 
         // 5. Pull out every single word + its box
@@ -115,6 +138,12 @@ public class OcrEngine : IRecognitionEngine<string>
         }
 
         File.Delete(userWordsFile);
+        if (string.IsNullOrEmpty(regexFile))
+            File.Delete(regexFile);
+
+        if (deleteConfigDir)
+            Directory.Delete(cfgDir);
+
         return result;
     }
 

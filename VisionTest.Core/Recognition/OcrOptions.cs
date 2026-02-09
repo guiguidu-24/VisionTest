@@ -3,20 +3,24 @@
 public record class OcrOptions //TODO: Check if record class default parameters are the good ones
 {
     public string WhiteListChar { get; private set; }
-    public IEnumerable<string> WordWhiteList { get; }
+    public IEnumerable<string> WordList { get; }
     public Language Lang { get; }
     public PageSegmentationMode PSM { get; set; }
     public OcrEngineMode OEM { get; set; }
     public string BlackListChar { get; set; }
+    public bool UseDictionnary { get; }
+    public string RegexPattern { get; }
 
 
     public OcrOptions(
         string whiteListChar = "",
         string blackListChar = "",
-        IEnumerable<string>? wordWhiteList = null,
+        IEnumerable<string>? wordList = null,
         Language lang = Language.English,
         PageSegmentationMode psm = PageSegmentationMode.Auto,
-        OcrEngineMode oem = OcrEngineMode.Auto
+        OcrEngineMode oem = OcrEngineMode.Auto,
+        bool useDictionnary = true, 
+        string regexPattern = ""
         )
     {
         if (!string.IsNullOrEmpty(whiteListChar) && !string.IsNullOrEmpty(blackListChar))
@@ -25,11 +29,13 @@ public record class OcrOptions //TODO: Check if record class default parameters 
         }
 
         WhiteListChar = whiteListChar;
-        WordWhiteList = wordWhiteList ?? [];
+        WordList = wordList ?? [];
         Lang = lang;
         PSM = psm;
         OEM = oem;
         BlackListChar = blackListChar;
+        UseDictionnary = useDictionnary;
+        RegexPattern = regexPattern;
     }
 
     internal string GetMergedWhiteList(string text)
