@@ -73,6 +73,9 @@ public class OcrEngine : IRecognitionEngine<string>
         if (!string.IsNullOrEmpty(charWhiteList))
             engine.SetVariable("tessedit_char_whitelist", charWhiteList);
 
+        if (!string.IsNullOrEmpty(ocrOptions.BlackListChar))
+            engine.SetVariable("tessedit_char_blacklist", ocrOptions.BlackListChar);
+
         // 3. User-words (to bias toward your phrase)
         string cfgDir = Path.Combine(datapath, "configs");
         Directory.CreateDirectory(cfgDir);
@@ -87,7 +90,7 @@ public class OcrEngine : IRecognitionEngine<string>
         using var processedImageDpi = ImproveDpi ? processedImage.ImproveDpi(600f) : processedImage;
 
         // 4. Always use SparseText for precise word boxes
-        using var page = engine.Process(processedImageDpi, PageSegMode.SparseText);
+        using var page = engine.Process(processedImageDpi, (PageSegMode) ocrOptions.PSM);
 
         // 5. Pull out every single word + its box
         var words = new List<(string Text, Tesseract.Rect Box)>();

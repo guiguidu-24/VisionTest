@@ -10,10 +10,12 @@ public record class OcrOptions //TODO: Check if record class default parameters 
     public bool ImproveDPI { get; }
     public PageSegmentationMode PSM { get; set; }
     public OcrEngineMode OEM { get; set; }
+    public string BlackListChar { get; set; }
 
 
     public OcrOptions(
         string whiteListChar = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ",
+        string blackListChar = "",
         IEnumerable<string>? wordWhiteList = null,
         bool lTSMOnly = true,
         Language lang = Language.English,
@@ -31,5 +33,6 @@ public record class OcrOptions //TODO: Check if record class default parameters 
         ImproveDPI = improveDPI;
         PSM = psm;
         OEM = oem;
+        BlackListChar = blackListChar;
     }
 }
