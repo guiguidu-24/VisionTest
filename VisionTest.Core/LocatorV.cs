@@ -12,6 +12,8 @@ public class LocatorV : ILocatorV
     private readonly IScreen _screen;
     private readonly IMouse _mouse = new Mouse();
 
+    IMouse ILocatorV.InternalMouse => _mouse;
+
     private SimpleLocatorV[] simpleLocators;
 
     public LocatorV(SimpleLocatorV[] simpleLocators, IScreen? screen = null)

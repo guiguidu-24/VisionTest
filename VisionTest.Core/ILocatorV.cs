@@ -1,7 +1,11 @@
-﻿namespace VisionTest.Core;
+﻿using VisionTest.Core.Input;
+
+namespace VisionTest.Core;
 
 public interface ILocatorV //TODO : an element can have multiple images of reference and image treatment settings for each one
 {
+    internal IMouse InternalMouse { get; }
+
     public Task ClickAsync();
     public Task ClickAsync(TimeSpan timeout);
 
