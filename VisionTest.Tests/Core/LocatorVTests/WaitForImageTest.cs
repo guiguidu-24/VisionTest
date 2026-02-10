@@ -388,7 +388,7 @@ public class WaitForImageTest
 
         // Act
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-        var result = await locator.WaitForAsync(TimeSpan.FromSeconds(5));
+        Rectangle result = await locator.WaitForAsync(TimeSpan.FromSeconds(5));
         stopwatch.Stop();
 
         // Assert

@@ -96,7 +96,7 @@ public class WaitForTextTests
                 {
                     // Call the method under test - Use LocatorV to wait for text
                     var locator = new LocatorV(targetText);
-                    var actualRect = await locator.WaitForAsync();
+                    Rectangle actualRect = await locator.WaitForAsync();
                     var actualPoint = actualRect.Center();
 
                     // Calculate the expected screen-relative center of the label
@@ -190,7 +190,7 @@ public class WaitForTextTests
                 {
                     // Call the method under test - Use LocatorV to wait for text
                     var locator = new LocatorV(targetText);
-                    var actualRect = await locator.WaitForAsync();
+                    Rectangle actualRect = await locator.WaitForAsync();
                     var actualPoint = actualRect.Center();
 
                     // Calculate the expected screen-relative center of the label
