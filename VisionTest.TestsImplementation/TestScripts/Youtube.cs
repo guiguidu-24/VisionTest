@@ -1,30 +1,48 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing;
+using VisionTest.Core;
 using VisionTest.Core.Input;
-using VisionTest.Core.Services;
+using VisionTest.Core.Recognition;
+using VisionTest.Core.Utils;
 
 namespace VisionTest.TestsImplementation.TestScripts
 {
     [TestFixture]
     internal class Youtube
     {
-        private readonly TestExecutor testExecutor = new TestExecutor();
-        private readonly IKeyboard keyboard = new Keyboard();
-
         [Test]
-        public void Run()
+        public async Task Run()
         {
-            testExecutor.Click(new Bitmap("C:\\Users\\guill\\Programmation\\dotNET_doc\\VisionTest\\VisionTest.TestsImplementation\\TestScriptData\\Firefox.png"));
+            string imagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestScriptData", "Firefox.png");
+            using var ffx = new Bitmap(imagePath);
+            var firefox = new LocatorV(ffx);
+            var lettersOnly = new OcrOptions(whiteListChar: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ", lang: Language.French);
+            var barreDeRecherche = new LocatorV("Rechercher", lettersOnly);
+            var kb = new Keyboard();
+            var title = new LocatorV("Greatest Bluegrass", lettersOnly);
 
-            testExecutor.Click("Rechercher", "C:\\Users\\guill\\Programmation\\dotNET_doc\\VisionTest\\VisionTest.TestsImplementation\\TestScriptData\\rechercher_ytb.png");
 
-            keyboard.TypeText("blueg");
+            await firefox.ClickAsync();
 
-            testExecutor.Click("bluegrass");
+            ScreenElement barreDeRechercheArea = (await barreDeRecherche.WaitForAsync()).Click();
+            barreDeRechercheArea.Click();
+            
+
+            kb.TypeText("bluegrass");
+            kb.PressKey(KeyCode.Enter);
+
+            await title.HoverAsync();
+
+            await Task.Delay(2000);
+
+            barreDeRechercheArea.DoubleClick();
+
+            ScreenElement bluegrassMusicArea = await (new LocatorV("bluegrass music")).WaitForAsync();
+
+            Rectangle interestArea = RectangleFactory.FromPoints(barreDeRechercheArea.Bounds.LowerLeft(), bluegrassMusicArea.Bounds.UpperRight());
+            
+            ScreenElement rect = interestArea.ToScreenElement(firefox);
+
+            rect.Hover();
         }
     }
 }

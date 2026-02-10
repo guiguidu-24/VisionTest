@@ -8,18 +8,21 @@ namespace VisionTest.Tests.OcrBenchmark
     {
         private const int positionTolerance = 10; // Tolerance in pixels for the position of the center
         private static string ocrBenchmarkDirectory = @"..\..\..\OcrBenchmark\";
+        private const string lettersWhiteList = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ";
+        private const string symbolsWhiteList = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/<>\" ";
 
-        [TestCase("1")]
-        [TestCase("2")]
-        [TestCase("3", true)]
-        [TestCase("4")]
+
+        [TestCase("1", lettersWhiteList)]
+        [TestCase("2", lettersWhiteList)]
+        [TestCase("3", symbolsWhiteList)]
+        [TestCase("4", lettersWhiteList)]
         [TestCase("5")]
-        [TestCase("6")]
-        [TestCase("7")]
-        [TestCase("8")]
-        [TestCase("9", true, true)]
+        [TestCase("6", lettersWhiteList)]
+        [TestCase("7", lettersWhiteList)]
+        [TestCase("8", lettersWhiteList)]
+        [TestCase("9", lettersWhiteList)]
         [TestCase("10")]
-        public void RunOCROnAnImageAndCheckThePositionOfTheRectangle(string imageUnderTestNameWithoutExtension, bool improveDPI = false, bool useThresholdFilter = false)
+        public void RunOCROnAnImageAndCheckThePositionOfTheRectangle(string imageUnderTestNameWithoutExtension, string charWL = "")
         {
             string imagePath = Path.Combine(ocrBenchmarkDirectory, "Images", imageUnderTestNameWithoutExtension + ".png");
             string labelPath = Path.Combine(ocrBenchmarkDirectory, "Labels", imageUnderTestNameWithoutExtension + ".xml");
@@ -46,7 +49,7 @@ namespace VisionTest.Tests.OcrBenchmark
                 var ymax = int.Parse(bndbox.Element("ymax")?.Value ?? "0");
                 Rectangle targetRect = new Rectangle(xmin, ymin, xmax - xmin, ymax - ymin);
 
-                OcrEngine ocrEngine = new OcrEngine(new OcrOptions(improveDPI: improveDPI, useThresholdFilter: useThresholdFilter));
+                OcrEngine ocrEngine = new OcrEngine(string.IsNullOrEmpty(charWL)? new OcrOptions() : new OcrOptions(whiteListChar: charWL));
                 
 
                 using var targetImage = new Bitmap(imagePath);

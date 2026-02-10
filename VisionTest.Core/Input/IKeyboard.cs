@@ -1,6 +1,4 @@
-﻿using SharpHook.Data;
-
-namespace VisionTest.Core.Input;
+﻿namespace VisionTest.Core.Input;
 
 public interface IKeyboard
 {

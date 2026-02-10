@@ -44,4 +44,10 @@
     <Folder Include="TestScriptData\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="TestScriptData\Firefox.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

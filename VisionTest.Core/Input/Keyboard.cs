@@ -1,5 +1,4 @@
 using SharpHook;
-using SharpHook.Data;
 
 namespace VisionTest.Core.Input;
 
@@ -12,18 +11,18 @@ public class Keyboard :IKeyboard
 
     public void PressKey(KeyCode key)
     {
-        simulator.SimulateKeyPress(key);
-        simulator.SimulateKeyRelease(key);
+        simulator.SimulateKeyPress((SharpHook.Data.KeyCode)key);
+        simulator.SimulateKeyRelease((SharpHook.Data.KeyCode)key);
     }
 
     public void KeyDown(KeyCode key)
     {
-        simulator.SimulateKeyPress(key);
+        simulator.SimulateKeyPress((SharpHook.Data.KeyCode)key);
     }
 
     public void KeyUp(KeyCode key)
     {
-        simulator.SimulateKeyRelease(key);
+        simulator.SimulateKeyRelease((SharpHook.Data.KeyCode)key);
     }
 
     public void TypeText(string text)
