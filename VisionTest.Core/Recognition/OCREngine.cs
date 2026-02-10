@@ -1,47 +1,25 @@
 ﻿using Tesseract;
-using System.Reflection;
-using OpenCvSharp;
-using OpenCvSharp.Extensions;
-using VisionTest.Core.Utils;
 
 namespace VisionTest.Core.Recognition;
 
 public class OcrEngine : IRecognitionEngine<string>
 {
-    private string language;
     private string datapath; // vaut ./tessdata
-    private int fuzzyTolerance = 1;
+    OcrOptions ocrOptions;
 
-    public OcrEngine(string language)
-    {
-        this.language = language;
-        string assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new NullReferenceException("The assembly path is null");
-        datapath = Path.Combine(assemblyDir, "tessdata");
-    }
+    public OcrEngine() : this(new OcrOptions()) { }
 
-    public OcrEngine(string language, string datapath)
+    public OcrEngine(OcrOptions options, string datapath)
     {
-        this.language = language;
         this.datapath = datapath;
+        ocrOptions = options;
     }
 
     public OcrEngine(OcrOptions options)
     {
-        language = options.Lang.ToCode();
+        ocrOptions = options;
         datapath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata");
-        CharWhiteList = options.WhiteListChar;
-        WordWhiteList = options.WordWhiteList ?? [];
-        LstmOnly = options.LTSMOnly;
-        UseThresholdFilter = options.UseThresholdFilter;
-        ImproveDpi = options.ImproveDPI;
     }
-
-    public bool LstmOnly {private get; set; } = true; // true for best accuracy on trained models, false for legacy Tesseract mode
-    public string CharWhiteList { private get; set; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz "; 
-    public IEnumerable<string> WordWhiteList {get; set; } = []; // e.g. ["MYTARGETWORD", "ANOTHERWORD"]
-    public bool UseThresholdFilter { private get; set; } = false; // false by default to maintain existing behavior
-    public bool ImproveDpi { private get; set; } = false; // false by default, set to true to improve DPI of input images //TODO DPI Value instead of boolean
-
 
 
     /// <summary>
@@ -62,29 +40,51 @@ public class OcrEngine : IRecognitionEngine<string>
                                 .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
         // 1. Init engine
-        using var engine = new TesseractEngine(datapath, language,
-                               LstmOnly ? EngineMode.LstmOnly : EngineMode.TesseractAndLstm); //FIXIT #6
+        using var engine = new TesseractEngine(datapath, ocrOptions.Lang.ToCode(), (EngineMode)ocrOptions.OEM ); //FIXIT #6
 
         // 2. Optionally restrict charset
-        var charWhiteList = AddCharacters(target);
-        if (!string.IsNullOrEmpty(charWhiteList))
-            engine.SetVariable("tessedit_char_whitelist", charWhiteList);
+        var mergedWhiteList = ocrOptions.GetMergedWhiteList(target);
+        if (!string.IsNullOrEmpty(mergedWhiteList))
+            engine.SetVariable("tessedit_char_whitelist", mergedWhiteList);
+
+        var mergedBlackList = ocrOptions.GetMergedBlackList(target);
+        if (!string.IsNullOrEmpty(mergedBlackList))
+            engine.SetVariable("tessedit_char_blacklist", mergedBlackList);
 
         // 3. User-words (to bias toward your phrase)
         string cfgDir = Path.Combine(datapath, "configs");
-        Directory.CreateDirectory(cfgDir);
+        bool deleteConfigDir = false;
+        if (!Directory.Exists(cfgDir))
+        {
+            Directory.CreateDirectory(cfgDir);
+            deleteConfigDir = true;
+
+        }
+
         string userWordsFileName = Guid.NewGuid() + "user-words.txt";
         string userWordsFile = Path.Combine(cfgDir, userWordsFileName);
-        File.WriteAllLines(userWordsFile, WordWhiteList.Append(target));
+        File.WriteAllLines(userWordsFile, ocrOptions.WordList.Append(target));
         engine.SetVariable("user_words_file", Path.GetFileNameWithoutExtension(userWordsFileName));
 
-        // Apply threshold filter if enabled
-        using var processedImage = UseThresholdFilter ? ThresholdFilter(image) : image;
+        string regexFile = "";
+        //Regex pattern (if specified)
+        if (!string.IsNullOrEmpty(ocrOptions.RegexPattern))
+        {
+            string regexFileName = Guid.NewGuid() + "regex.txt";
+            regexFile = Path.Combine(cfgDir, regexFileName);
+            File.WriteAllText(userWordsFile, ocrOptions.RegexPattern);
+            engine.SetVariable("user_patterns_file", regexFile);
+        }
 
-        using var processedImageDpi = ImproveDpi ? processedImage.ImproveDpi(600f) : processedImage;
+        //Dictionnary
+        if (!ocrOptions.UseDictionnary)
+        {
+            engine.SetVariable("load_system_dawg", "0"); // Disable system dictionary
+            engine.SetVariable("load_freq_dawg", "0");   // Disable frequent words dictionary
+        }
 
-        // 4. Always use SparseText for precise word boxes
-        using var page = engine.Process(processedImageDpi, PageSegMode.SparseText);
+        // 4. Process the image
+        using var page = engine.Process(image, (PageSegMode) ocrOptions.PSM);
 
         // 5. Pull out every single word + its box
         var words = new List<(string Text, Tesseract.Rect Box)>();
@@ -134,75 +134,20 @@ public class OcrEngine : IRecognitionEngine<string>
                 y2 = Math.Max(y2, b.Y1 + b.Height);
             }
 
-            result.Add(MapRectangleToOriginal(new Rectangle(x1, y1, x2 - x1, y2 - y1), image, processedImageDpi));
+            result.Add(MapRectangleToOriginal(new Rectangle(x1, y1, x2 - x1, y2 - y1), image, image));
         }
 
         File.Delete(userWordsFile);
+        if (!string.IsNullOrEmpty(regexFile))
+            File.Delete(regexFile);
+
+        if (deleteConfigDir)
+            Directory.Delete(cfgDir);
+
         return result;
     }
 
 
-    private string AddCharacters(string text)
-    {
-        if (string.IsNullOrEmpty(text))
-            return CharWhiteList;
-
-        // Convert current whitelist to HashSet for efficient lookups
-        var existingChars = new HashSet<char>(CharWhiteList);
-        
-        // Add new unique characters from the text
-        foreach (char c in text)
-        {
-            if (!existingChars.Contains(c))
-                existingChars.Add(c);
-        }
-
-        // Convert back to string and update CharWhiteList
-        CharWhiteList = new string(existingChars.ToArray());
-        return CharWhiteList;
-    }
-
-    // FuzzyMatch et Levenshtein comme précédemment :
-    private bool IsFuzzyMatch(string word1, string word2, int tolerance) //TODO do it with a string comparer
-    {
-        if (string.IsNullOrEmpty(word1) || string.IsNullOrEmpty(word2)) return false;
-        if (word1.Equals(word2, StringComparison.OrdinalIgnoreCase)) return true;
-        return LevenshteinDistance(word1, word2) <= tolerance;
-    }
-
-    private int LevenshteinDistance(string s, string t)
-    {
-        if (string.IsNullOrEmpty(s)) return t?.Length ?? 0;
-        if (string.IsNullOrEmpty(t)) return s.Length;
-
-        var d = new int[s.Length + 1, t.Length + 1];
-        for (int i = 0; i <= s.Length; i++) d[i, 0] = i;
-        for (int j = 0; j <= t.Length; j++) d[0, j] = j;
-
-        for (int i = 1; i <= s.Length; i++)
-        {
-            for (int j = 1; j <= t.Length; j++)
-            {
-                int cost = (s[i - 1] == t[j - 1]) ? 0 : 1;
-                d[i, j] = Math.Min(
-                    Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1),
-                    d[i - 1, j - 1] + cost);
-            }
-        }
-        return d[s.Length, t.Length];
-    }
-
-    private Bitmap ThresholdFilter(Bitmap src)
-    {
-        Mat gray = src.ToMat().ConvertToGray();
-        // Convert to grayscale 
-        Mat bw = new Mat();
-        Cv2.AdaptiveThreshold(gray, bw, 255,
-            AdaptiveThresholdTypes.GaussianC,
-            ThresholdTypes.BinaryInv, 11, 2);
-
-        return bw.ToBitmap();
-    }
 
     /// <summary>
     /// Maps a rectangle from the processed (e.g. upscaled) image back to the coordinate space of the original image.
@@ -234,7 +179,7 @@ public class OcrEngine : IRecognitionEngine<string>
 
     public string GetText(Bitmap image)
     {
-        using var engine = new TesseractEngine(datapath, language, EngineMode.Default);
+        using var engine = new TesseractEngine(datapath, ocrOptions.Lang.ToCode(), EngineMode.Default);
         using Page page = engine.Process(image);
         return page.GetText();
     }

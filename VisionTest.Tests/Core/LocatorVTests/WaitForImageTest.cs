@@ -232,7 +232,7 @@ public class WaitForImageTest
     {
         // Arrange
         IScreen screen = new ScreenSimulator { NextCapture = bigImage };
-        var ocrOptions = new OcrOptions(lTSMOnly: false, lang: Language.English);
+        var ocrOptions = new OcrOptions(oem: OcrEngineMode.Auto);
         var locator = new LocatorV("nonexistent_text", ocrOptions, screen: screen);
 
         // Act & Assert
@@ -388,7 +388,7 @@ public class WaitForImageTest
 
         // Act
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-        var result = await locator.WaitForAsync(TimeSpan.FromSeconds(5));
+        Rectangle result = await locator.WaitForAsync(TimeSpan.FromSeconds(5));
         stopwatch.Stop();
 
         // Assert

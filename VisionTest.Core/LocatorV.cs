@@ -12,6 +12,8 @@ public class LocatorV : ILocatorV
     private readonly IScreen _screen;
     private readonly IMouse _mouse = new Mouse();
 
+    IMouse ILocatorV.InternalMouse => _mouse;
+
     private SimpleLocatorV[] simpleLocators;
 
     public LocatorV(SimpleLocatorV[] simpleLocators, IScreen? screen = null)
@@ -38,63 +40,63 @@ public class LocatorV : ILocatorV
     public async Task RightClickAsync()
     {
         var area = await WaitForAsync();
-        _mouse.MoveTo(area.Center().X, area.Center().Y);
+        _mouse.MoveTo(area.Bounds.Center().X, area.Bounds.Center().Y);
         _mouse.RightClick();
     }
 
     public async Task RightClickAsync(TimeSpan timeout)
     {
         var area = await WaitForAsync(timeout);
-        _mouse.MoveTo(area.Center().X, area.Center().Y);
+        _mouse.MoveTo(area.Bounds.Center().X, area.Bounds.Center().Y);
         _mouse.RightClick();
     }
 
     public async Task DoubleClickAsync()
     {
         var area = await WaitForAsync();
-        _mouse.MoveTo(area.Center().X, area.Center().Y);
+        _mouse.MoveTo(area.Bounds.Center().X, area.Bounds.Center().Y);
         _mouse.DoubleClick();
     }
 
     public async Task DoubleClickAsync(TimeSpan timeout)
     {
         var area = await WaitForAsync(timeout);
-        _mouse.MoveTo(area.Center().X, area.Center().Y);
+        _mouse.MoveTo(area.Bounds.Center().X, area.Bounds.Center().Y);
         _mouse.DoubleClick();
     }
 
     public async Task HoverAsync()
     {
         var area = await WaitForAsync();
-        _mouse.MoveTo(area.Center().X, area.Center().Y);
+        _mouse.MoveTo(area.Bounds.Center().X, area.Bounds.Center().Y);
     }
 
     public async Task HoverAsync(TimeSpan timeout)
     {
         var area = await WaitForAsync(timeout);
-        _mouse.MoveTo(area.Center().X, area.Center().Y);
+        _mouse.MoveTo(area.Bounds.Center().X, area.Bounds.Center().Y);
     }
 
     public async Task ClickAsync()
     {
         var area = await WaitForAsync();
-        _mouse.MoveTo(area.Center().X, area.Center().Y);
+        _mouse.MoveTo(area.Bounds.Center().X, area.Bounds.Center().Y);
         _mouse.LeftClick();
     }
 
     public async Task ClickAsync(TimeSpan timeout)
     {
         var area = await WaitForAsync(timeout);
-        _mouse.MoveTo(area.Center().X, area.Center().Y);
+        _mouse.MoveTo(area.Bounds.Center().X, area.Bounds.Center().Y);
         _mouse.LeftClick();
     }
 
-    public Task<(bool success, Rectangle? area)> TryWaitForAsync()
+    public Task<(bool success, ScreenElement? area)> TryWaitForAsync()
     {
         return TryWaitForAsync(_defaultTimeout);
     }
 
-    public async Task<(bool success, Rectangle? area)> TryWaitForAsync(TimeSpan timeout)
+    public async Task<(bool success, ScreenElement? area)> TryWaitForAsync(TimeSpan timeout)
     {
         var cts = new CancellationTokenSource(timeout);
         var tasks = new Task<Rectangle?>[simpleLocators.Length];
@@ -125,12 +127,12 @@ public class LocatorV : ILocatorV
         var result = await taskFinished;
 
         if (result.HasValue)
-            return (true, result.Value);
+            return (true, new ScreenElement(result.Value, _mouse));
         
         return (false, null);
     }
 
-    public Task<Rectangle> WaitForAsync()
+    public Task<ScreenElement> WaitForAsync()
     {
         return WaitForAsync(_defaultTimeout);
     }
@@ -140,10 +142,10 @@ public class LocatorV : ILocatorV
     /// </summary>
     /// <param name="timeout">After the timeout, the Task completes</param>
     /// <returns>The area around the target if found, null if not found</returns>
-    public async Task<Rectangle> WaitForAsync(TimeSpan timeout)
+    public async Task<ScreenElement> WaitForAsync(TimeSpan timeout)
     {
         if(await TryWaitForAsync(timeout) is (true, var area))
-            return area!.Value;
+            return area! ;
         throw new TimeoutException("Object not found within the specified timeout.");
     }
 
@@ -178,6 +180,11 @@ public class LocatorV : ILocatorV
 
 
         // TODO: Warning if more than one result is found
+        if (box.HasValue)
+        {
+            // Adjust the coordinates to be relative to the entire screen
+            recognitionResult = recognitionResult.Select(r => new Rectangle(r.X + box.Value.X, r.Y + box.Value.Y, r.Width, r.Height));
+        }
         return recognitionResult.First();
     }
 }

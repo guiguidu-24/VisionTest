@@ -1,9 +1,21 @@
-﻿namespace VisionTest.Core.Utils;
+﻿using VisionTest.Core.Input;
+
+namespace VisionTest.Core.Utils;
 
 public static class RectangleExtensions
 {
     public static Point Center(this Rectangle rect)
     {
         return new Point(rect.X + rect.Width / 2, rect.Y + rect.Height / 2);
+    }
+
+    public static Point UpperLeft(this Rectangle rect) => new Point(rect.X, rect.Y);
+    public static Point LowerRight(this Rectangle rect) => new Point(rect.X + rect.Width, rect.Y + rect.Height);
+    public static Point UpperRight(this Rectangle rect) => new Point(rect.X + rect.Width, rect.Y);
+    public static Point LowerLeft(this Rectangle rect) => new Point(rect.X, rect.Y + rect.Height);
+
+    public static ScreenElement ToScreenElement(this Rectangle rect, ILocatorV refLocator)
+    {
+        return new ScreenElement(rect, refLocator.InternalMouse);
     }
 }

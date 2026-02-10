@@ -4,7 +4,7 @@
 		<OutputType>Library</OutputType>
 		<TargetFrameworks>netstandard2.0</TargetFrameworks>
 		<UseWindowsForms>false</UseWindowsForms>
-		<LangVersion>13.0</LangVersion>
+		<LangVersion>14.0</LangVersion>
 		<RootNamespace>VisionTest.Core</RootNamespace>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>

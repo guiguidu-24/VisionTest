@@ -1,5 +1,4 @@
 ﻿using VisionTest.Core.Recognition;
-using System.Drawing;
 
 namespace VisionTest.Tests.Core.Recognition
 {
@@ -11,7 +10,7 @@ namespace VisionTest.Tests.Core.Recognition
         public void Setup()
         {
             // Initialiser OCREngine avec le chemin extrait
-            ocrEngine = new OcrEngine(new OcrOptions(improveDPI:true));
+            ocrEngine = new OcrEngine(new OcrOptions(whiteListChar: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz "));
         }
 
         [Test]
