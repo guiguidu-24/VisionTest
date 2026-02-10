@@ -1,9 +1,8 @@
-﻿using System.Windows.Forms;
-using System.Drawing;
+﻿using VisionTest.Core;
 using VisionTest.Core.Input;
-using VisionTest.Core.Utils;
 using VisionTest.Core.Models;
-using VisionTest.Core;
+using VisionTest.Core.Recognition;
+using VisionTest.Core.Utils;
 
 namespace VisionTest.Tests.Core.LocatorVTests;
 
@@ -255,10 +254,12 @@ public class WaitForTextTests
     public async Task TryWaitfor_MultipleTexts_True()
     {
         // Test LocatorV with multiple text options - should find "File"
-        var textLocator1 = new SimpleLocatorV(text: "File");
+        var lettersOnly = new OcrOptions(whiteListChar: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ");
+        var textLocator1 = new SimpleLocatorV(text: "File", ocrOption: lettersOnly);
         var textLocator2 = new SimpleLocatorV(text: Guid.NewGuid().ToString());
         var imagePath = "C:\\Users\\guill\\Programmation\\dotNET_doc\\VisionTest\\VisionTest.Tests\\images\\cottonLike2.png";
-        var imageLocator = new SimpleLocatorV(image: new Bitmap(imagePath));
+        using var image = new Bitmap(imagePath);
+        var imageLocator = new SimpleLocatorV(image: image);
         var locator = new LocatorV(new[] { textLocator1, textLocator2, imageLocator });
 
         var (success, area) = await locator.TryWaitForAsync();
@@ -282,7 +283,8 @@ public class WaitForTextTests
     [Test]
     public async Task TryWaitfor_Text_True()
     {
-        var locator = new LocatorV("File");
+        var lettersOnly = new OcrOptions(whiteListChar: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ");
+        var locator = new LocatorV("File", lettersOnly);
         var (success, area) = await locator.TryWaitForAsync();
         Assert.That(success, Is.True, "Expected TryWaitFor to return true for existing text.");
         Assert.That(area, Is.Not.Null, "Expected area to be not null when text is found.");
