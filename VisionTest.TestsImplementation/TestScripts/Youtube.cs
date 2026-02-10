@@ -12,14 +12,13 @@ namespace VisionTest.TestsImplementation.TestScripts
         [Test]
         public async Task Run()
         {
-            using var ffx = new Bitmap("C:\\Users\\guill\\Programmation\\dotNET_doc\\VisionTest\\VisionTest.TestsImplementation\\TestScriptData\\Firefox.png");
+            string imagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestScriptData", "Firefox.png");
+            using var ffx = new Bitmap(imagePath);
             var firefox = new LocatorV(ffx);
             var lettersOnly = new OcrOptions(whiteListChar: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ", lang: Language.French);
             var barreDeRecherche = new LocatorV("Rechercher", lettersOnly);
             var kb = new Keyboard();
             var title = new LocatorV("Greatest Bluegrass", lettersOnly);
-
-
 
 
             await firefox.ClickAsync();
@@ -37,12 +36,11 @@ namespace VisionTest.TestsImplementation.TestScripts
 
             barreDeRechercheArea.DoubleClick();
 
-            var bluegrassMusicArea = await (new LocatorV("bluegrass music")).WaitForAsync();
+            ScreenElement bluegrassMusicArea = await (new LocatorV("bluegrass music")).WaitForAsync();
 
-            var interestArea = RectangleFactory.FromPoints(barreDeRechercheArea.Bounds.LowerLeft(), bluegrassMusicArea.Bounds.UpperRight());
-            var bg = new LocatorV("bluegrass", lettersOnly, interestArea);
-
-            var rect = await bg.WaitForAsync();
+            Rectangle interestArea = RectangleFactory.FromPoints(barreDeRechercheArea.Bounds.LowerLeft(), bluegrassMusicArea.Bounds.UpperRight());
+            
+            ScreenElement rect = interestArea.ToScreenElement(firefox);
 
             rect.Hover();
         }
