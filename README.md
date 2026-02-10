@@ -20,7 +20,7 @@ High-level capabilities
 To install the package, use the following command:
 
 ```bash
-dotnet add package VisionTest.Core --version 0.0.1
+dotnet add package VisionTest.Core --version 1.0.0
 ```
 
 ### Target/runtime

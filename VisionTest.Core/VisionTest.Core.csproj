@@ -12,8 +12,9 @@
 
 		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
 		<Title>VisionTest</Title>
-		<VersionPrefix>0.0.1</VersionPrefix>
+		<VersionPrefix>1.0.0</VersionPrefix>
 		<Authors>GuillaumeH</Authors>
+		<Description>Vision testing library with OCR and Template matching.</Description>
 		<Company />
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 	</PropertyGroup>
@@ -51,6 +52,10 @@
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
 			<_Parameter1>VisionTest.Tests</_Parameter1>
 		</AssemblyAttribute>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="LICENSE" Pack="true" PackagePath="/" />
 	</ItemGroup>
 
 </Project>
