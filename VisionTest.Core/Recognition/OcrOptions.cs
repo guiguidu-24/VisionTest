@@ -5,7 +5,7 @@ public record class OcrOptions //TODO: Check if record class default parameters 
     public string WhiteListChar { get; private set; }
     public IEnumerable<string> WordList { get; }
     public Language Lang { get; }
-    public PageSegmentationMode PSM { get; set; }
+    public PageSegmentationMode PSM { get; set; } //TODO: remove set and use constructor instead
     public OcrEngineMode OEM { get; set; }
     public string BlackListChar { get; set; }
     public bool UseDictionnary { get; }

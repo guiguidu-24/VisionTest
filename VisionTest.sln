@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.13.35931.197
+# Visual Studio Version 18
+VisualStudioVersion = 18.2.11415.280 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisionTest.Core", "VisionTest.Core\VisionTest.Core.csproj", "{31C0C0B7-9677-404E-BAAC-290722C36AF6}"
 EndProject
@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisionTest.ConsoleInterop",
 	ProjectSection(ProjectDependencies) = postProject
 		{31C0C0B7-9677-404E-BAAC-290722C36AF6} = {31C0C0B7-9677-404E-BAAC-290722C36AF6}
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisionTest.UI", "VisionTest.UI\VisionTest.UI.csproj", "{FCBD6CB2-7C8D-4D36-B631-9D79BE72F958}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{DA208058-6334-49CD-8729-B780E6639694}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA208058-6334-49CD-8729-B780E6639694}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA208058-6334-49CD-8729-B780E6639694}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCBD6CB2-7C8D-4D36-B631-9D79BE72F958}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCBD6CB2-7C8D-4D36-B631-9D79BE72F958}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCBD6CB2-7C8D-4D36-B631-9D79BE72F958}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCBD6CB2-7C8D-4D36-B631-9D79BE72F958}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

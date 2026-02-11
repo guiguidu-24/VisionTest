@@ -1,0 +1,53 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:vm="using:VisionTest.UI.ViewModels"
+             x:Class="VisionTest.UI.Views.OcrSettingsView"
+			 x:DataType="vm:OcrSettingsViewModel">
+
+	<ScrollViewer>
+		<Border Padding="10">
+			<StackPanel Spacing="15">
+				<TextBlock Text="OCR CONFIGURATION" FontWeight="Bold" FontSize="16"/>
+
+				<StackPanel Spacing="5">
+					<TextBlock Text="Text to find" />
+					<TextBox Text="{Binding TargetText}" Watermark="Words or characters to find" />
+				</StackPanel>
+				
+				<StackPanel Spacing="5">
+					<TextBlock Text="Language" Theme="{StaticResource LabelTextBlockStyle}"/>
+					<ComboBox ItemsSource="{Binding AvailableLanguages}"
+							  SelectedItem="{Binding SelectedLang}"
+							  HorizontalAlignment="Stretch" />
+				</StackPanel>
+
+				<StackPanel Spacing="5">
+					<TextBlock Text="Whitelist Characters" />
+					<TextBox Text="{Binding WhiteListChar}" Watermark="e.g. ABC123" />
+
+					<TextBlock Text="Blacklist Characters" Margin="0,10,0,0"/>
+					<TextBox Text="{Binding BlackListChar}" Watermark="Characters to ignore" />
+				</StackPanel>
+
+				<Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" Margin="0,10,0,0">
+					<TextBlock Grid.Row="0" Grid.Column="0" Text="PSM Mode" />
+					<TextBlock Grid.Row="0" Grid.Column="1" Text="OEM Mode" />
+					<ComboBox Grid.Row="1" Grid.Column="0"
+							  ItemsSource="{Binding AvailablePSMs}"
+							  SelectedItem="{Binding SelectedPSM}" />
+					<ComboBox Grid.Row="1" Grid.Column="1"
+							  ItemsSource="{Binding AvailableOEMs}"
+							  SelectedItem="{Binding SelectedOEM}" />
+				</Grid>
+
+				<Separator />
+
+				<CheckBox Content="Use Dictionary" IsChecked="{Binding UseDictionary}" />
+
+				<TextBlock Text="Regex Pattern" />
+				<TextBox Text="{Binding RegexPattern}" UseFloatingWatermark="True" Watermark="Pattern..."/>
+			</StackPanel>
+		</Border>
+
+	</ScrollViewer>
+</UserControl>

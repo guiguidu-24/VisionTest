@@ -1,0 +1,46 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:vm="using:VisionTest.UI.ViewModels"
+			 xmlns:converters="using:VisionTest.UI.Converters"
+             x:Class="VisionTest.UI.Views.ImagePanelView"
+			 x:DataType="vm:MainViewModel">
+
+	<UserControl.Resources>
+		<converters:HighlightBrushConverter x:Key="HighlightBrushConverter" />
+	</UserControl.Resources>
+
+	<Border Background="#1e1e1e" ClipToBounds="True">
+		<Viewbox Stretch="Uniform">
+			<Panel Name="ImageContainer">
+
+				<Image Source="{Binding LoadedImage}"
+                       RenderOptions.BitmapInterpolationMode="HighQuality"/>
+
+				<ItemsControl ItemsSource="{Binding DetectedElements}">
+					<ItemsControl.ItemsPanel>
+						<ItemsPanelTemplate>
+							<Canvas Background="Transparent" />
+						</ItemsPanelTemplate>
+					</ItemsControl.ItemsPanel>
+
+					<ItemsControl.ItemTemplate>
+						<DataTemplate x:DataType="vm:DetectedElementViewModel">
+							<Rectangle Canvas.Left="{Binding Bounds.X}"
+                                       Canvas.Top="{Binding Bounds.Y}"
+                                       Width="{Binding Bounds.Width}"
+                                       Height="{Binding Bounds.Height}"
+                                       Stroke="{Binding IsHighlighted, Converter={StaticResource HighlightBrushConverter}}"
+                                       StrokeThickness="2">
+								<ToolTip.Tip>
+									<TextBlock Text="{Binding Text}"/>
+								</ToolTip.Tip>
+							</Rectangle>
+						</DataTemplate>
+					</ItemsControl.ItemTemplate>
+				</ItemsControl>
+
+			</Panel>
+		</Viewbox>
+	</Border>
+</UserControl>
