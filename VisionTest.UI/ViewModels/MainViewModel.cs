@@ -53,7 +53,8 @@ public partial class MainViewModel : ObservableObject
             await LoadImageToDisplay(filePath);
         }
     }
-
+    [ObservableProperty] private double _imageWidth;
+    [ObservableProperty] private double _imageHeight;
     private async Task LoadImageToDisplay(string path)
     {
         _currentFilePath = path;
@@ -61,6 +62,10 @@ public partial class MainViewModel : ObservableObject
         using var stream = File.OpenRead(path);
         LoadedImage = new Bitmap(stream);
         IsImageLoaded = true;
+
+        // Set the dimensions for the Canvas to match the Pixels
+        ImageWidth = LoadedImage.Size.Width;
+        ImageHeight = LoadedImage.Size.Height;
 
         // Clear previous results
         DetectedElements.Clear();

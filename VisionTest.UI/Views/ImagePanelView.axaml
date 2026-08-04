@@ -18,6 +18,14 @@
                        RenderOptions.BitmapInterpolationMode="HighQuality"/>
 
 				<ItemsControl ItemsSource="{Binding DetectedElements}">
+
+					<ItemsControl.Styles>
+						<Style Selector="ContentPresenter" x:DataType="vm:DetectedElementViewModel">
+							<Setter Property="Canvas.Left" Value="{Binding Bounds.X}"/>
+							<Setter Property="Canvas.Top" Value="{Binding Bounds.Y}"/>
+						</Style>
+					</ItemsControl.Styles>
+					
 					<ItemsControl.ItemsPanel>
 						<ItemsPanelTemplate>
 							<Canvas Background="Transparent" />
@@ -25,10 +33,8 @@
 					</ItemsControl.ItemsPanel>
 
 					<ItemsControl.ItemTemplate>
-						<DataTemplate x:DataType="vm:DetectedElementViewModel">
-							<Rectangle Canvas.Left="{Binding Bounds.X}"
-                                       Canvas.Top="{Binding Bounds.Y}"
-                                       Width="{Binding Bounds.Width}"
+						<DataTemplate>
+							<Rectangle Width="{Binding Bounds.Width}"
                                        Height="{Binding Bounds.Height}"
                                        Stroke="{Binding IsHighlighted, Converter={StaticResource HighlightBrushConverter}}"
                                        StrokeThickness="2">
@@ -39,7 +45,6 @@
 						</DataTemplate>
 					</ItemsControl.ItemTemplate>
 				</ItemsControl>
-
 			</Panel>
 		</Viewbox>
 	</Border>

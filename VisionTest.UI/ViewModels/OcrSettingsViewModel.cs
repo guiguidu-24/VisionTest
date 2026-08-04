@@ -20,7 +20,7 @@ public partial class OcrSettingsViewModel : ObservableObject
     [ObservableProperty] private OcrEngineMode _selectedOEM = OcrEngineMode.Auto;
 
     // --- Logic Toggles ---
-    [ObservableProperty] private bool _useDictionary = false;
+    [ObservableProperty] private bool _useDictionary = true;
 
     // --- Lists ---
     public ObservableCollection<string> WordList { get; } = new();
